@@ -10,6 +10,7 @@
 <body>
 
     My text goes here.
+    <div id="replace">replace</div>
 
 </body>
 <script>
@@ -19,8 +20,10 @@ var botPattern = "(googlebot\/|Googlebot-Mobile|Googlebot-Image|Google favicon|M
           var userAgent = navigator.userAgent;
           if (re.test(userAgent)) {
             alert('robot');
+              document.getElementById("replace").innerHTML = "robot";
           } else {
             alert('human');
+              document.getElementById("replace").innerHTML = "human";
           }
 }
     botCheck();
