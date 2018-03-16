@@ -1,0 +1,688 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <title>Page Template</title>
+  <meta name="description" content="Page Template">
+  <meta name="author" content="SitePoint">
+
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/solid.css" integrity="sha384-v2Tw72dyUXeU3y4aM2Y0tBJQkGfplr39mxZqlTBDUZAb9BGoC40+rdFCG0m10lXk" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/regular.css" integrity="sha384-A/oR8MwZKeyJS+Y0tLZ16QIyje/AmPduwrvjeH6NLiLsp4cdE4uRJl8zobWXBm4u" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/brands.css" integrity="sha384-IiIL1/ODJBRTrDTFk/pW8j0DUI5/z9m1KYsTm/RjZTNV8RHLGZXkUDwgRRbbQ+Jh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+
+  <!-- <link rel="stylesheet" href="css/styles.css?v=1.0"> -->
+
+  <!--[if lt IE 9]>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
+  <![endif]-->
+  <style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 300;
+    background-color: #efefef;
+    text-align: center;
+  }
+  .noselect {
+    -webkit-user-select: none;  /* Chrome all / Safari all */
+    -moz-user-select: none;     /* Firefox all */
+    -ms-user-select: none;      /* IE 10+ */
+    user-select: none;          /* Likely future */   
+  }
+  #screen1 {
+    /*display: none;*/
+  }
+  #screen2 {
+    display: none;
+  }
+  #screen3 {
+    display: none;
+  }
+  .screen {
+    vertical-align: bottom;
+    text-align: left;
+    display: inline-block;
+    position: relative;
+    margin: 10vh 20px;
+    width: calc(1440px / 4);
+    height: calc(2560px / 4);
+    border: 1px solid #333;
+    border-radius: 4px;
+    box-shadow: 0px 2px 10px rgba(132, 132, 132, 0.5);
+    background-color: #fff;
+  }
+  .banner {
+    background-color: #003ca6;
+    color: #fff;
+    padding: 15px;
+    font-size: 1.4em;
+  }
+  .back {
+    display: inline-block;
+    cursor: pointer;
+    padding: 0 5px;
+    margin-right: 5px;
+  }
+  .title {
+    display: inline-block;
+  }
+
+  .inner-content {
+    max-height: calc((2560px / 4) - (57px + 71px));
+    overflow-y: scroll;
+  }
+
+  .standard {
+    border-bottom: 1px solid #eee;
+    padding: 20px;
+  }
+  .types {
+    display: inline-block;
+  }
+  .another {
+    display: inline-block;
+    margin-left: -3px;
+    margin-right: 5px;
+  }
+  .type {
+    font-size: 1.2em;
+  }
+  .max {
+    font-size: 0.9em;
+    bottom: 2px;
+    position: relative;
+    color: #555;
+    margin-left: 3px;
+  }
+  .price {
+    font-size: 0.8em;
+    color: #aaa;
+    margin-top: 10px;
+  }
+  .select {
+    padding: 5px;
+    background-color: #003ca6;
+    color: #fff;
+    text-align: center;
+  }
+
+  input[type=radio] {
+    display: none;
+  }
+  input[type=radio]:checked + label .station {
+    background-color: #b0c6ec;
+  } 
+  .station {
+    cursor: pointer;
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+    background-color: #f9f9f9;
+  }
+  .station:last-of-type {
+    border-bottom: none;
+  }
+  .station:hover {
+    background-color: #eee;
+  }
+  .station-title {
+    font-weight: 500;
+  }
+  .outlets {
+    text-align: right;
+    margin-top: 5px;
+  }
+  .outlet {
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 5px;
+    margin-left: 3px;
+    display: inline-block;
+    box-shadow: 0px 1px 2px rgba(179, 179, 179, 0.5);
+    text-align: center;
+    min-width: 65px;
+    background-color: #fff;
+  }
+  .image {
+    width: 50px;
+    margin: 0 auto;
+    margin-bottom: 5px;
+  }
+  .image img {
+    width: 100%;
+    display: block;
+  }
+  .name {
+    display: inline-block;
+    font-size: 0.8em;
+    color: #333;
+  }
+
+  .footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 70px;
+    border-top: 1px solid #333;
+    box-shadow: 0px -2px 5px rgba(132, 132, 132, 0.25);
+    overflow: hidden;
+  }
+  .payment {
+    display: inline-block;
+    width: calc(100% - 120px);
+    padding: 10px 10px 6px 10px;
+    box-sizing: border-box;
+    background-color: #eee;
+    border-bottom-left-radius: 3px;
+  }
+  .payment:hover {
+    cursor: pointer;
+    background-color: #ddd;
+  }
+  .info {
+    font-size: 0.8em;
+    font-weight: 400;
+  }
+  .details {
+    padding: 10px;
+  }
+  .icon {
+    display: inline-block;
+    margin-right: 7px;
+  }
+  #credit {
+    display: inline-block;
+  }
+  .dots {
+    display: inline-block;
+    margin-right: 3px;
+  }
+  .cc {
+    display: inline-block;
+    letter-spacing: 5px;
+  }
+  #apple {
+    display: none;
+  }
+  .apple {
+    display: inline-block;
+  }
+  .change {
+    float: right;
+    font-size: 0.8em;
+  }
+  .activate {
+    width: 120px;
+    height: 70px;
+    background-color: #999;
+    border-bottom-right-radius: 3px;
+    position: absolute;
+    right: 0;
+    bottom: 0;
+  }
+  .activate.active {
+    background-color: #003ca6;
+  }
+  .activate:hover {
+    opacity: 0.8;
+    cursor: pointer;
+  }
+  .start {
+    color: #fff;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+
+  .payment-title {
+    font-size: 0.9em;
+    color: #aaa;
+    margin: 20px 20px 10px 20px;
+  }
+  input[type=radio]:checked + label .method {
+    background-color: #b0c6ec;
+  }
+  input[type=radio]:checked + label .method .edit {
+    color: #fff;
+  } 
+  .method {
+    margin: 0 10px;
+    padding: 15px 10px;
+    border-radius: 2px;
+  }
+  .method:hover {
+    cursor: pointer;
+    background-color: #eee;
+  }
+  .label {
+    display: inline-block;
+  }
+  .edit {
+    float: right;
+    color: #ccc;
+  }
+  .edit:hover {
+    color: #003ca6 !important;
+  }
+  .method:hover .edit {
+    color: #aaa;
+  }
+
+
+  .input-field {
+    position: relative;
+    margin: 20px 20px 10px 20px;
+  }
+  .input-field label {
+    font-size: 0.9em;
+    color: #aaa;
+    padding-bottom: 5px;
+    display: block;
+  }
+  input[name=number] {
+    padding-left: 40px;
+  }
+  #card {
+    position: absolute;
+    bottom: 10px;
+    left: 10px;
+    color: #aaa;
+  }
+  #photo {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    color: #aaa;
+    cursor: pointer;
+  }
+  .entry {
+    padding: 10px;
+    width: 100%;
+    box-sizing: border-box;
+    border: none;
+    border-bottom: 1px solid #aaa;
+  }
+  .entry:focus {
+    outline: none;
+  }
+  .entry:hover {
+    background-color: #f7f7f7;
+  }
+  input[name=save] + label {
+    display: inline-block;
+    color: #333;
+    padding-left: 10px;
+    cursor: pointer;
+  }
+  #submit {
+    background-color: #003ca6;
+    border-radius: 2px;
+    text-align: center;
+    margin: 20px;
+  }
+  #submit:hover {
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  .button {
+    width: 100%;
+    padding: 10px;
+    box-sizing: border-box;
+    color: #fff;
+  }
+  .delete {
+    margin: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #ccc;
+    text-transform: uppercase;
+    font-size: 0.8em;
+    color: #aaa;
+  }
+
+  .showAll {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+  }
+  </style>
+</head>
+
+<body>
+  <!-- <script src="js/scripts.js"></script> -->
+
+  <a href="#" class="showAll">Show All</a>
+
+  <div class="screen" id="screen1">
+    <div class="banner">
+      <div class="back">
+        <i class="fas fa-arrow-left"></i>
+      </div>
+      <div class="title">
+        Recargo Prunedale
+      </div>
+    </div>
+
+    <div class="inner-content">
+      <section class="standard">
+        <div class="types">
+          <span class="type">
+            CCS
+          </span>
+          <span class="max">
+            (175kW)
+          </span>
+        </div>
+        <div class="another">
+          ,
+        </div>
+        <div class="types">
+          <span class="type">
+            CHAdeMO
+          </span>
+          <span class="max">
+            (50kW)
+          </span>
+        </div>
+        <div class="price">
+          $1.00/hour ($0.50 minimum if you are billed). A $30.00 pre-authorization will be placed on your credit card.
+        </div>
+      </section>
+
+      <section class="select">
+        Select Your Station
+      </section>
+
+      <section class="stations">
+        <input type="radio" name="station" value="1" class="select" id="station1">
+        <label for="station1">
+          <div class="station">
+            <div class="station-title">
+              Station A
+            </div>
+            <div class="outlets">
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                </div>
+                <div class="name">
+                  CHAdeMO
+                </div>
+              </div>
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                </div>
+                <div class="name">
+                  CCS
+                </div>
+              </div>
+            </div>
+          </div>
+        </label>
+        <input type="radio" name="station" value="2" class="select" id="station2">
+        <label for="station2">
+          <div class="station">
+            <div class="station-title">
+              Station B
+            </div>
+            <div class="outlets">
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                </div>
+                <div class="name">
+                  CHAdeMO
+                </div>
+              </div>
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                </div>
+                <div class="name">
+                  CCS
+                </div>
+              </div>
+            </div>
+          </div>
+        </label>
+        <input type="radio" name="station" value="3" class="select" id="station3">
+        <label for="station3">
+          <div class="station">
+            <div class="station-title">
+              Station C
+            </div>
+            <div class="outlets">
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                </div>
+                <div class="name">
+                  CHAdeMO
+                </div>
+              </div>
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                </div>
+                <div class="name">
+                  CCS
+                </div>
+              </div>
+            </div>
+          </div>
+        </label>
+        <input type="radio" name="station" value="4" class="select" id="station4">
+        <label for="station4">
+          <div class="station">
+            <div class="station-title">
+              Station D
+            </div>
+            <div class="outlets">
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                </div>
+                <div class="name">
+                  CHAdeMO
+                </div>
+              </div>
+              <div class="outlet">
+                <div class="image">
+                  <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                </div>
+                <div class="name">
+                  CCS
+                </div>
+              </div>
+            </div>
+          </div>
+        </label>
+      </section>
+    </div>
+
+    <section class="footer">
+      <div class="payment">
+        <div class="info">
+          Payment Info
+        </div>
+        <div class="details">
+          <div id="credit">
+            <div class="icon">
+              <i class="fa fa-credit-card"></i>
+            </div>
+            <div class="dots">
+                &#9679; &#9679; &#9679; &#9679;
+            </div>
+            <div class="cc">
+                4567
+            </div>
+          </div>
+          <div id="apple">
+            <div class="icon">
+              <i class="fab fa-cc-apple-pay"></i>
+            </div>
+            <div class="apple">
+              Apple Pay
+            </div>
+          </div>
+          <div class="change">
+            <a href="#">Change</a>
+          </div>
+        </div>
+      </div>
+      <div class="activate">
+        <div class="start noselect">
+          Activate
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <div class="screen" id="screen2">
+    <div class="banner">
+      <div class="back b1">
+        <i class="fas fa-arrow-left"></i>
+      </div>
+      <div class="title">
+        Payment Options
+      </div>
+    </div>
+
+    <section class="">
+      <div class="payment-title">
+        Payment Method
+      </div>
+      <input type="radio" name="payment" value="cc" class="pay" id="pay1" checked="checked">
+      <label for="pay1">
+        <div class="method">
+          <div class="icon">
+            <i class="fa fa-credit-card"></i>
+          </div>
+          <div class="label">
+            <div class="dots">
+              &#9679; &#9679; &#9679; &#9679;
+            </div>
+            <div class="cc">
+              4567
+            </div>
+          </div>
+          <div class="edit">
+            <i class="fas fa-edit"></i>
+          </div>
+        </div>
+      </label>
+      <input type="radio" name="payment" value="apple" class="pay" id="pay2">
+      <label for="pay2">
+        <div class="method">
+          <div class="icon">
+            <i class="fab fa-cc-apple-pay"></i>
+          </div>
+          <div class="label">
+            Apple Pay
+          </div>
+        </div>
+      </label>
+    </section>
+  </div>
+
+  <div class="screen" id="screen3">
+    <div class="banner">
+      <div class="back b2">
+        <i class="fas fa-arrow-left"></i>
+      </div>
+      <div class="title">
+        Edit Credit Card
+      </div>
+    </div>
+
+    <section class="">
+      <div class="input-field">
+        <label for="number">
+          Card Number
+        </label>
+        <input type="cc" name="number" class="entry" id="number" placeholder="4242 4242 4242 4242">
+        <i class="fa fa-credit-card" id="card"></i>
+        <i class="fas fa-camera" id="photo" title="Take a photo of your card"></i>
+      </div>
+      <div class="input-field">
+        <label for="exp">
+          Expiration
+        </label>
+        <input type="exp" class="entry" id="exp" placeholder="MM/YY">
+      </div>
+      <div class="input-field">
+        <input type="checkbox" name="save" value="1" id="save" checked><label for="save" class="noselect">Save card to my account</label>
+      </div>
+      <div id="submit">
+        <div class="button">
+          Use Credit Card
+        </div>
+      </div>
+    </section>
+
+    <section class="delete">
+      <a href="#" id="delete">Delete my card</a>
+    </section>
+  </div>
+
+  <div class="">
+  </div>
+
+  <script>
+  $(document).ready(function() {
+    $('.select').on('click', function() {
+      $('.activate').addClass('active');
+    });
+    $('.payment').on('click', function() {
+      $('#screen1').hide();
+      $('#screen2').css('display', 'inline-block');
+      $('#screen3').hide();
+    });
+    $('.b1').on('click', function() {
+      $('#screen1').css('display', 'inline-block');
+      $('#screen2').hide();
+      $('#screen3').hide();
+    });
+    $('.edit').on('click', function() {
+      $('#screen1').hide();
+      $('#screen2').hide();
+      $('#screen3').css('display', 'inline-block');
+    });
+    $('.b2, #submit').on('click', function() {
+      $('#screen1').hide();
+      $('#screen2').css('display', 'inline-block');
+      $('#screen3').hide();
+    });
+    $('.showAll').on('click', function() {
+      $('#screen1').css('display', 'inline-block');
+      $('#screen2').css('display', 'inline-block');
+      $('#screen3').css('display', 'inline-block');
+    });
+
+
+    $('.pay').on('click', function() {
+      var payment = $('input[name=payment]:checked').val();
+      console.log(payment);
+      if (payment == 'cc') {
+        $('#credit').css('display', 'inline-block');
+        $('#apple').hide();
+      } else if (payment == 'apple') {
+        $('#credit').hide();
+        $('#apple').css('display', 'inline-block');
+      }
+    });
+    $('#delete').on('click', function() {
+      confirm('Are you sure you want to delete your credit card?');
+    });
+  });
+  </script>
+
+</body>
+</html>
