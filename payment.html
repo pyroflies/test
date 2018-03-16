@@ -27,12 +27,25 @@
     background-color: #efefef;
     text-align: center;
   }
+
   .noselect {
     -webkit-user-select: none;  /* Chrome all / Safari all */
     -moz-user-select: none;     /* Firefox all */
     -ms-user-select: none;      /* IE 10+ */
     user-select: none;          /* Likely future */   
   }
+  .custom-scroll::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+    background-color: #fff;
+  }
+  .custom-scroll::-webkit-scrollbar {
+    width: 5px;
+    background-color: #F5F5F5;
+  }
+  .custom-scroll::-webkit-scrollbar-thumb {
+    background-color: #aaa;
+  }
+
   #screen1 {
     /*display: none;*/
   }
@@ -369,7 +382,7 @@
       </div>
     </div>
 
-    <div class="inner-content">
+    <div class="inner-content custom-scroll">
       <section class="standard">
         <div class="types">
           <span class="type">
