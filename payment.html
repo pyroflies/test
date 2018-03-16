@@ -119,10 +119,10 @@
   .station {
     cursor: pointer;
     padding: 10px 20px;
-    border-bottom: 1px solid #eee;
+    border-bottom: 1px solid #ddd;
     background-color: #f9f9f9;
   }
-  .station:last-of-type {
+  .station.last {
     border-bottom: none;
   }
   .station:hover {
@@ -480,7 +480,7 @@
         </label>
         <input type="radio" name="station" value="4" class="select" id="station4">
         <label for="station4">
-          <div class="station">
+          <div class="station last">
             <div class="station-title">
               Station D
             </div>
@@ -518,7 +518,7 @@
               <i class="fa fa-credit-card"></i>
             </div>
             <div class="dots">
-                &#9679; &#9679; &#9679; &#9679;
+                &bull; &bull; &bull; &bull;
             </div>
             <div class="cc">
                 4567
@@ -567,7 +567,7 @@
           </div>
           <div class="label">
             <div class="dots">
-              &#9679; &#9679; &#9679; &#9679;
+              &bull; &bull; &bull; &bull;
             </div>
             <div class="cc">
               4567
