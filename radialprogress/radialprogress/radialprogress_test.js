@@ -33,13 +33,13 @@
 var viz_container;
 
 // our radial components and an array to hold them
-var viz1,viz2,viz3,vizs=[];
+var viz;
 
 // our radial themes and an array to hold them
-var theme1,theme2,theme3,themes;
+var theme;
 
 // our div elements we will put radials in
-var div1,div2,div3,divs;
+var div;
 
 // show reel for demo only;
 var reels=[];
@@ -47,60 +47,48 @@ var reels=[];
 function initialize() {
 
     //Here we use the three div tags from our HTML page to load the three components into.
-    div1 = d3.select("#div1");
-    div2 = d3.select("#div2");
-    div3 = d3.select("#div3");
+    div = d3.select("#radial");
     //Store the divs in an array for easy access
-    divs=[div1,div2,div3];
 
     //Here we create our three radial progress components by passing in a parent DOM element (our div tags)
-    viz1 = vizuly.viz.radial_progress(document.getElementById("div1"));
-    viz2 = vizuly.viz.radial_progress(document.getElementById("div2"));
-    viz3 = vizuly.viz.radial_progress(document.getElementById("div3"));
-    //Store the vizs in an array for easy access
-    vizs=[viz1,viz2,viz3];
+    viz = vizuly.viz.radial_progress(document.getElementById("radial"));
 
 
     //Here we create three vizuly themes for each radial progress component.
     //A theme manages the look and feel of the component output.  You can only have
     //one component active per theme, so we bind each theme to the corresponding component.
-    theme1 = vizuly.theme.radial_progress(viz1).skin(vizuly.skin.RADIAL_PROGRESS_BUSINESS);
-    theme2 = vizuly.theme.radial_progress(viz2).skin(vizuly.skin.RADIAL_PROGRESS_BUSINESS);
-    theme3 = vizuly.theme.radial_progress(viz3).skin(vizuly.skin.RADIAL_PROGRESS_BUSINESS);
-    themes=[theme1,theme2,theme3];
+    theme = vizuly.theme.radial_progress(viz).skin(vizuly.skin.RADIAL_PROGRESS_BUSINESS);
 
     //Like D3 and jQuery, vizuly uses a function chaining syntax to set component properties
     //Here we set some bases line properties for all three components.
-    vizs.forEach(function (viz,i) {
-        viz.data(80)                       // Current value
-            .height(600)                    // Height of component - radius is calculated automatically for us
-            .min(0)                         // min value
-            .max(100)                       // max value
-            .capRadius(1)                   // Sets the curvature of the ends of the arc.
-            .on("tween",onTween)            // On the arc animation we create a callback to update the label
-            .on("mouseover",onMouseOver)    // mouseover callback - all viz components issue these events
-            .on("mouseout",onMouseOut)      // mouseout callback - all viz components issue these events
-            .on("click",onClick);           // mouseout callback - all viz components issue these events
-    })
+    viz.data(80)                       // Current value
+        .height(600)                    // Height of component - radius is calculated automatically for us
+        .min(0)                         // min value
+        .max(100)                       // max value
+        .capRadius(1)                   // Sets the curvature of the ends of the arc.
+        .on("tween",onTween)            // On the arc animation we create a callback to update the label
+        .on("mouseover",onMouseOver)    // mouseover callback - all viz components issue these events
+        .on("mouseout",onMouseOut)      // mouseout callback - all viz components issue these events
+        .on("click",onClick);           // mouseout callback - all viz components issue these events
 
     //
     // Now we set some unique properties for all three components to demonstrate the different settings.
     //
-    vizs[0]
-        .startAngle(250)                         // Angle where progress bar starts
-        .endAngle(110)                           // Angle where the progress bar stops
-        .arcThickness(.12)                        // The thickness of the arc (ratio of radius)
-        .label(function (d,i) {                  // The 'label' property allows us to use a dynamic function for labeling.
-            return d3.format(".0f")(d);
-        });
+    // vizs[0]
+    //     .startAngle(250)                         // Angle where progress bar starts
+    //     .endAngle(110)                           // Angle where the progress bar stops
+    //     .arcThickness(.12)                        // The thickness of the arc (ratio of radius)
+    //     .label(function (d,i) {                  // The 'label' property allows us to use a dynamic function for labeling.
+    //         return d3.format(".0f")(d);
+    //     });
 
-    vizs[1]
-        .startAngle(210)
-        .endAngle(150)
-        .arcThickness(.07)
-        .label(function (d,i) { return d3.format("$,.2f")(d); });
+    // vizs[1]
+    //     .startAngle(210)
+    //     .endAngle(150)
+    //     .arcThickness(.07)
+    //     .label(function (d,i) { return d3.format("$,.2f")(d); });
 
-    vizs[2]
+    viz
         .startAngle(180)
         .endAngle(180)
         .arcThickness(.10)
@@ -140,28 +128,23 @@ function onClick(viz,d,i) {
 
 //This function is called when the user selects a different skin.
 function changeSkin(val) {
-    themes.forEach(function (theme,i) {
-        //If the user selects "none" for the skin we need to tell the theme to release the component and clear
-        //any applied styles.
-        if (val == "none") {
-            theme.release();
-            vizs[i].update();
-        }
-        //If the user selected a skin, make sure each viz has a theme and apply the skin
-        else {
-            theme.viz(vizs[i]);
-            theme.skin(val);
-            theme.viz().update();  //We could use theme.apply() here, but we want to trigger the tween.
-        }
-    })
-
+    //If the user selects "none" for the skin we need to tell the theme to release the component and clear
+    //any applied styles.
+    if (val == "none") {
+        theme.release();
+        viz.update();
+    }
+    //If the user selected a skin, make sure each viz has a theme and apply the skin
+    else {
+        theme.viz(viz);
+        theme.skin(val);
+        theme.viz().update();  //We could use theme.apply() here, but we want to trigger the tween.
+    }
 }
 
 //This is applies different end caps to each arc track by adjusting the 'capRadius' property
 function changeEndCap(val) {
-    vizs.forEach(function (viz,i) {
-        vizs[i].capRadius(Number(val)).update();
-    })
+    viz.capRadius(Number(val)).update();
 }
 
 //This changes the size of the component by adjusting the radius and width/height;
@@ -171,19 +154,15 @@ function changeSize(val) {
 
     var divWidth = s[0] * 0.80 / 3;
 
-    divs.forEach(function (div,i) {
-        // div.style("width",divWidth + 'px').style("margin-left", (s[0] *.05) + "px");
-        vizs[i].width(divWidth).height(divWidth).radius(divWidth/2.2).update();
-    })
+    // div.style("width",divWidth + 'px').style("margin-left", (s[0] *.05) + "px");
+    viz.width(divWidth).height(divWidth).radius(divWidth/2.2).update();
 
 }
 
 //This sets the same value for each radial progress
 function changeData(val) {
-    vizs.forEach(function (viz,i) {
-        console.log(val);
-        vizs[i].data(Number(val)).update();
-    })
+    console.log(val);
+    viz.data(Number(val)).update();
 }
 
 
