@@ -90,3 +90,9 @@ div.radial_container {
     border-radius:6px;
 }
 
+#counters {
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+}

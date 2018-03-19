@@ -35,7 +35,7 @@ vizuly.viz.radial_progress = function (parent) {
             "left" : "8%",          // Left margin
             "right" : "7%"          // Right margin
         },
-        "duration": 500,            // This the time in ms used for any component generated transitions
+        "duration": 1500,            // This the time in ms used for any component generated transitions
         "width": 300,               // Overall width of component
         "height": 300,              // Height of component
         "radius" : 150,             // Radius of the progress tracks
@@ -179,7 +179,7 @@ vizuly.viz.radial_progress = function (parent) {
         label.enter().append("text").attr("class","vz-radial_progress-label").style("text-anchor","middle");
         label.exit().remove();
         label.attr("x",size.width/2)
-            .attr("y",size.height/2)
+            .attr("y",size.height/2 + 10)
             .text(function (d,i) { return scope.label(d,i)});
 
         // Create each arc path using the select, enter, exit pattern
@@ -202,14 +202,17 @@ vizuly.viz.radial_progress = function (parent) {
         scope.dispatch.update();
     }
 
+    var lastAngle = null;
     // This function takes the arc transition and for every 'tick' event of the transition will
     // interpolate the lenght of the arc.
     function arcTween(transition) {
         transition.attrTween("d", function(d) {
-            var interpolate = d3.interpolate(d.startAngle, d.endAngle);
+            var interpolate = d3.interpolate(lastAngle ? lastAngle : d.startAngle, d.endAngle);
+            lastAngle = d.endAngle;
+            console.log('last angle: ' + lastAngle);
             return function(t) {
                 d.endAngle = interpolate(t);
-                scope.dispatch.tween(viz,t);
+                // scope.dispatch.tween(viz,t); // text tweening
                 return d.arc(d);
             };
         });

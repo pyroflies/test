@@ -89,8 +89,8 @@ function initialize() {
     //     .label(function (d,i) { return d3.format("$,.2f")(d); });
 
     viz
-        .startAngle(180)
-        .endAngle(180)
+        .startAngle(0)
+        .endAngle(360)
         .arcThickness(.10)
         .label(function (d,i) { return d3.format(".0f")(d) + "%"; });
 
@@ -166,7 +166,26 @@ function changeData(val) {
 }
 
 
+// custom functions
 
+var counter = null;
+var count = 1;
+
+function startCount() {
+    viz.data(count).update();
+    counter = setInterval(function() {
+        if (count < 100) {
+            count++;
+            viz.data(count).update();
+        } else {
+            stopCount();
+        }
+    }, 1000);
+}
+
+function stopCount() {
+    clearInterval(counter);
+}
 
 
 
