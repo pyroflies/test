@@ -86,7 +86,7 @@
 
 <!-- Our main content container-->
 <div class="container" style="width:100%">
-    <div id="viz_container" class="z-depth-3">
+    <div id="viz_container" class="">
         <div id="radial" class="radial_container"></div>
         <div id="counters">
             <button onclick="startCount()">Start</button>
@@ -114,7 +114,8 @@
         }
 
         //Set display size based on window size.
-        screenWidth = (rect.width < 960) ? Math.round(rect.width*.95) : Math.round((rect.width - 210) *.95)
+        // screenWidth = (rect.width < 960) ? Math.round(rect.width*.95) : Math.round((rect.width - 210) *.95)
+        screenWidth = rect.width;
 
         // d3.select("#currentDisplay")
         //         .attr("item_value", screenWidth + "," + screenHeight)
