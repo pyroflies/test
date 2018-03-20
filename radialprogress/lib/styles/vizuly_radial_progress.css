@@ -24,7 +24,8 @@ circle.vz-radial_progress-back-circle {
 }
 
 .vz-radial_progress-label {
-    font-weight:300;
+    font-weight:100;
+    font-family: "Roboto";
 }
 
 /******** WHITE **********/
@@ -91,7 +92,7 @@ div.radial_container {
 }
 
 #counters {
-    bottom: 20px;
+    bottom: 100px;
     left: 50%;
     transform: translateX(-50%);
     position: absolute;
