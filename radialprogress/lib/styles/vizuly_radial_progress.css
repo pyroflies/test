@@ -91,8 +91,12 @@ div.radial_container {
 }
 
 #counters {
-    bottom: 100px;
+    bottom: 20px;
     left: 50%;
     transform: translateX(-50%);
     position: absolute;
+}
+#number {
+    margin-left: 10px;
+    width: 40px;
 }

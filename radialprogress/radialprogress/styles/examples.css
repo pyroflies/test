@@ -40,8 +40,8 @@ body {
 
 div.container {
     width:100%;
-    position:absolute;
-    top:100px;
+    position:relative;
+    /*top:100px;*/
 }
 
 .tile {

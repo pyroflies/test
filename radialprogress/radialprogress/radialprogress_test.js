@@ -187,7 +187,12 @@ function stopCount() {
     clearInterval(counter);
 }
 
-
+function setNumber(number) {
+    if (!number) {
+        number = $('#number').val();
+    }
+    viz.data(number).update();
+}
 
 
 
