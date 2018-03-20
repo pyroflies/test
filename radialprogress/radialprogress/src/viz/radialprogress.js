@@ -109,7 +109,8 @@ vizuly.viz.radial_progress = function (parent) {
         var arcStartRadian = scope.startAngle * radian;
 
         // Determine how many arcs we need
-        var arcsTotal=Math.floor(scope.data/(scope.max-scope.min)) + 1;
+        // var arcsTotal=Math.floor(scope.data/(scope.max-scope.min)) + 1;
+        var arcsTotal = 1;
         // Calculate arc thickness (if we have too many arcs for a given radius we reduce the thickness)
         var arcThickness = Math.min(scope.radius*scope.arcThickness, scope.radius*0.75/arcsTotal);
 
