@@ -212,7 +212,7 @@ vizuly.viz.radial_progress = function (parent) {
             console.log('last angle: ' + lastAngle);
             return function(t) {
                 d.endAngle = interpolate(t);
-                // scope.dispatch.tween(viz,t); // text tweening
+                scope.dispatch.tween(viz,t); // text tweening
                 return d.arc(d);
             };
         });

@@ -123,6 +123,10 @@
     text-align: center;
   }
 
+  .stations {
+    min-height: calc(512px - 136px);
+    background-color: #fbfbfb;
+  }
   input[type=radio] {
     display: none;
   }
@@ -131,22 +135,22 @@
   } 
   .station {
     cursor: pointer;
-    padding: 10px 20px;
     border-bottom: 1px solid #ddd;
     background-color: #f9f9f9;
-  }
-  .station.last {
-    border-bottom: none;
+    overflow: hidden;
+    padding: 5px;
   }
   .station:hover {
     background-color: #eee;
   }
   .station-title {
+    float: left;
     font-weight: 500;
+    padding: 5px 10px;
   }
   .outlets {
+    float: right;
     text-align: right;
-    margin-top: 5px;
   }
   .outlet {
     border: 1px solid #ddd;
@@ -156,13 +160,12 @@
     display: inline-block;
     box-shadow: 0px 1px 2px rgba(179, 179, 179, 0.5);
     text-align: center;
-    min-width: 65px;
     background-color: #fff;
+    margin-bottom: -4px;
   }
   .image {
-    width: 50px;
-    margin: 0 auto;
-    margin-bottom: 5px;
+    float: left;
+    width: 17px;
   }
   .image img {
     width: 100%;
@@ -172,35 +175,38 @@
     display: inline-block;
     font-size: 0.8em;
     color: #333;
+    float: left;
+    padding: 1px;
+    margin-left: 3px;
   }
 
   .footer {
     position: absolute;
     bottom: 0;
     width: 100%;
-    height: 70px;
+    height: 73px;
     border-top: 1px solid #333;
     box-shadow: 0px -2px 5px rgba(132, 132, 132, 0.25);
     overflow: hidden;
   }
   .payment {
-    display: inline-block;
-    width: calc(100% - 120px);
-    padding: 10px 10px 6px 10px;
+    height: 33px;
+    padding: 10px;
     box-sizing: border-box;
     background-color: #eee;
-    border-bottom-left-radius: 3px;
   }
   .payment:hover {
     cursor: pointer;
     background-color: #ddd;
   }
   .info {
+    float: left;
     font-size: 0.8em;
     font-weight: 400;
   }
   .details {
-    padding: 10px;
+    float: right;
+    font-size: 0.8em;
   }
   .icon {
     display: inline-block;
@@ -225,16 +231,16 @@
   }
   .change {
     float: right;
-    font-size: 0.8em;
+    margin-left: 20px;
+    opacity: 0.5;
   }
   .activate {
-    width: 120px;
-    height: 70px;
+    position: relative;
+    width: 100%;
+    height: 40px;
     background-color: #999;
+    border-bottom-left-radius: 3px;
     border-bottom-right-radius: 3px;
-    position: absolute;
-    right: 0;
-    bottom: 0;
   }
   .activate.active {
     background-color: #003ca6;
@@ -469,7 +475,7 @@
         <label for="station3">
           <div class="station">
             <div class="station-title">
-              Station C
+              Private Location
             </div>
             <div class="outlets">
               <div class="outlet">
@@ -493,9 +499,9 @@
         </label>
         <input type="radio" name="station" value="4" class="select" id="station4">
         <label for="station4">
-          <div class="station last">
+          <div class="station">
             <div class="station-title">
-              Station D
+              Recargo AeroVironment Long Name
             </div>
             <div class="outlets">
               <div class="outlet">
@@ -546,7 +552,7 @@
             </div>
           </div>
           <div class="change">
-            <a href="#">Change</a>
+            <i class="fas fa-chevron-right"></i>
           </div>
         </div>
       </div>

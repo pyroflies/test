@@ -41,7 +41,6 @@ vizuly.svg.text.arcPath = function (radius,startAngle) {
     var pd=d3.svg.arc().innerRadius(radius).outerRadius(radius)(d);
     var justArc = /[Mm][\d\.\-e,\s]+[Aa][\d\.\-e,\s]+/;
     var arcD = justArc.exec(pd);
-
     if (arcD) arcD=arcD[0];
     return arcD;
 
