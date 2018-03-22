@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/regular.css" integrity="sha384-A/oR8MwZKeyJS+Y0tLZ16QIyje/AmPduwrvjeH6NLiLsp4cdE4uRJl8zobWXBm4u" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/brands.css" integrity="sha384-IiIL1/ODJBRTrDTFk/pW8j0DUI5/z9m1KYsTm/RjZTNV8RHLGZXkUDwgRRbbQ+Jh" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.8/css/fontawesome.css" integrity="sha384-q3jl8XQu1OpdLgGFvNRnPdj5VIlCvgsDQTQB6owSOHWlAurxul7f+JpUOVdAiJ5P" crossorigin="anonymous">
-  <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha256-3edrmyuQ0w65f8gfBsqowzjJe2iM6n0nKciPUp8y+7E=" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
 
   <!-- <link rel="stylesheet" href="css/styles.css?v=1.0"> -->
 
@@ -26,6 +26,9 @@
     font-weight: 300;
     background-color: #efefef;
     text-align: center;
+  }
+  img {
+    max-width: 100%;
   }
 
   .noselect {
@@ -46,13 +49,10 @@
     background-color: #aaa;
   }
 
-  #screen1 {
+  #screenMap {
     /*display: none;*/
   }
-  #screen2 {
-    display: none;
-  }
-  #screen3 {
+  #screenLocation, #screenStation, #screenPayment, #screenCard {
     display: none;
   }
   .screen {
@@ -67,6 +67,7 @@
     border-radius: 4px;
     box-shadow: 0px 2px 10px rgba(132, 132, 132, 0.5);
     background-color: #fff;
+    overflow: hidden;
   }
   .banner {
     background-color: #003ca6;
@@ -88,10 +89,15 @@
     max-height: calc((2560px / 4) - (57px + 71px));
     overflow-y: scroll;
   }
+  .location-inner-content {
+    max-height: calc(2560px / 4);
+    overflow-y: scroll;
+  }
 
   .standard {
     border-bottom: 1px solid #eee;
     padding: 20px;
+    background-color: #fff;
   }
   .types {
     display: inline-block;
@@ -116,7 +122,7 @@
     color: #aaa;
     margin-top: 10px;
   }
-  .select {
+  .pick {
     padding: 5px;
     background-color: #003ca6;
     color: #fff;
@@ -124,8 +130,10 @@
   }
 
   .stations {
-    min-height: calc(512px - 136px);
     background-color: #fbfbfb;
+  }
+  .fill {
+    min-height: calc(512px - 136px);
   }
   input[type=radio] {
     display: none;
@@ -143,10 +151,27 @@
   .station:hover {
     background-color: #eee;
   }
+  input[type=radio]:disabled + label .station {
+    background-color: #f1f1f1;
+  }
+  .station-status {
+    float: left;
+    padding: 5px;
+    text-shadow: 1px 1px #13131321;
+  }
+  .available {
+    color: #00e800;
+  }
+  .busy {
+    color: #bdde12;
+  }
+  .offline {
+    color: #da092e;
+  }
   .station-title {
     float: left;
     font-weight: 500;
-    padding: 5px 10px;
+    padding: 6px 10px 5px 2px;
   }
   .outlets {
     float: right;
@@ -370,6 +395,103 @@
     top: 5px;
     left: 5px;
   }
+
+  #map {
+    width: 100%;
+    cursor: pointer;
+  }
+  .popup {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fbfbfb;
+    padding: 10px 5px;
+    border-top: 1px solid #ccc;
+    box-shadow: 0px -2px 5px rgba(132, 132, 132, 0.25);
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 3px;
+    transition: all .5s cubic-bezier(.25,.46,.45,.94);
+  }
+  .slide {
+    bottom: -105px;
+  }
+  .nearby {
+    text-align: center;
+    text-align: center;
+    margin-bottom: 10px;
+    font-weight: bold;
+  }
+  #pwps {
+    width: 300px;
+    margin: 5px auto;
+    border-radius: 3px;
+    overflow: hidden;
+    box-shadow: 0px 2px 7px rgb(132, 132, 132);
+  }
+  #pwps:hover {
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  #pwps img {
+    display: block;
+  }
+
+  .location {
+    position: relative;
+    max-height: 200px;
+    overflow: hidden;
+  }
+  .clearBack {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    cursor: pointer;
+    color: #fff;
+    padding: 10px;
+    font-size: 1.4em;
+  }
+  .locationTitle {
+    background-color: #003ca6;
+    color: #fff;
+    font-weight: bold;
+  }
+  .pwpsInline {
+    box-shadow: 0px 2px 10px rgba(132, 132, 132, 0.5);
+  }
+  .pwpsInline img {
+    display: block;
+  }
+  .inline {
+    padding: 0 1px 1px 5px;
+    background-color: #e3e3e3;
+  }
+  .backdrop {
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: calc(2560px / 4);
+    background-color: rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    top: 0;
+  }
+  .modal {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 73px;
+    border-top: 1px solid #ccc;
+    box-shadow: 0px -2px 5px rgba(132, 132, 132, 0.25);
+    overflow: hidden;
+    box-sizing: border-box;
+    border-radius: 3px;
+    background-color: #fff;
+    transition: all .5s cubic-bezier(.25,.46,.45,.94);
+  }
+  .slide2 {
+    bottom: -73px;
+  }
   </style>
 </head>
 
@@ -378,12 +500,251 @@
 
   <a href="#" class="showAll">Show All</a>
 
-  <div class="screen" id="screen1">
+  <div class="screen" id="screenMap">
     <div class="banner">
       <div class="back">
+        <i class="fas fa-bars"></i>
+      </div>
+      <div class="title noselect">
+        PlugShare
+      </div>
+    </div>
+
+    <div id="map">
+      <img src="map.jpg">
+    </div>
+
+    <section class="popup slide">
+      <div class="nearby">
+        Nearby: Recargo Prunedale
+      </div>
+      <div id="pwps">
+        <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/pwps.png">
+      </div>
+    </section>
+  </div>
+
+  <div class="screen" id="screenLocation">
+    <div class="location-inner-content custom-scroll">
+
+      <div class="location">
+        <div class="clearBack b0">
+          <i class="fas fa-arrow-left"></i>
+        </div>
+        <img src="https://s3.amazonaws.com/plugshare.staging.photos/photos/82112.jpg">
+      </div>
+
+      <section class="standard locationTitle">
+        <div class="title noselect">
+          Recargo Prunedale
+        </div>
+      </section>
+      <section class="pwpsInline">
+        <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/pwps.png">
+      </section>
+
+      <section class="inline">
+        <section class="standard">
+          <div class="types">
+            <span class="type">
+              CCS
+            </span>
+            <span class="max">
+              (175kW)
+            </span>
+          </div>
+          <div class="another">
+            ,
+          </div>
+          <div class="types">
+            <span class="type">
+              CHAdeMO
+            </span>
+            <span class="max">
+              (50kW)
+            </span>
+          </div>
+          <div class="price">
+            $1.00/hour ($0.50 minimum if you are billed). A $30.00 pre-authorization will be placed on your credit card.
+          </div>
+        </section>
+
+        <section class="pick">
+          Select Your Station
+        </section>
+
+        <section class="stations">
+          <input type="radio" name="special" value="1" class="special" id="special1">
+          <label for="special1">
+            <div class="station">
+              <div class="station-status available" title="available">
+                &#9679;
+              </div>
+              <div class="station-title">
+                Station A
+              </div>
+              <div class="outlets">
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                  </div>
+                  <div class="name">
+                    CHAdeMO
+                  </div>
+                </div>
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                  </div>
+                  <div class="name">
+                    CCS
+                  </div>
+                </div>
+              </div>
+            </div>
+          </label>
+          <input type="radio" name="special" value="2" class="special" id="special2">
+          <label for="special2">
+            <div class="station">
+              <div class="station-status available" title="available">
+                &#9679;
+              </div>
+              <div class="station-title">
+                Station B
+              </div>
+              <div class="outlets">
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                  </div>
+                  <div class="name">
+                    CHAdeMO
+                  </div>
+                </div>
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                  </div>
+                  <div class="name">
+                    CCS
+                  </div>
+                </div>
+              </div>
+            </div>
+          </label>
+          <input type="radio" name="special" value="3" class="special" id="special3" disabled>
+          <label for="special3">
+            <div class="station">
+              <div class="station-status busy" title="busy">
+                &#9679;
+              </div>
+              <div class="station-title">
+                Private Location
+              </div>
+              <div class="outlets">
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                  </div>
+                  <div class="name">
+                    CHAdeMO
+                  </div>
+                </div>
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                  </div>
+                  <div class="name">
+                    CCS
+                  </div>
+                </div>
+              </div>
+            </div>
+          </label>
+          <input type="radio" name="special" value="4" class="special" id="special4" disabled>
+          <label for="special4">
+            <div class="station">
+              <div class="station-status offline" title="offline">
+                &#9679;
+              </div>
+              <div class="station-title">
+                Recargo AeroVironment Long Name
+              </div>
+              <div class="outlets">
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image04.png">
+                  </div>
+                  <div class="name">
+                    CHAdeMO
+                  </div>
+                </div>
+                <div class="outlet">
+                  <div class="image">
+                    <img src="https://s3.amazonaws.com/plugshare.production.assets/assets/outlets/image02.png">
+                  </div>
+                  <div class="name">
+                    CCS
+                  </div>
+                </div>
+              </div>
+            </div>
+          </label>
+        </section>
+      </section>
+
+      <section class="locationDetails">
+        <img src="location.jpg">
+      </section>
+
+      <div class="backdrop">
+      </div>
+
+      <section class="modal slide2">
+        <div class="payment p1">
+          <div class="info">
+            Payment Info
+          </div>
+          <div class="details">
+            <div id="credit">
+              <div class="icon">
+                <i class="fa fa-credit-card"></i>
+              </div>
+              <div class="dots">
+                  &bull; &bull; &bull; &bull;
+              </div>
+              <div class="cc">
+                  4567
+              </div>
+            </div>
+            <div id="apple">
+              <div class="icon">
+                <i class="fab fa-cc-apple-pay"></i>
+              </div>
+              <div class="apple">
+                Apple Pay
+              </div>
+            </div>
+            <div class="change">
+              <i class="fas fa-chevron-right"></i>
+            </div>
+          </div>
+        </div>
+        <div class="activate active">
+          <div class="start noselect">
+            Activate
+          </div>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="screen" id="screenStation">
+    <div class="banner">
+      <div class="back b0">
         <i class="fas fa-arrow-left"></i>
       </div>
-      <div class="title">
+      <div class="title noselect">
         Recargo Prunedale
       </div>
     </div>
@@ -414,14 +775,17 @@
         </div>
       </section>
 
-      <section class="select">
+      <section class="pick">
         Select Your Station
       </section>
 
-      <section class="stations">
+      <section class="stations fill">
         <input type="radio" name="station" value="1" class="select" id="station1">
         <label for="station1">
           <div class="station">
+            <div class="station-status available" title="available">
+              &#9679;
+            </div>
             <div class="station-title">
               Station A
             </div>
@@ -448,6 +812,9 @@
         <input type="radio" name="station" value="2" class="select" id="station2">
         <label for="station2">
           <div class="station">
+            <div class="station-status available" title="available">
+              &#9679;
+            </div>
             <div class="station-title">
               Station B
             </div>
@@ -471,9 +838,12 @@
             </div>
           </div>
         </label>
-        <input type="radio" name="station" value="3" class="select" id="station3">
+        <input type="radio" name="station" value="3" class="select" id="station3" disabled>
         <label for="station3">
           <div class="station">
+            <div class="station-status busy" title="busy">
+              &#9679;
+            </div>
             <div class="station-title">
               Private Location
             </div>
@@ -497,9 +867,12 @@
             </div>
           </div>
         </label>
-        <input type="radio" name="station" value="4" class="select" id="station4">
+        <input type="radio" name="station" value="4" class="select" id="station4" disabled>
         <label for="station4">
           <div class="station">
+            <div class="station-status offline" title="offline">
+              &#9679;
+            </div>
             <div class="station-title">
               Recargo AeroVironment Long Name
             </div>
@@ -527,7 +900,7 @@
     </div>
 
     <section class="footer">
-      <div class="payment">
+      <div class="payment p2">
         <div class="info">
           Payment Info
         </div>
@@ -564,12 +937,12 @@
     </section>
   </div>
 
-  <div class="screen" id="screen2">
+  <div class="screen" id="screenPayment">
     <div class="banner">
       <div class="back b1">
         <i class="fas fa-arrow-left"></i>
       </div>
-      <div class="title">
+      <div class="title noselect">
         Payment Options
       </div>
     </div>
@@ -611,12 +984,12 @@
     </section>
   </div>
 
-  <div class="screen" id="screen3">
+  <div class="screen" id="screenCard">
     <div class="banner">
       <div class="back b2">
         <i class="fas fa-arrow-left"></i>
       </div>
-      <div class="title">
+      <div class="title noselect">
         Edit Credit Card
       </div>
     </div>
@@ -656,33 +1029,72 @@
 
   <script>
   $(document).ready(function() {
+
+    var back = null;
+
+    setTimeout(function() {
+      $('.popup').removeClass('slide');
+    }, 2000);
+
     $('.select').on('click', function() {
       $('.activate').addClass('active');
     });
+    $('.special').on('click', function() {
+      $('.backdrop').fadeIn();
+      $('.modal').removeClass('slide2');
+    });
+    $('.backdrop').on('click', function() {
+      $('.backdrop').hide();
+      $('.modal').addClass('slide2');
+    });
+
+    function hideAll() {
+      $('#screenMap').hide();
+      $('#screenLocation').hide();
+      $('#screenStation').hide();
+      $('#screenPayment').hide();
+      $('#screenCard').hide();
+    }
+    function show(id) {
+      hideAll();
+      $('#screen' + id).css('display', 'inline-block');
+    }
+
+    $('#map').on('click', function() {
+      show('Location');
+    });
+    $('#pwps').on('click', function() {
+      show('Station');
+    });
+    $('.b0').on('click', function() {
+      show('Map');
+    });
     $('.payment').on('click', function() {
-      $('#screen1').hide();
-      $('#screen2').css('display', 'inline-block');
-      $('#screen3').hide();
+      show('Payment');
+    });
+    $('.p1').on('click', function() {
+      back = 'Location';
+    });
+    $('.p2').on('click', function() {
+      back = 'Station';
     });
     $('.b1').on('click', function() {
-      $('#screen1').css('display', 'inline-block');
-      $('#screen2').hide();
-      $('#screen3').hide();
+      show(back);
     });
     $('.edit').on('click', function() {
-      $('#screen1').hide();
-      $('#screen2').hide();
-      $('#screen3').css('display', 'inline-block');
+      show('Card');
     });
     $('.b2, #submit').on('click', function() {
-      $('#screen1').hide();
-      $('#screen2').css('display', 'inline-block');
-      $('#screen3').hide();
+      show('Payment');
+      $('.backdrop').hide();
+      $('.modal').addClass('slide2');
     });
     $('.showAll').on('click', function() {
-      $('#screen1').css('display', 'inline-block');
-      $('#screen2').css('display', 'inline-block');
-      $('#screen3').css('display', 'inline-block');
+      $('#screenMap').css('display', 'inline-block');
+      $('#screenLocation').css('display', 'inline-block');
+      $('#screenStation').css('display', 'inline-block');
+      $('#screenPayment').css('display', 'inline-block');
+      $('#screenCard').css('display', 'inline-block');
     });
 
 
@@ -700,6 +1112,10 @@
     $('#delete').on('click', function() {
       confirm('Are you sure you want to delete your credit card?');
     });
+    $(document).on('click', '.activate.active', function() {
+      alert('You activated the station');
+    });
+
   });
   </script>
 
