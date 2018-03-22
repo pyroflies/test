@@ -109,7 +109,8 @@ vizuly.viz.radial_progress = function (parent) {
         var arcStartRadian = scope.startAngle * radian;
 
         // Determine how many arcs we need
-        var arcsTotal=Math.floor(scope.data/(scope.max-scope.min)) + 1;
+        // var arcsTotal=Math.floor(scope.data/(scope.max-scope.min)) + 1;
+        var arcsTotal = 1;
         // Calculate arc thickness (if we have too many arcs for a given radius we reduce the thickness)
         var arcThickness = Math.min(scope.radius*scope.arcThickness, scope.radius*0.75/arcsTotal);
 
@@ -179,7 +180,7 @@ vizuly.viz.radial_progress = function (parent) {
         label.enter().append("text").attr("class","vz-radial_progress-label").style("text-anchor","middle");
         label.exit().remove();
         label.attr("x",size.width/2)
-            .attr("y",size.height/2 + 10)
+            .attr("y",size.height/2 + 40)
             .text(function (d,i) { return scope.label(d,i)});
 
         // Create each arc path using the select, enter, exit pattern

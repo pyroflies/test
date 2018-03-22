@@ -152,7 +152,8 @@ function changeSize(val) {
     var s = String(val).split(",");
     viz_container.transition().duration(300).style('width', s[0] + 'px').style('height', s[1] + 'px');
 
-    var divWidth = s[0] * 0.80 / 3;
+    // var divWidth = s[0] * 0.80 / 3;
+    var divWidth = 580;
 
     // div.style("width",divWidth + 'px').style("margin-left", (s[0] *.05) + "px");
     viz.width(divWidth).height(divWidth).radius(divWidth/2.2).update();

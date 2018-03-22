@@ -236,15 +236,15 @@ vizuly.theme.radial_progress = function (viz) {
         selection.selectAll(".vz-radial_progress-label")
             .style("fill",skin.label_color)
             .style("stroke-opacity",0)
-            .style("font-size",viz.radius() *.25);  // Notice we dynamically size the font based on the gauge radius.
+            .style("font-size",viz.radius() *.4);  // Notice we dynamically size the font based on the gauge radius.
 
     }
 
     //Now we get to some user triggered display changes.
     //For the gauge we simply change the font-weight of the label when a **mouseover** event occurs.
     function onMouseOver(e,d,i) {
-        viz.selection().selectAll(".vz-radial_progress-label")
-            .style("font-weight",700);
+        // viz.selection().selectAll(".vz-radial_progress-label")
+        //     .style("font-weight",700);
     }
 
     //On **mouseout** we want to undo any changes we made on the mouseover callback.
