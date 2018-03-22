@@ -149,33 +149,49 @@
     padding: 5px;
   }
   .station:hover {
-    background-color: #eee;
+    background-color: #cfdffb;
   }
   input[type=radio]:disabled + label .station {
-    background-color: #f1f1f1;
+    background-color: #ececec;
+  }
+  .busy .station-title, .offline .station-title {
+    color: #999;
+  }
+  .station-title {
+    font-weight: 500;
+    padding: 5px;
+    width: 100%;
+    box-sizing: border-box;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .status-dot {
+    clear: left;
+    float: left;
+    margin-left: 10px;
+  }
+  .available .status-dot {
+    color: #00e800;
+  }
+  .busy .status-dot {
+    color: #bdde12;
+  }
+  .offline .status-dot {
+    color: #da092e;
   }
   .station-status {
     float: left;
-    padding: 5px;
+    padding: 3px 5px;
+    color: #003ca6;
+    font-size: 0.8em;
+    font-weight: 400;
+    text-transform: uppercase;
     text-shadow: 1px 1px #13131321;
-  }
-  .available {
-    color: #00e800;
-  }
-  .busy {
-    color: #bdde12;
-  }
-  .offline {
-    color: #da092e;
-  }
-  .station-title {
-    float: left;
-    font-weight: 500;
-    padding: 6px 10px 5px 2px;
   }
   .outlets {
     float: right;
-    text-align: right;
+    margin-right: 2px;
   }
   .outlet {
     border: 1px solid #ddd;
@@ -576,12 +592,15 @@
         <section class="stations">
           <input type="radio" name="special" value="1" class="special" id="special1">
           <label for="special1">
-            <div class="station">
-              <div class="station-status available" title="available">
+            <div class="station available">
+              <div class="station-title" title="Station A">
+                Station A
+              </div>
+              <div class="status-dot">
                 &#9679;
               </div>
-              <div class="station-title">
-                Station A
+              <div class="station-status">
+                Available
               </div>
               <div class="outlets">
                 <div class="outlet">
@@ -605,12 +624,15 @@
           </label>
           <input type="radio" name="special" value="2" class="special" id="special2">
           <label for="special2">
-            <div class="station">
-              <div class="station-status available" title="available">
+            <div class="station available">
+              <div class="station-title" title="Station B">
+                Station B
+              </div>
+              <div class="status-dot">
                 &#9679;
               </div>
-              <div class="station-title">
-                Station B
+              <div class="station-status">
+                Available
               </div>
               <div class="outlets">
                 <div class="outlet">
@@ -634,12 +656,15 @@
           </label>
           <input type="radio" name="special" value="3" class="special" id="special3" disabled>
           <label for="special3">
-            <div class="station">
-              <div class="station-status busy" title="busy">
+            <div class="station busy">
+              <div class="station-title" title="Recargo AeroVironment Medium Name">
+                Recargo AeroVironment Medium Name
+              </div>
+              <div class="status-dot">
                 &#9679;
               </div>
-              <div class="station-title">
-                Private Location
+              <div class="station-status">
+                Busy
               </div>
               <div class="outlets">
                 <div class="outlet">
@@ -663,12 +688,15 @@
           </label>
           <input type="radio" name="special" value="4" class="special" id="special4" disabled>
           <label for="special4">
-            <div class="station">
-              <div class="station-status offline" title="offline">
+            <div class="station offline">
+              <div class="station-title" title="Overflow Sample Overwhelmingly Long Name Extra">
+                Overflow Sample Overwhelmingly Long Name Extra
+              </div>
+              <div class="status-dot">
                 &#9679;
               </div>
-              <div class="station-title">
-                Recargo AeroVironment Long Name
+              <div class="station-status">
+                Offline
               </div>
               <div class="outlets">
                 <div class="outlet">
@@ -782,12 +810,15 @@
       <section class="stations fill">
         <input type="radio" name="station" value="1" class="select" id="station1">
         <label for="station1">
-          <div class="station">
-            <div class="station-status available" title="available">
+          <div class="station available">
+            <div class="station-title" title="Station A">
+              Station A
+            </div>
+            <div class="status-dot">
               &#9679;
             </div>
-            <div class="station-title">
-              Station A
+            <div class="station-status">
+              Available
             </div>
             <div class="outlets">
               <div class="outlet">
@@ -811,12 +842,15 @@
         </label>
         <input type="radio" name="station" value="2" class="select" id="station2">
         <label for="station2">
-          <div class="station">
-            <div class="station-status available" title="available">
+          <div class="station available">
+            <div class="station-title" title="Station B">
+              Station B
+            </div>
+            <div class="status-dot">
               &#9679;
             </div>
-            <div class="station-title">
-              Station B
+            <div class="station-status">
+              Available
             </div>
             <div class="outlets">
               <div class="outlet">
@@ -840,12 +874,15 @@
         </label>
         <input type="radio" name="station" value="3" class="select" id="station3" disabled>
         <label for="station3">
-          <div class="station">
-            <div class="station-status busy" title="busy">
+          <div class="station busy">
+            <div class="station-title" title="Recargo AeroVironment Medium Name">
+              Recargo AeroVironment Medium Name
+            </div>
+            <div class="status-dot">
               &#9679;
             </div>
-            <div class="station-title">
-              Private Location
+            <div class="station-status">
+              Busy
             </div>
             <div class="outlets">
               <div class="outlet">
@@ -869,12 +906,15 @@
         </label>
         <input type="radio" name="station" value="4" class="select" id="station4" disabled>
         <label for="station4">
-          <div class="station">
-            <div class="station-status offline" title="offline">
+          <div class="station offline">
+            <div class="station-title" title="Overflow Sample Overwhelmingly Long Name Extra">
+              Overflow Sample Overwhelmingly Long Name Extra
+            </div>
+            <div class="status-dot">
               &#9679;
             </div>
-            <div class="station-title">
-              Recargo AeroVironment Long Name
+            <div class="station-status">
+              Offline
             </div>
             <div class="outlets">
               <div class="outlet">
