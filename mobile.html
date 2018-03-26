@@ -26,6 +26,7 @@
     font-weight: 300;
     background-color: #efefef;
     text-align: center;
+    margin: 0;
   }
   img {
     max-width: 100%;
@@ -73,6 +74,7 @@
     text-align: left;
     position: relative;
     background-color: #fff;
+    height: 100vh;
     overflow: hidden;
   }
   .banner {
@@ -92,11 +94,11 @@
   }
 
   .inner-content {
-    max-height: calc((2560px / 4) - (57px + 71px));
+    height: calc(100vh - (57px + 71px));
     overflow-y: scroll;
   }
   .location-inner-content {
-    max-height: calc(2560px / 4);
+    height: 100vh;
     overflow-y: scroll;
   }
 
@@ -487,10 +489,14 @@
   }
   .pwpsInline img {
     display: block;
+    width: 100%;
   }
   .inline {
     padding: 0 1px 1px 5px;
     background-color: #e3e3e3;
+  }
+  .locationDetails img {
+    width: 100%;
   }
   .backdrop {
     display: none;
