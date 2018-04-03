@@ -127,7 +127,7 @@ vizuly.viz.radial_progress = function (parent) {
             o.arc = arc;
             o.startAngle = arcStartRadian;
 
-            console.log("start angle = " + o.startAngle);
+            // console.log("start angle = " + o.startAngle);
 
             //Determine how far the arc extends within theta (if we only have a partial arc, we need to calculate that  here)
             var spread = scope.data/(scope.max-scope.min) - i;

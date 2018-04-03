@@ -91,8 +91,8 @@ function initialize() {
     viz
         .startAngle(0)
         .endAngle(360)
-        .arcThickness(.10)
-        .label(function (d,i) { return d3.format(".0f")(d) + "%"; });
+        .arcThickness(.10);
+        // .label(function (d,i) { return d3.format(".0f")(d) + "%"; });
 
     //We use this function to size the components based on the selected value from the RadiaLProgressTest.html page.
     // changeSize(d3.select("#currentDisplay").attr("item_value"));
@@ -103,9 +103,9 @@ function initialize() {
 //that occurs when the component animates the value arcs.
 function onTween(viz,i) {
     var diff = viz.data() - last;
-    console.log(diff * i);
+    // console.log(diff * i);
     viz.selection().selectAll(".vz-radial_progress-label")
-        .text(viz.label()(last + (diff * i)));
+        .text(viz.label()(d3.format(".0f")(last + (diff * i))) + "%");
 }
 
 function onMouseOver(viz,d,i) {
@@ -193,9 +193,9 @@ var last = 0;
 function setNumber(number) {
     last = parseFloat(viz.data());
     if (!number) {
-        number = $('#number').val();
+        number = parseFloat($('#number').val());
     }
-    console.log(last, number);
+    console.log("From " + last + " to " + number);
     viz.data(number).update();
 }
 
