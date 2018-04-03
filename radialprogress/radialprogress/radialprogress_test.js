@@ -102,8 +102,10 @@ function initialize() {
 //Here we want to animate the label value by capturin the tween event
 //that occurs when the component animates the value arcs.
 function onTween(viz,i) {
+    var diff = viz.data() - last;
+    console.log(diff * i);
     viz.selection().selectAll(".vz-radial_progress-label")
-        .text(viz.label()(viz.data() * i));
+        .text(viz.label()(last + (diff * i)));
 }
 
 function onMouseOver(viz,d,i) {
@@ -188,10 +190,13 @@ function stopCount() {
     clearInterval(counter);
 }
 
+var last = 0;
 function setNumber(number) {
+    last = parseFloat(viz.data());
     if (!number) {
         number = $('#number').val();
     }
+    console.log(last, number);
     viz.data(number).update();
 }
 
