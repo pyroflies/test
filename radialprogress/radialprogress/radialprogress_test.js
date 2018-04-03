@@ -61,7 +61,7 @@ function initialize() {
 
     //Like D3 and jQuery, vizuly uses a function chaining syntax to set component properties
     //Here we set some bases line properties for all three components.
-    viz.data(80)                       // Current value
+    viz.data(0)                       // Current value
         .height(600)                    // Height of component - radius is calculated automatically for us
         .min(0)                         // min value
         .max(100)                       // max value
@@ -175,11 +175,10 @@ var counter = null;
 var count = 1;
 
 function startCount() {
-    viz.data(count).update();
     counter = setInterval(function() {
         if (count < 100) {
             count++;
-            viz.data(count).update();
+            setNumber(count);
         } else {
             stopCount();
         }
