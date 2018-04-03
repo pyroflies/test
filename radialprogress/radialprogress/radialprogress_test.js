@@ -104,8 +104,10 @@ function initialize() {
 function onTween(viz,i) {
     var diff = viz.data() - last;
     // console.log(diff * i);
+    var display = d3.format(".0f")(last + (diff * i));
+    // console.log(display);
     viz.selection().selectAll(".vz-radial_progress-label")
-        .text(viz.label()(d3.format(".0f")(last + (diff * i))) + "%");
+        .text(viz.label()(display + "%"));
 }
 
 function onMouseOver(viz,d,i) {
