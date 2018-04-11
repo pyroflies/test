@@ -56,17 +56,17 @@
         .pulse.error {
             fill: #ff0000;
         }
-        .kwh-plot.active .area {
+        .kwh-plot .area, .soc-plot .area {
             fill: #2471d0;
             fill-opacity: .4;
         }
-        .kwh-plot.active .line {
+        .kwh-plot .line, .soc-plot .line {
             fill: none;
             stroke: #2471d0;
             stroke-width: 3;
             stroke-opacity: 1;
         }
-        .kwh-plot.active .dot {
+        .kwh-plot .dot, .soc-plot .dot {
             fill: #2471d0;
             stroke: #ffffff;
         }
@@ -84,7 +84,7 @@
             fill: #d2d2d2;
             stroke: #ffffff;
         }
-        .soc-plot.active rect.bar {
+        /*.soc-plot.active rect.bar {
             fill: #00ff00;
         }
         .soc-plot.active rect.bar.soc-start {
@@ -93,7 +93,7 @@
         rect.bar {
             fill: #e2e2e2;
             opacity: 0.5;
-        }
+        }*/
         .grid line, .grid path {
           stroke: lightgrey;
           stroke-opacity: 0.7;
@@ -152,10 +152,10 @@
         <svg id="chargeSessionDetails"></svg>
         <svg id="liquidFillLoading" width="19%" height="200"></svg>
     </div>
-    <div id="buttonRow">
+    <!-- <div id="buttonRow">
         <button id="kWButton" class="toggle-button active" onclick="toggleChart(left=true)">kW</button>
         <button id="socButton" class="toggle-button" onclick="toggleChart(left=false)">% Charge</button>
-    </div>
+    </div> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <!-- <script src="{{ url_for('static', filename='charge_sessions/liquidFillGauge.js') }}"></script> -->
     <script type="text/javascript">
@@ -366,7 +366,8 @@
             histogram = d3.histogram()
                 .value(function(d) { return d.time; })
               .domain(xScale.domain())
-              .thresholds(halfMinutes); // xScale.ticks(d3.timeMinute)
+              // .thresholds(halfMinutes);
+              .thresholds(xScale.ticks(d3.timeMinute));
 
               console.log(xScale.domain())
               console.log(xScale.ticks(d3.timeMinute))
@@ -380,39 +381,39 @@
                 .attr("class", "grid y-left")
                 .call(yAxisGridLeft);
 
-            var yAxisGridRight = d3.axisLeft(yScaleRight).tickSize(-width).tickFormat("");
-            el.append("g")
-                .attr("class", "grid y-right")
-                .call(yAxisGridRight);
+            // var yAxisGridRight = d3.axisLeft(yScaleRight).tickSize(-width).tickFormat("");
+            // el.append("g")
+            //     .attr("class", "grid y-right")
+            //     .call(yAxisGridRight);
 
-            toggleGrid(left);
+            // toggleGrid(left);
         }
 
-        function toggleGrid(left=true) {
-            if (left) {
-                isLeftYAxis = true;
-                d3.selectAll(".grid.y-left").attr("visibility", "visible");
-                d3.selectAll(".grid.y-right").attr("visibility", "hidden");
-            } else {
-                isLeftYAxis = false;
-                d3.selectAll(".grid.y-left").attr("visibility", "hidden");
-                d3.selectAll(".grid.y-right").attr("visibility", "visible");
-            }
-        }
+        // function toggleGrid(left=true) {
+        //     if (left) {
+        //         isLeftYAxis = true;
+        //         d3.selectAll(".grid.y-left").attr("visibility", "visible");
+        //         d3.selectAll(".grid.y-right").attr("visibility", "hidden");
+        //     } else {
+        //         isLeftYAxis = false;
+        //         d3.selectAll(".grid.y-left").attr("visibility", "hidden");
+        //         d3.selectAll(".grid.y-right").attr("visibility", "visible");
+        //     }
+        // }
 
         function toggleChart(left=true) {
             if (left) {
                 isLeftYAxis = true;
                 document.getElementById("socButton").classList.remove("active");
                 document.getElementById("kWButton").classList.add("active");
-                toggleGrid(left);
+                // toggleGrid(left);
                 drawAxis(svg);
                 drawContainers(points, left);
             } else {
                 isLeftYAxis = false;
                 document.getElementById("kWButton").classList.remove("active");
                 document.getElementById("socButton").classList.add("active");
-                toggleGrid(left);
+                // toggleGrid(left);
                 drawAxis(svg);
                 drawContainers(points, left);
             }
@@ -483,85 +484,122 @@
 
         function drawSOCContainer(dataPoints, active=false) {
 
-            console.log(dataPoints);
-
             var className = "soc-plot";
-            var xWidth = 1;
-            d3.selectAll(".soc-plot").remove();
 
             if (active) className += " active";
+
+            var line = d3.line()
+                .x(function (d) { return xScale(d.time) })
+                .y(function (d) { return yScaleLeft(d.soc/2) })
+                .curve(d3.curveMonotoneX);
+
+            var area = d3.area()
+                .x(function (d) { return xScale(d.time) })
+                .y0(height)
+                .y1(function (d) { return yScaleLeft(d.soc/2) })
+                .curve(d3.curveMonotoneX);
+
             var socContainer = svg.append("g")
                 .attr("class", className);
 
-            var rect = socContainer.selectAll("rect")
-                .data(histogram(dataPoints))
-              .enter().append("rect")
-                .attr("class", "bar")
-                // .attr("style", function(d) {
-                //     var color = (d[0] && d[0].color) ? 'fill: ' + d[0].color : '';
-                //     return color;
-                // })
-                .attr("x", xWidth)
-                .attr("transform", function(d, i) {
-                    if (active) return "translate(" + xScale(d.x0) + "," + height + ")";
-                    return "translate(" + xScale(d.x0) + "," + yScaleRight(dataPoints[i].soc) + ")";
-                })
-                .attr("width", function(d) { return xScale(d.x1) - xScale(d.x0) - xWidth; })
-                .attr("height", function(d, i) {
-                    if (active) return 0;
-                    return Math.max(0, height - yScaleRight(dataPoints[i].soc - socStart)); });
+            var graphLine = socContainer.append("path")
+              .datum(dataPoints)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("d", line);
 
-            var rectSOC = socContainer.selectAll("rect.soc-start")
-                .data(histogram(dataPoints))
-              .enter().append("rect")
-                .attr("class", "bar soc-start")
-                .attr("x", xWidth)
-                .attr("transform", function(d, i) {
-                    if (active) return "translate(" + xScale(d.x0) + "," + height + ")";
-                    return "translate(" + xScale(d.x0) + "," + yScaleRight(socStart) + ")";
-                })
-                .attr("width", function(d) { console.log(xScale(d.x1), xScale(d.x0), xWidth); return xScale(d.x1) - xScale(d.x0) - xWidth; })
-                .attr("height", function(d) {
-                    if (active) return 0;
-                    return Math.max(0, height - yScaleRight(socStart)); });
+            var totalLength = graphLine.node().getTotalLength();
+
+            graphLine
+                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                .attr('stroke-dashoffset', totalLength);
+
+            var graphLineArea = socContainer.append('path')
+              .datum(dataPoints)
+                .attr("class", 'area')
+                .style('fill-opacity', 0)
+                .attr('d', area);
+
+            var graphLineAreaTotalLength = graphLine.node().getTotalLength();
+            graphLineArea
+                .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
+                .attr('stroke-dashoffset', graphLineAreaTotalLength);
+
+            if (animate) {
+                graphLine
+                  .transition()
+                    .duration(2000)
+                    .attr('stroke-dashoffset', 0);
+                graphLineArea
+                  .transition()
+                    .duration(2000)
+                    .style('fill-opacity', 0.4)
+                  .transition()
+                    .duration(2000)
+                    .attr('stroke-dashoffset', 0);
+            } else {
+                graphLine.attr('stroke-dashoffset', 0);
+                graphLineArea
+                    .style('fill-opacity', 0.3)
+                    .attr('stroke-dashoffset', 0);
+            }
+
+            function addPoints(datum) {
+                var pointsContainer = socContainer.append("g");
+                datum.forEach(function(d, index) {
+                    drawPoint(pointsContainer, d, index);
+                });
+            }
+
+            function drawPoint(container, d, index) {
+                container.datum(d)
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 0)
+                    .attr("cx", function (d) { return xScale(d.time) })
+                    .attr("cy", function (d) { return yScaleLeft(d.soc/2) })
+                    // .on("mouseover", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(200)
+                    //         .style("opacity", .9);
+                    //     tooltip.html(d.soc + "%")
+                    //         .style("cursor", "pointer")
+                    //         .style("left", (d3.event.pageX) + "px")
+                    //         .style("top", (d3.event.pageY - 28) + "px");
+                    // })
+                    // .on("mouseout", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(500)
+                    //         .style("opacity", 0);
+                    // })
+                  .transition()
+                    .delay( 1800 )
+                    .duration( 500 )
+                    .attr("r", 5 );
+            }
 
             if (active) {
-                rect.transition()
-                    .delay(function(d, i) {
-                        if (active) return i * 20;
-                        return 0; })
-                    .attr("transform", function(d, i) {
-                        return "translate(" + xScale(d.x0) + "," + yScaleRight(dataPoints[i].soc) + ")"; })
-                    .attr("height", function(d, i) {
-                        return Math.max(0, height - yScaleRight(dataPoints[i].soc - socStart)); });
-
-                rectSOC.transition()
-                    .delay(function(d, i) {
-                        if (active) return i * 20;
-                        return 0; })
-                    .attr("transform", function(d, i) {
-                        return "translate(" + xScale(d.x0) + "," + yScaleRight(socStart) + ")"; })
-                    .attr("height", function(d, i) {
-                        return Math.max(0, height - yScaleRight(socStart)); });
+                addPoints(dataPoints);
             }
         }
 
         function drawKWhContainer(dataPoints, active=false, animate=true) {
             var className = "kwh-plot";
-            d3.selectAll(".kwh-plot").remove();
 
             if (active) className += " active";
 
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return yScaleLeft(d.kwh) })
-                .curve(d3.curveMonotoneX);
+                .curve(d3.curveStepBefore);
 
             var area = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(height)
                 .y1(function (d) { return yScaleLeft(d.kwh) })
-                .curve(d3.curveMonotoneX);
+                .curve(d3.curveStepBefore);
 
             var kWContainer = svg.append("g")
                 .attr("class", className);
@@ -649,14 +687,9 @@
             }
         }
 
-        function drawContainers(dataPoints, left=true) {
-            if (left) {
-                drawSOCContainer(dataPoints, active=false, animate=false);
-                drawKWhContainer(dataPoints, active=true, animate=true);
-            } else {
-                drawKWhContainer(dataPoints, active=false, animate=false);
-                drawSOCContainer(dataPoints, active=true, animate=true);
-            }
+        function drawContainers(dataPoints) {
+            drawSOCContainer(dataPoints, active=true, animate=true);
+            drawKWhContainer(dataPoints, active=true, animate=true);
         }
         function plotChargeSession(dataPoints) {
             drawAxis(svg);
