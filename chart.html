@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!--<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">-->
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+        }
+        #buttonRow {
+            text-align: center;
+            display: none;
+        }
+        #buttonRow.active {
+            display: block;
+        }
+        .toggle-button {
+            font-size: 14px;
+            font-family: 'Roboto', sans-serif;
+            width: 50%;
+            max-width: 300px;
+            min-width: 150px;
+            padding: 15px;
+            margin: 5px 50px;
+            border: 0;
+            background-color: #d2d2d2;
+        }
+        .toggle-button.active {
+            color: #ffffff;
+            background-color: #2471d0;
+        }
+        @media screen and (min-width: 600px) and (max-width: 820px) {
+            .toggle-button {
+                width: 50%;
+                max-width: 200px;
+                min-width: 50px;
+                padding: 12px 15px;
+            }
+        }
+
+        @media screen and (max-width: 600px) {
+            .toggle-button {
+                width: 50%;
+                max-width: 150px;
+                min-width: 50px;
+                padding: 10px;
+                margin: 5px 20px;color: #ffffff;
+            }
+        }
+        .pulse {
+            fill: green;
+        }
+        .pulse.warning {
+            fill: #ffa500;
+        }
+        .pulse.error {
+            fill: #ff0000;
+        }
+        .kwh-plot.active .area {
+            fill: #2471d0;
+            fill-opacity: .4;
+        }
+        .kwh-plot.active .line {
+            fill: none;
+            stroke: #2471d0;
+            stroke-width: 3;
+            stroke-opacity: 1;
+        }
+        .kwh-plot.active .dot {
+            fill: #2471d0;
+            stroke: #ffffff;
+        }
+        .area {
+            fill: #d2d2d2;
+            fill-opacity: .2;
+        }
+        .line {
+            fill: none;
+            stroke: #d2d2d2;
+            stroke-width: 1;
+            stroke-opacity: .2;
+        }
+        .dot {
+            fill: #d2d2d2;
+            stroke: #ffffff;
+        }
+        .soc-plot.active rect.bar {
+            fill: #00ff00;
+        }
+        .soc-plot.active rect.bar.soc-start {
+            fill: #2471d0;
+        }
+        rect.bar {
+            fill: #e2e2e2;
+            opacity: 0.5;
+        }
+        .grid line, .grid path {
+          stroke: lightgrey;
+          stroke-opacity: 0.7;
+          shape-rendering: crispEdges;
+        }
+        .y-axis-text {
+            text-anchor: middle;
+            fill: #d2d2d2;
+        }
+        .y-axis-text.active {
+            fill: #000000;
+        }
+        .y.axis path, .y.axis line {
+            stroke: #d2d2d2;
+        }
+        .y.axis.active path, .y.axis.active line {
+            stroke: #000000;
+        }
+        .y.axis text {
+            fill: #d2d2d2;
+        }
+        .y.axis.active text {
+            fill: #000000;
+        }
+
+        text, h1 {
+            font-family: 'Roboto', sans-serif;
+        }
+        #tooltip {
+            position: absolute;
+            top: 0;
+            left: 0;
+            text-align: center;
+            padding: 0.5rem;
+            font-size: 12px;
+            font-family: 'Roboto', sans-serif;
+            background: #000000;
+            opacity: 0;
+            border: 0px;
+            border-radius: 8px;
+            pointer-events: none;
+        }
+        #liquidFillLoading {
+            margin: 50px;
+        }
+        .liquidFillGaugeText {
+            font-family: 'Roboto', sans-serif;
+            font-weight: bold;
+        }
+    </style>
+    <title>Recargo</title>
+</head>
+<body marginwidth="0" marginheight="0">
+    <div id="tooltip"></div>
+    <div id="chartContainer">
+        <svg id="chargeSessionDetails"></svg>
+        <svg id="liquidFillLoading" width="19%" height="200"></svg>
+    </div>
+    <div id="buttonRow">
+        <button id="kWButton" class="toggle-button active" onclick="toggleChart(left=true)">kW</button>
+        <button id="socButton" class="toggle-button" onclick="toggleChart(left=false)">% Charge</button>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
+    <!-- <script src="{{ url_for('static', filename='charge_sessions/liquidFillGauge.js') }}"></script> -->
+    <script type="text/javascript">
+        var xScale, yScaleLeft, yScaleRight, y0Max, histogram;
+        var width, height, svg;
+        var margin = {top: 10, right: 50, bottom: 30, left: 50};
+        var padding = {top: 20, right: 50, bottom: 50, left: 50};
+        var dtFmt = d3.timeFormat("%I:%M:%S");
+        // var tooltip = d3.select("#tooltip").style("opacity", 0);
+        var isLeftYAxis = true;
+        var socStart = 0; //{{ soc_start|safe }};
+        // var points = []; //{{ dataset|safe }};
+        var points = [{"amps": "", "charge_session_id": "106", "id": "385", "soc": "10", "timestamp": "2018-02-16T23:11:28", "volts": "", "watts": "19000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "12", "timestamp": "2018-02-16T23:12:28", "volts": "", "watts": "19500"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "14", "timestamp": "2018-02-16T23:13:28", "volts": "", "watts": "20000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "16", "timestamp": "2018-02-16T23:14:28", "volts": "", "watts": "20250"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "18", "timestamp": "2018-02-16T23:15:28", "volts": "", "watts": "20500"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "20", "timestamp": "2018-02-16T23:16:28", "volts": "", "watts": "20750"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "22", "timestamp": "2018-02-16T23:17:28", "volts": "", "watts": "20800"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "24", "timestamp": "2018-02-16T23:18:28", "volts": "", "watts": "20900"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "26", "timestamp": "2018-02-16T23:19:28", "volts": "", "watts": "21000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "28", "timestamp": "2018-02-16T23:20:28", "volts": "", "watts": "21111"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "30", "timestamp": "2018-02-16T23:21:28", "volts": "", "watts": "21125"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "32", "timestamp": "2018-02-16T23:22:28", "volts": "", "watts": "21150"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "34", "timestamp": "2018-02-16T23:23:28", "volts": "", "watts": "21200"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "36", "timestamp": "2018-02-16T23:24:28", "volts": "", "watts": "21250"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "38", "timestamp": "2018-02-16T23:25:28", "volts": "", "watts": "21500"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "40", "timestamp": "2018-02-16T23:26:28", "volts": "", "watts": "21750"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "42", "timestamp": "2018-02-16T23:27:28", "volts": "", "watts": "21800"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "44", "timestamp": "2018-02-16T23:28:28", "volts": "", "watts": "21850"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "46", "timestamp": "2018-02-16T23:29:28", "volts": "", "watts": "21900"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "48", "timestamp": "2018-02-16T23:30:28", "volts": "", "watts": "21950"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "50", "timestamp": "2018-02-16T23:31:28", "volts": "", "watts": "22000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "52", "timestamp": "2018-02-16T23:32:28", "volts": "", "watts": "22050"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "54", "timestamp": "2018-02-16T23:33:28", "volts": "", "watts": "22100"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "56", "timestamp": "2018-02-16T23:34:28", "volts": "", "watts": "22150"}, {"amps": "", "charge_session_id": "106", "id": "382", "soc": "58", "timestamp": "2018-02-16T23:35:28", "volts": "", "watts": "22175"}, {"amps": "", "charge_session_id": "106", "id": "383", "soc": "60", "timestamp": "2018-02-16T23:36:28", "volts": "", "watts": "22180"}, {"amps": "", "charge_session_id": "106", "id": "384", "soc": "62", "timestamp": "2018-02-16T23:37:28", "volts": "", "watts": "22200"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "64", "timestamp": "2018-02-16T23:38:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "386", "soc": "66", "timestamp": "2018-02-16T23:39:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "387", "soc": "68", "timestamp": "2018-02-16T23:40:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "388", "soc": "70", "timestamp": "2018-02-16T23:40:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "389", "soc": "72", "timestamp": "2018-02-16T23:41:29", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "390", "soc": "74", "timestamp": "2018-02-16T23:41:29", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "391", "soc": "76", "timestamp": "2018-02-16T23:42:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "392", "soc": "78", "timestamp": "2018-02-16T23:42:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "80", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "86", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "87", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "88", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "89", "timestamp": "2018-02-16T23:44:30", "volts": "", "watts": "19000"}, {"amps": "", "charge_session_id": "106", "id": "395", "soc": "92", "timestamp": "2018-02-16T23:45:31", "volts": "", "watts": "18000"}, {"amps": "", "charge_session_id": "106", "id": "397", "soc": "93", "timestamp": "2018-02-16T23:47:32", "volts": "", "watts": "15000"}, {"amps": "", "charge_session_id": "106", "id": "398", "soc": "94", "timestamp": "2018-02-16T23:48:32", "volts": "", "watts": "10000"}, {"amps": "", "charge_session_id": "106", "id": "400", "soc": "95", "timestamp": "2018-02-16T23:50:33", "volts": "", "watts": "100"}, {"amps": "", "charge_session_id": "106", "id": "402", "soc": "96", "timestamp": "2018-02-16T23:52:34", "volts": "", "watts": "20"}, {"amps": "", "charge_session_id": "106", "id": "401", "soc": "96", "timestamp": "2018-02-16T23:51:34", "volts": "", "watts": "30"}, {"amps": "", "charge_session_id": "106", "id": "405", "soc": "97", "timestamp": "2018-02-16T23:55:35", "volts": "", "watts": "8"}, {"amps": "", "charge_session_id": "106", "id": "404", "soc": "97", "timestamp": "2018-02-16T23:54:34", "volts": "", "watts": "10"}, {"amps": "", "charge_session_id": "106", "id": "403", "soc": "97", "timestamp": "2018-02-16T23:53:34", "volts": "", "watts": "12"}, {"amps": "", "charge_session_id": "106", "id": "407", "soc": "98", "timestamp": "2018-02-16T23:57:36", "volts": "", "watts": "5"}, {"amps": "", "charge_session_id": "106", "id": "406", "soc": "98", "timestamp": "2018-02-16T23:56:35", "volts": "", "watts": "6"}, {"amps": "", "charge_session_id": "106", "id": "408", "soc": "99", "timestamp": "2018-02-16T23:58:52", "volts": "", "watts": "0"}];
+        var points = [
+          {
+            "amps": null, 
+            "soc": null, 
+            "timestamp": "2018-04-05T16:04:33.586690-07:00", 
+            "volts": null, 
+            "watts": null
+          }, 
+          {
+            "amps": null, 
+            "soc": null, 
+            "timestamp": "2018-04-05T16:04:35.112828-07:00", 
+            "volts": null, 
+            "watts": null
+          }, 
+          {
+            "amps": null, 
+            "soc": null, 
+            "timestamp": "2018-04-05T16:04:50.451531-07:00", 
+            "volts": 377, 
+            "watts": 0
+          }, 
+          {
+            "amps": null, 
+            "soc": 35, 
+            "timestamp": "2018-04-05T16:05:21.085889-07:00", 
+            "volts": 391, 
+            "watts": 0
+          }, 
+          {
+            "amps": null, 
+            "soc": 38, 
+            "timestamp": "2018-04-05T16:05:51.744536-07:00", 
+            "volts": 394, 
+            "watts": 35972
+          }, 
+          {
+            "amps": null, 
+            "soc": 40, 
+            "timestamp": "2018-04-05T16:06:22.454744-07:00", 
+            "volts": 394, 
+            "watts": 35972
+          }, 
+          {
+            "amps": null, 
+            "soc": 42, 
+            "timestamp": "2018-04-05T16:06:53.071918-07:00", 
+            "volts": 397, 
+            "watts": 36735
+          }, 
+          {
+            "amps": null, 
+            "soc": 45, 
+            "timestamp": "2018-04-05T16:07:23.785812-07:00", 
+            "volts": 397, 
+            "watts": 36735
+          }, 
+          {
+            "amps": null, 
+            "soc": 47, 
+            "timestamp": "2018-04-05T16:07:54.294834-07:00", 
+            "volts": 398, 
+            "watts": 36921
+          }, 
+          {
+            "amps": null, 
+            "soc": 50, 
+            "timestamp": "2018-04-05T16:08:24.927551-07:00", 
+            "volts": 398, 
+            "watts": 36921
+          }, 
+          {
+            "amps": null, 
+            "soc": 52, 
+            "timestamp": "2018-04-05T16:08:55.521776-07:00", 
+            "volts": 398, 
+            "watts": 36218
+          }, 
+          {
+            "amps": null, 
+            "soc": 55, 
+            "timestamp": "2018-04-05T16:09:26.258409-07:00", 
+            "volts": 398, 
+            "watts": 36218
+          }, 
+          {
+            "amps": null, 
+            "soc": 56, 
+            "timestamp": "2018-04-05T16:09:56.904760-07:00", 
+            "volts": 398, 
+            "watts": 31840
+          }, 
+          {
+            "amps": null, 
+            "soc": 58, 
+            "timestamp": "2018-04-05T16:10:27.703898-07:00", 
+            "volts": 398, 
+            "watts": 31840
+          }, 
+          {
+            "amps": null, 
+            "soc": 60, 
+            "timestamp": "2018-04-05T16:10:58.357652-07:00", 
+            "volts": 398, 
+            "watts": 29054
+          }, 
+          {
+            "amps": null, 
+            "soc": 60, 
+            "timestamp": "2018-04-05T16:11:18.430488-07:00", 
+            "volts": 398, 
+            "watts": 29054
+          }
+        ]
+        // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
+
+        points = processPoints(points);
+
+        function updateDimensions(winWidth) {
+            margin.top = 10;
+            margin.right = 50;
+            margin.left = 50;
+            margin.bottom = 30;
+
+            width = winWidth - margin.left - margin.right - padding.left - padding.right;
+            height = 0.47 * width;
+        }
+
+        // TODO: Responsive
+        function clearChartSVG() {
+            svg = d3.select("#chargeSessionDetails");
+            svg.selectAll("*").remove();
+        }
+
+        function drawChartSVG() {
+            clearChartSVG();
+            svg = d3.select("#chargeSessionDetails")
+                .attr("width", width)
+                .attr("height", height)
+                .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        }
+
+        function roundUp5(x) {
+            return Math.ceil((x+2)/5)*5;
+        }
+
+        function processPoints(dataPoints) {
+            dataPoints.forEach(function(d) {
+                d.time = d3.isoParse(d["timestamp"]);
+                d.kwh = d["watts"] / 1000;
+                d.soc = Math.floor(d["soc"]);
+                if (d.soc < 20) {
+                    d.color = "red";
+                } else if (d.soc < 35) {
+                    d.color = "orange";
+                } else if (d.soc < 50 ) {
+                    d.color = "yellow";
+                } else if (d.soc < 80) {
+                    d.color = "green";
+                } else {
+                    d.color = "steelblue";
+                }
+                console.log(d.color);
+            });
+            return dataPoints;
+        }
+
+        function getTimeRange() {
+            var xRange = d3.extent(points, function (d) { return d.time });
+            // if (xRange[1] - xRange[0] < (30 * 60 * 1000)) {
+            //     var newDateObj = new Date();
+            //     newDateObj.setTime(xRange[0].getTime() + (30 * 60 * 1000));
+            //     xRange = [xRange[0], newDateObj];
+            // }
+            return xRange;
+        }
+        function updateScale() {
+            y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+
+            xScale = d3.scaleTime()
+                .rangeRound([0, width])
+              .domain(getTimeRange());
+
+            yScaleLeft = d3.scaleLinear()
+                .rangeRound([height, 0])
+              .domain([0, y0Max]);
+
+            yScaleRight = d3.scaleLinear()
+                .rangeRound([height, 0])
+              .domain([0, 100]);
+
+            var halfMinutes = d3.timeSeconds(xScale.domain()[0], xScale.domain()[1], 30);
+
+            histogram = d3.histogram()
+                .value(function(d) { return d.time; })
+              .domain(xScale.domain())
+              .thresholds(halfMinutes); // xScale.ticks(d3.timeMinute)
+
+              console.log(xScale.domain())
+              console.log(xScale.ticks(d3.timeMinute))
+              console.log(halfMinutes)
+        }
+
+        function plotGrid(el, left=true) {
+            d3.selectAll(".grid").remove();
+            var yAxisGridLeft = d3.axisLeft(yScaleLeft).tickSize(-width).tickFormat("");
+            el.append("g")
+                .attr("class", "grid y-left")
+                .call(yAxisGridLeft);
+
+            var yAxisGridRight = d3.axisLeft(yScaleRight).tickSize(-width).tickFormat("");
+            el.append("g")
+                .attr("class", "grid y-right")
+                .call(yAxisGridRight);
+
+            toggleGrid(left);
+        }
+
+        function toggleGrid(left=true) {
+            if (left) {
+                isLeftYAxis = true;
+                d3.selectAll(".grid.y-left").attr("visibility", "visible");
+                d3.selectAll(".grid.y-right").attr("visibility", "hidden");
+            } else {
+                isLeftYAxis = false;
+                d3.selectAll(".grid.y-left").attr("visibility", "hidden");
+                d3.selectAll(".grid.y-right").attr("visibility", "visible");
+            }
+        }
+
+        function toggleChart(left=true) {
+            if (left) {
+                isLeftYAxis = true;
+                document.getElementById("socButton").classList.remove("active");
+                document.getElementById("kWButton").classList.add("active");
+                toggleGrid(left);
+                drawAxis(svg);
+                drawContainers(points, left);
+            } else {
+                isLeftYAxis = false;
+                document.getElementById("kWButton").classList.remove("active");
+                document.getElementById("socButton").classList.add("active");
+                toggleGrid(left);
+                drawAxis(svg);
+                drawContainers(points, left);
+            }
+        }
+
+        function drawAxis(el) {
+            updateScale();
+            plotGrid(el, left=isLeftYAxis);
+
+            d3.selectAll(".axis-container").remove();
+
+            // TODO: xAxis minimum length 30 minutes
+            var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+            var yAxisLeft = d3.axisLeft(yScaleLeft);
+            var yAxisRight = d3.axisRight(yScaleRight);
+
+            var axis = el.append("g").attr("class", "axis-container");
+
+            var yAxisLeftClass = "y axis y-left";
+            var yAxisLeftTextClass = "y-axis-text";
+            var yAxisRightClass = "y axis y-right";
+            var yAxisRightTextClass = "y-axis-text";
+
+            if (isLeftYAxis) {
+                yAxisLeftClass += " active";
+                yAxisLeftTextClass += " active";
+            } else {
+                yAxisRightClass += " active";
+                yAxisRightTextClass += " active";
+            }
+
+            axis.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+            axis.append("text")
+                .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 30) + ")")
+                .style("text-anchor", "middle")
+                .text("Time ({{ tz }})");
+
+            axis.append("g")
+                .attr("class", yAxisLeftClass)
+                .call(yAxisLeft);
+
+            axis.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .attr("class", yAxisLeftTextClass)
+                .style("text-anchor", "middle")
+                .text("kW");
+
+            axis.append("g")
+                .attr("class", yAxisRightClass)
+                .attr("transform", "translate(" + width + " ,0)")
+                .call(yAxisRight);
+
+            axis.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", width + 30)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .attr("class", yAxisRightTextClass)
+                .style("text-anchor", "middle")
+                .text("% Charge");
+        }
+
+        function drawSOCContainer(dataPoints, active=false) {
+
+            console.log(dataPoints);
+
+            var className = "soc-plot";
+            var xWidth = 1;
+            d3.selectAll(".soc-plot").remove();
+
+            if (active) className += " active";
+            var socContainer = svg.append("g")
+                .attr("class", className);
+
+            var rect = socContainer.selectAll("rect")
+                .data(histogram(dataPoints))
+              .enter().append("rect")
+                .attr("class", "bar")
+                // .attr("style", function(d) {
+                //     var color = (d[0] && d[0].color) ? 'fill: ' + d[0].color : '';
+                //     return color;
+                // })
+                .attr("x", xWidth)
+                .attr("transform", function(d, i) {
+                    if (active) return "translate(" + xScale(d.x0) + "," + height + ")";
+                    return "translate(" + xScale(d.x0) + "," + yScaleRight(dataPoints[i].soc) + ")";
+                })
+                .attr("width", function(d) { return xScale(d.x1) - xScale(d.x0) - xWidth; })
+                .attr("height", function(d, i) {
+                    if (active) return 0;
+                    return Math.max(0, height - yScaleRight(dataPoints[i].soc - socStart)); });
+
+            var rectSOC = socContainer.selectAll("rect.soc-start")
+                .data(histogram(dataPoints))
+              .enter().append("rect")
+                .attr("class", "bar soc-start")
+                .attr("x", xWidth)
+                .attr("transform", function(d, i) {
+                    if (active) return "translate(" + xScale(d.x0) + "," + height + ")";
+                    return "translate(" + xScale(d.x0) + "," + yScaleRight(socStart) + ")";
+                })
+                .attr("width", function(d) { console.log(xScale(d.x1), xScale(d.x0), xWidth); return xScale(d.x1) - xScale(d.x0) - xWidth; })
+                .attr("height", function(d) {
+                    if (active) return 0;
+                    return Math.max(0, height - yScaleRight(socStart)); });
+
+            if (active) {
+                rect.transition()
+                    .delay(function(d, i) {
+                        if (active) return i * 20;
+                        return 0; })
+                    .attr("transform", function(d, i) {
+                        return "translate(" + xScale(d.x0) + "," + yScaleRight(dataPoints[i].soc) + ")"; })
+                    .attr("height", function(d, i) {
+                        return Math.max(0, height - yScaleRight(dataPoints[i].soc - socStart)); });
+
+                rectSOC.transition()
+                    .delay(function(d, i) {
+                        if (active) return i * 20;
+                        return 0; })
+                    .attr("transform", function(d, i) {
+                        return "translate(" + xScale(d.x0) + "," + yScaleRight(socStart) + ")"; })
+                    .attr("height", function(d, i) {
+                        return Math.max(0, height - yScaleRight(socStart)); });
+            }
+        }
+
+        function drawKWhContainer(dataPoints, active=false, animate=true) {
+            var className = "kwh-plot";
+            d3.selectAll(".kwh-plot").remove();
+
+            if (active) className += " active";
+
+            var line = d3.line()
+                .x(function (d) { return xScale(d.time) })
+                .y(function (d) { return yScaleLeft(d.kwh) })
+                .curve(d3.curveMonotoneX);
+
+            var area = d3.area()
+                .x(function (d) { return xScale(d.time) })
+                .y0(height)
+                .y1(function (d) { return yScaleLeft(d.kwh) })
+                .curve(d3.curveMonotoneX);
+
+            var kWContainer = svg.append("g")
+                .attr("class", className);
+
+            var graphLine = kWContainer.append("path")
+              .datum(dataPoints)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("d", line);
+
+            var totalLength = graphLine.node().getTotalLength();
+
+            graphLine
+                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                .attr('stroke-dashoffset', totalLength);
+
+            var graphLineArea = kWContainer.append('path')
+              .datum(dataPoints)
+                .attr("class", 'area')
+                .style('fill-opacity', 0)
+                .attr('d', area);
+
+            var graphLineAreaTotalLength = graphLine.node().getTotalLength();
+            graphLineArea
+                .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
+                .attr('stroke-dashoffset', graphLineAreaTotalLength);
+
+            if (animate) {
+                graphLine
+                  .transition()
+                    .duration(2000)
+                    .attr('stroke-dashoffset', 0);
+                graphLineArea
+                  .transition()
+                    .duration(2000)
+                    .style('fill-opacity', 0.4)
+                  .transition()
+                    .duration(2000)
+                    .attr('stroke-dashoffset', 0);
+            } else {
+                graphLine.attr('stroke-dashoffset', 0);
+                graphLineArea
+                    .style('fill-opacity', 0.3)
+                    .attr('stroke-dashoffset', 0);
+            }
+
+            function addPoints(datum) {
+                var pointsContainer = kWContainer.append("g");
+                datum.forEach(function(d, index) {
+                    drawPoint(pointsContainer, d, index);
+                });
+            }
+
+            function drawPoint(container, d, index) {
+                container.datum(d)
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 0)
+                    .attr("cx", function (d) { return xScale(d.time) })
+                    .attr("cy", function (d) { return yScaleLeft(d.kwh) })
+                    // .on("mouseover", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(200)
+                    //         .style("opacity", .9);
+                    //     tooltip.html(d.soc + "%")
+                    //         .style("cursor", "pointer")
+                    //         .style("left", (d3.event.pageX) + "px")
+                    //         .style("top", (d3.event.pageY - 28) + "px");
+                    // })
+                    // .on("mouseout", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(500)
+                    //         .style("opacity", 0);
+                    // })
+                  .transition()
+                    .delay( 1800 )
+                    .duration( 500 )
+                    .attr("r", 5 );
+            }
+
+            if (active) {
+                addPoints(dataPoints);
+            }
+        }
+
+        function drawContainers(dataPoints, left=true) {
+            if (left) {
+                drawSOCContainer(dataPoints, active=false, animate=false);
+                drawKWhContainer(dataPoints, active=true, animate=true);
+            } else {
+                drawKWhContainer(dataPoints, active=false, animate=false);
+                drawSOCContainer(dataPoints, active=true, animate=true);
+            }
+        }
+        function plotChargeSession(dataPoints) {
+            drawAxis(svg);
+            points = dataPoints;
+            drawContainers(dataPoints, left=true);
+        }
+
+        function plotLoading() {
+            /*var loadingSvg = d3.select("#liquidFillLoading");
+            if (loadingSvg.innerHTML) return;
+            var loadingConfig = liquidFillGaugeDefaultSettings();
+            loadingConfig.circleColor = "#d2d2d2";
+            loadingConfig.textColor = "#b7b7b7";
+            loadingConfig.waveTextColor = "#d2d2d2";
+            loadingConfig.waveColor = "#b7b7b7";
+            loadingConfig.circleThickness = 0.2;
+            loadingConfig.textVertPosition = 0.2;
+            loadingConfig.waveAnimateTime = 1000;
+            loadingConfig.displayPercent = false;
+            loadingConfig.displayCount = false;
+            var loadingGauge = loadLiquidFillGauge("liquidFillLoading", 20, loadingConfig);*/
+
+            // d3.select("#liquidFillLoading").append("text")
+            //     .attr("transform", "translate(90, 100)")
+            //     .attr("stroke", "#d2d2d2")
+            //     .style("text-anchor", "middle")
+            //     .text("Loading");
+        }
+
+        function hideLoading() {
+            d3.select("#liquidFillLoading").attr("display", "none");
+        }
+
+        function clearLoading() {
+            hideLoading();
+            var loadingSVG = d3.select("#liquidFillLoading");
+            loadingSVG.selectAll("*").remove();
+        }
+
+        function clearPulse() {
+            svg.selectAll(".pulse").remove();
+        }
+        function drawPulse(error=false, warning=false) {
+            var pulseClass = "pulse";
+            clearPulse();
+            if (error) {
+                pulseClass += " error";
+            } else if (warning) {
+                pulseClass += " warning";
+            }
+            svg.append("circle")
+                .attr("class", pulseClass)
+                .attr("r", 0)
+                .attr("cx", 10)
+                .attr("cy", 10)
+                .node().animate([
+                    {r: 0, opacity: .5},
+                    {r: 5, opacity: 1}
+                ], {
+                    duration: 1000,
+                    easing: "linear",
+                    iterations: Infinity,
+                    direction: "alternate"
+                });
+        }
+
+        function plotGraph(dataPoints, charging, socInitial) {
+            if (socInitial) socStart = socInitial;
+            if (dataPoints.length > 0) {
+                d3.select("#buttonRow").attr("class", "active");
+                clearLoading();
+                updateDimensions(window.innerWidth);
+                drawChartSVG();
+                dataPoints = processPoints(dataPoints);
+                plotChargeSession(dataPoints);
+                drawPulse();
+            } else if (dataPoints.length === 0 && !charging) {
+                plotLoading();
+            } else {
+                drawPulse(warning=true);
+            }
+        }
+
+        plotGraph(points);
+    </script>
+
+    <!-- {# If the uid is 'index' we do not want to poll for new results so we shouldn't include in the view. #}
+    {# If charging has completed, we shouldn't include polling in the view. #}
+
+    {% if uid != 'index' and not charging_complete %} -->
+    <script type="text/javascript">
+        /*var csDetailsUrl = "{{ polling_url }}";
+        var maxFail = 18;  // stop trying if it fails more than 18 times or 3 minutes
+        var failedAttempts = 0;
+        var inUse = true;
+        var lastDT = new Date().toISOString();
+        var graphPoints = [];
+        var responseDetails = [];
+        var url = csDetailsUrl;
+        var socInitial = 0 //{{ soc_start|safe }};
+
+        function getUpdates(url) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', url + '?last_dt=' + lastDT);
+            xhr.timeout = 5000;
+            xhr.onerror = function(e) {
+                failedAttempts++;
+            };
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    failedAttempts = 0;
+                    var myArr = JSON.parse(xhr.responseText);
+                    var responseDict = myArr['response'];
+                    if (responseDict.hasOwnProperty('soc_start')) socInitial = responseDict['soc_start'];
+                    if (responseDict.hasOwnProperty('is_in_use')) inUse = responseDict['is_in_use'];
+                    if (responseDict.hasOwnProperty('details')) {
+                        responseDetails = responseDict['details'];
+                        if (graphPoints.length === 0) {
+                            graphPoints = responseDetails;
+                        } else {
+                            graphPoints = graphPoints.concat(responseDetails);
+                        }
+                        plotGraph(graphPoints, inUse, socInitial);
+                    } else if (!inUse) {
+                        clearPulse();
+                    } else {
+                        plotGraph([], inUse, socInitial);
+                        failedAttempts++;
+                    }
+                } else if (xhr.status >= 400) {
+                    drawPulse(error=true);
+                    failedAttempts++;
+                }
+            };
+            xhr.send();
+        }
+
+        setInterval(function() {
+            if (failedAttempts < maxFail || inUse) {
+                getUpdates(url);
+            }
+        }, 1000*10);*/
+    </script>
+    <!-- {% endif %} -->
+
+</body>
+</html>
