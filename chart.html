@@ -6,15 +6,17 @@
     <style>
         body {
             font-family: 'Roboto', sans-serif;
+            background-color: #070d2f;
+            color: #fff;
         }
-        #buttonRow {
+        /*#buttonRow {
             text-align: center;
             display: none;
         }
         #buttonRow.active {
             display: block;
-        }
-        .toggle-button {
+        }*/
+        /*.toggle-button {
             font-size: 14px;
             font-family: 'Roboto', sans-serif;
             width: 50%;
@@ -46,9 +48,9 @@
                 padding: 10px;
                 margin: 5px 20px;color: #ffffff;
             }
-        }
+        }*/
         .pulse {
-            fill: green;
+            fill: #00ff00;
         }
         .pulse.warning {
             fill: #ffa500;
@@ -58,23 +60,23 @@
         }
         .kwh-plot .area, .soc-plot .area {
             fill: #2471d0;
-            fill-opacity: .4;
+            /*fill-opacity: .4;*/
         }
         .kwh-plot .line, .soc-plot .line {
-            fill: none;
+            /*fill: none;*/
             stroke: #2471d0;
             stroke-width: 3;
             stroke-opacity: 1;
         }
-        .kwh-plot .dot, .soc-plot .dot {
+        /*.kwh-plot .dot, .soc-plot .dot {
             fill: #2471d0;
             stroke: #ffffff;
-        }
-        .area {
+        }*/
+        /*.area {
             fill: #d2d2d2;
             fill-opacity: .2;
-        }
-        .line {
+        }*/
+        /*.line {
             fill: none;
             stroke: #d2d2d2;
             stroke-width: 1;
@@ -83,7 +85,7 @@
         .dot {
             fill: #d2d2d2;
             stroke: #ffffff;
-        }
+        }*/
         /*.soc-plot.active rect.bar {
             fill: #00ff00;
         }
@@ -95,31 +97,34 @@
             opacity: 0.5;
         }*/
         .grid line, .grid path {
-          stroke: lightgrey;
+          stroke: #1e37c1;
           stroke-opacity: 0.7;
           shape-rendering: crispEdges;
         }
+
         .y-axis-text {
             text-anchor: middle;
-            fill: #d2d2d2;
-        }
-        .y-axis-text.active {
-            fill: #000000;
+            fill: #2471d0;
         }
         .y.axis path, .y.axis line {
-            stroke: #d2d2d2;
-        }
-        .y.axis.active path, .y.axis.active line {
-            stroke: #000000;
+            stroke: #2471d0;
         }
         .y.axis text {
-            fill: #d2d2d2;
-        }
-        .y.axis.active text {
-            fill: #000000;
+            fill: #2471d0;
         }
 
-        text, h1 {
+        .x-axis-text {
+            text-anchor: middle;
+            fill: #2471d0;
+        }
+        .x.axis path, .x.axis line {
+            stroke: #2471d0;
+        }
+        .x.axis text {
+            fill: #2471d0;
+        }
+
+        /*text, h1 {
             font-family: 'Roboto', sans-serif;
         }
         #tooltip {
@@ -142,7 +147,7 @@
         .liquidFillGaugeText {
             font-family: 'Roboto', sans-serif;
             font-weight: bold;
-        }
+        }*/
     </style>
     <title>Recargo</title>
 </head>
@@ -309,7 +314,27 @@
                 .attr("width", width)
                 .attr("height", height)
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+
+
+            // //Container for the gradients
+            // var defs = svg.append("defs");
+
+            // //Filter for the outside glow
+            // var filter = defs.append("filter")
+            //     .attr("id","glow");
+            // filter.append("feGaussianBlur")
+            //     .attr("stdDeviation","7.5")
+            //     .attr("result","coloredBlur");
+            // var feMerge = filter.append("feMerge");
+            // feMerge.append("feMergeNode")
+            //     .attr("in","coloredBlur");
+            // feMerge.append("feMergeNode")
+            //     .attr("in","SourceGraphic");
+
+            // d3.select("#chargeSessionDetails")
+            //     .style("filter", "url(#glow)");
         }
 
         function roundUp5(x) {
@@ -450,6 +475,7 @@
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
             axis.append("text")
+                .attr("class", "x-axis-text")
                 .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 30) + ")")
                 .style("text-anchor", "middle")
                 .text("Time ({{ tz }})");
@@ -535,7 +561,7 @@
                 graphLineArea
                   .transition()
                     .duration(2000)
-                    .style('fill-opacity', 0.4)
+                    .style('fill-opacity', 0.2)
                   .transition()
                     .duration(2000)
                     .attr('stroke-dashoffset', 0);
@@ -546,43 +572,43 @@
                     .attr('stroke-dashoffset', 0);
             }
 
-            function addPoints(datum) {
-                var pointsContainer = socContainer.append("g");
-                datum.forEach(function(d, index) {
-                    drawPoint(pointsContainer, d, index);
-                });
-            }
+            // function addPoints(datum) {
+            //     var pointsContainer = socContainer.append("g");
+            //     datum.forEach(function(d, index) {
+            //         drawPoint(pointsContainer, d, index);
+            //     });
+            // }
 
-            function drawPoint(container, d, index) {
-                container.datum(d)
-                    .append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 0)
-                    .attr("cx", function (d) { return xScale(d.time) })
-                    .attr("cy", function (d) { return yScaleLeft(d.soc/2) })
-                    // .on("mouseover", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(200)
-                    //         .style("opacity", .9);
-                    //     tooltip.html(d.soc + "%")
-                    //         .style("cursor", "pointer")
-                    //         .style("left", (d3.event.pageX) + "px")
-                    //         .style("top", (d3.event.pageY - 28) + "px");
-                    // })
-                    // .on("mouseout", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(500)
-                    //         .style("opacity", 0);
-                    // })
-                  .transition()
-                    .delay( 1800 )
-                    .duration( 500 )
-                    .attr("r", 5 );
-            }
+            // function drawPoint(container, d, index) {
+            //     container.datum(d)
+            //         .append("circle")
+            //         .attr("class", "dot")
+            //         .attr("r", 0)
+            //         .attr("cx", function (d) { return xScale(d.time) })
+            //         .attr("cy", function (d) { return yScaleLeft(d.soc/2) })
+            //         // .on("mouseover", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(200)
+            //         //         .style("opacity", .9);
+            //         //     tooltip.html(d.soc + "%")
+            //         //         .style("cursor", "pointer")
+            //         //         .style("left", (d3.event.pageX) + "px")
+            //         //         .style("top", (d3.event.pageY - 28) + "px");
+            //         // })
+            //         // .on("mouseout", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(500)
+            //         //         .style("opacity", 0);
+            //         // })
+            //       .transition()
+            //         .delay( 1800 )
+            //         .duration( 500 )
+            //         .attr("r", 5 );
+            // }
 
-            if (active) {
-                addPoints(dataPoints);
-            }
+            // if (active) {
+            //     addPoints(dataPoints);
+            // }
         }
 
         function drawKWhContainer(dataPoints, active=false, animate=true) {
@@ -637,7 +663,7 @@
                 graphLineArea
                   .transition()
                     .duration(2000)
-                    .style('fill-opacity', 0.4)
+                    .style('fill-opacity', 0.2)
                   .transition()
                     .duration(2000)
                     .attr('stroke-dashoffset', 0);
@@ -648,43 +674,43 @@
                     .attr('stroke-dashoffset', 0);
             }
 
-            function addPoints(datum) {
-                var pointsContainer = kWContainer.append("g");
-                datum.forEach(function(d, index) {
-                    drawPoint(pointsContainer, d, index);
-                });
-            }
+            // function addPoints(datum) {
+            //     var pointsContainer = kWContainer.append("g");
+            //     datum.forEach(function(d, index) {
+            //         drawPoint(pointsContainer, d, index);
+            //     });
+            // }
 
-            function drawPoint(container, d, index) {
-                container.datum(d)
-                    .append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 0)
-                    .attr("cx", function (d) { return xScale(d.time) })
-                    .attr("cy", function (d) { return yScaleLeft(d.kwh) })
-                    // .on("mouseover", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(200)
-                    //         .style("opacity", .9);
-                    //     tooltip.html(d.soc + "%")
-                    //         .style("cursor", "pointer")
-                    //         .style("left", (d3.event.pageX) + "px")
-                    //         .style("top", (d3.event.pageY - 28) + "px");
-                    // })
-                    // .on("mouseout", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(500)
-                    //         .style("opacity", 0);
-                    // })
-                  .transition()
-                    .delay( 1800 )
-                    .duration( 500 )
-                    .attr("r", 5 );
-            }
+            // function drawPoint(container, d, index) {
+            //     container.datum(d)
+            //         .append("circle")
+            //         .attr("class", "dot")
+            //         .attr("r", 0)
+            //         .attr("cx", function (d) { return xScale(d.time) })
+            //         .attr("cy", function (d) { return yScaleLeft(d.kwh) })
+            //         // .on("mouseover", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(200)
+            //         //         .style("opacity", .9);
+            //         //     tooltip.html(d.soc + "%")
+            //         //         .style("cursor", "pointer")
+            //         //         .style("left", (d3.event.pageX) + "px")
+            //         //         .style("top", (d3.event.pageY - 28) + "px");
+            //         // })
+            //         // .on("mouseout", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(500)
+            //         //         .style("opacity", 0);
+            //         // })
+            //       .transition()
+            //         .delay( 1800 )
+            //         .duration( 500 )
+            //         .attr("r", 5 );
+            // }
 
-            if (active) {
-                addPoints(dataPoints);
-            }
+            // if (active) {
+            //     addPoints(dataPoints);
+            // }
         }
 
         function drawContainers(dataPoints) {
