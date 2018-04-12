@@ -2,53 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!--<link href="https://fonts.googleapis.com/css?family=Montserrat" rel="stylesheet">-->
     <style>
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #070d2f;
-            color: #fff;
         }
-        /*#buttonRow {
-            text-align: center;
-            display: none;
-        }
-        #buttonRow.active {
-            display: block;
-        }*/
-        /*.toggle-button {
-            font-size: 14px;
-            font-family: 'Roboto', sans-serif;
-            width: 50%;
-            max-width: 300px;
-            min-width: 150px;
-            padding: 15px;
-            margin: 5px 50px;
-            border: 0;
-            background-color: #d2d2d2;
-        }
-        .toggle-button.active {
-            color: #ffffff;
-            background-color: #2471d0;
-        }
-        @media screen and (min-width: 600px) and (max-width: 820px) {
-            .toggle-button {
-                width: 50%;
-                max-width: 200px;
-                min-width: 50px;
-                padding: 12px 15px;
-            }
-        }
-
-        @media screen and (max-width: 600px) {
-            .toggle-button {
-                width: 50%;
-                max-width: 150px;
-                min-width: 50px;
-                padding: 10px;
-                margin: 5px 20px;color: #ffffff;
-            }
-        }*/
         .pulse {
             fill: #00ff00;
         }
@@ -60,42 +18,12 @@
         }
         .kwh-plot .area, .soc-plot .area {
             fill: #2471d0;
-            /*fill-opacity: .4;*/
         }
         .kwh-plot .line, .soc-plot .line {
-            /*fill: none;*/
             stroke: #2471d0;
             stroke-width: 3;
             stroke-opacity: 1;
         }
-        /*.kwh-plot .dot, .soc-plot .dot {
-            fill: #2471d0;
-            stroke: #ffffff;
-        }*/
-        /*.area {
-            fill: #d2d2d2;
-            fill-opacity: .2;
-        }*/
-        /*.line {
-            fill: none;
-            stroke: #d2d2d2;
-            stroke-width: 1;
-            stroke-opacity: .2;
-        }
-        .dot {
-            fill: #d2d2d2;
-            stroke: #ffffff;
-        }*/
-        /*.soc-plot.active rect.bar {
-            fill: #00ff00;
-        }
-        .soc-plot.active rect.bar.soc-start {
-            fill: #2471d0;
-        }
-        rect.bar {
-            fill: #e2e2e2;
-            opacity: 0.5;
-        }*/
         .grid line, .grid path {
           stroke: #1e37c1;
           stroke-opacity: 0.7;
@@ -124,45 +52,15 @@
             fill: #2471d0;
         }
 
-        /*text, h1 {
-            font-family: 'Roboto', sans-serif;
-        }
-        #tooltip {
-            position: absolute;
-            top: 0;
-            left: 0;
-            text-align: center;
-            padding: 0.5rem;
-            font-size: 12px;
-            font-family: 'Roboto', sans-serif;
-            background: #000000;
-            opacity: 0;
-            border: 0px;
-            border-radius: 8px;
-            pointer-events: none;
-        }
-        #liquidFillLoading {
-            margin: 50px;
-        }
-        .liquidFillGaugeText {
-            font-family: 'Roboto', sans-serif;
-            font-weight: bold;
-        }*/
     </style>
     <title>Recargo</title>
 </head>
-<body marginwidth="0" marginheight="0">
-    <div id="tooltip"></div>
+<body>
     <div id="chartContainer">
         <svg id="chargeSessionDetails"></svg>
         <svg id="liquidFillLoading" width="19%" height="200"></svg>
     </div>
-    <!-- <div id="buttonRow">
-        <button id="kWButton" class="toggle-button active" onclick="toggleChart(left=true)">kW</button>
-        <button id="socButton" class="toggle-button" onclick="toggleChart(left=false)">% Charge</button>
-    </div> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
-    <!-- <script src="{{ url_for('static', filename='charge_sessions/liquidFillGauge.js') }}"></script> -->
     <script type="text/javascript">
         var xScale, yScaleLeft, yScaleRight, y0Max, histogram;
         var width, height, svg;
@@ -173,7 +71,6 @@
         var isLeftYAxis = true;
         var socStart = 0; //{{ soc_start|safe }};
         // var points = []; //{{ dataset|safe }};
-        var points = [{"amps": "", "charge_session_id": "106", "id": "385", "soc": "10", "timestamp": "2018-02-16T23:11:28", "volts": "", "watts": "19000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "12", "timestamp": "2018-02-16T23:12:28", "volts": "", "watts": "19500"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "14", "timestamp": "2018-02-16T23:13:28", "volts": "", "watts": "20000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "16", "timestamp": "2018-02-16T23:14:28", "volts": "", "watts": "20250"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "18", "timestamp": "2018-02-16T23:15:28", "volts": "", "watts": "20500"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "20", "timestamp": "2018-02-16T23:16:28", "volts": "", "watts": "20750"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "22", "timestamp": "2018-02-16T23:17:28", "volts": "", "watts": "20800"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "24", "timestamp": "2018-02-16T23:18:28", "volts": "", "watts": "20900"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "26", "timestamp": "2018-02-16T23:19:28", "volts": "", "watts": "21000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "28", "timestamp": "2018-02-16T23:20:28", "volts": "", "watts": "21111"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "30", "timestamp": "2018-02-16T23:21:28", "volts": "", "watts": "21125"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "32", "timestamp": "2018-02-16T23:22:28", "volts": "", "watts": "21150"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "34", "timestamp": "2018-02-16T23:23:28", "volts": "", "watts": "21200"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "36", "timestamp": "2018-02-16T23:24:28", "volts": "", "watts": "21250"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "38", "timestamp": "2018-02-16T23:25:28", "volts": "", "watts": "21500"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "40", "timestamp": "2018-02-16T23:26:28", "volts": "", "watts": "21750"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "42", "timestamp": "2018-02-16T23:27:28", "volts": "", "watts": "21800"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "44", "timestamp": "2018-02-16T23:28:28", "volts": "", "watts": "21850"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "46", "timestamp": "2018-02-16T23:29:28", "volts": "", "watts": "21900"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "48", "timestamp": "2018-02-16T23:30:28", "volts": "", "watts": "21950"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "50", "timestamp": "2018-02-16T23:31:28", "volts": "", "watts": "22000"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "52", "timestamp": "2018-02-16T23:32:28", "volts": "", "watts": "22050"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "54", "timestamp": "2018-02-16T23:33:28", "volts": "", "watts": "22100"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "56", "timestamp": "2018-02-16T23:34:28", "volts": "", "watts": "22150"}, {"amps": "", "charge_session_id": "106", "id": "382", "soc": "58", "timestamp": "2018-02-16T23:35:28", "volts": "", "watts": "22175"}, {"amps": "", "charge_session_id": "106", "id": "383", "soc": "60", "timestamp": "2018-02-16T23:36:28", "volts": "", "watts": "22180"}, {"amps": "", "charge_session_id": "106", "id": "384", "soc": "62", "timestamp": "2018-02-16T23:37:28", "volts": "", "watts": "22200"}, {"amps": "", "charge_session_id": "106", "id": "385", "soc": "64", "timestamp": "2018-02-16T23:38:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "386", "soc": "66", "timestamp": "2018-02-16T23:39:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "387", "soc": "68", "timestamp": "2018-02-16T23:40:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "388", "soc": "70", "timestamp": "2018-02-16T23:40:28", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "389", "soc": "72", "timestamp": "2018-02-16T23:41:29", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "390", "soc": "74", "timestamp": "2018-02-16T23:41:29", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "391", "soc": "76", "timestamp": "2018-02-16T23:42:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "392", "soc": "78", "timestamp": "2018-02-16T23:42:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "80", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "86", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "87", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "88", "timestamp": "2018-02-16T23:43:30", "volts": "", "watts": "22250"}, {"amps": "", "charge_session_id": "106", "id": "393", "soc": "89", "timestamp": "2018-02-16T23:44:30", "volts": "", "watts": "19000"}, {"amps": "", "charge_session_id": "106", "id": "395", "soc": "92", "timestamp": "2018-02-16T23:45:31", "volts": "", "watts": "18000"}, {"amps": "", "charge_session_id": "106", "id": "397", "soc": "93", "timestamp": "2018-02-16T23:47:32", "volts": "", "watts": "15000"}, {"amps": "", "charge_session_id": "106", "id": "398", "soc": "94", "timestamp": "2018-02-16T23:48:32", "volts": "", "watts": "10000"}, {"amps": "", "charge_session_id": "106", "id": "400", "soc": "95", "timestamp": "2018-02-16T23:50:33", "volts": "", "watts": "100"}, {"amps": "", "charge_session_id": "106", "id": "402", "soc": "96", "timestamp": "2018-02-16T23:52:34", "volts": "", "watts": "20"}, {"amps": "", "charge_session_id": "106", "id": "401", "soc": "96", "timestamp": "2018-02-16T23:51:34", "volts": "", "watts": "30"}, {"amps": "", "charge_session_id": "106", "id": "405", "soc": "97", "timestamp": "2018-02-16T23:55:35", "volts": "", "watts": "8"}, {"amps": "", "charge_session_id": "106", "id": "404", "soc": "97", "timestamp": "2018-02-16T23:54:34", "volts": "", "watts": "10"}, {"amps": "", "charge_session_id": "106", "id": "403", "soc": "97", "timestamp": "2018-02-16T23:53:34", "volts": "", "watts": "12"}, {"amps": "", "charge_session_id": "106", "id": "407", "soc": "98", "timestamp": "2018-02-16T23:57:36", "volts": "", "watts": "5"}, {"amps": "", "charge_session_id": "106", "id": "406", "soc": "98", "timestamp": "2018-02-16T23:56:35", "volts": "", "watts": "6"}, {"amps": "", "charge_session_id": "106", "id": "408", "soc": "99", "timestamp": "2018-02-16T23:58:52", "volts": "", "watts": "0"}];
         var points = [
           {
             "amps": null, 
@@ -405,43 +302,6 @@
             el.append("g")
                 .attr("class", "grid y-left")
                 .call(yAxisGridLeft);
-
-            // var yAxisGridRight = d3.axisLeft(yScaleRight).tickSize(-width).tickFormat("");
-            // el.append("g")
-            //     .attr("class", "grid y-right")
-            //     .call(yAxisGridRight);
-
-            // toggleGrid(left);
-        }
-
-        // function toggleGrid(left=true) {
-        //     if (left) {
-        //         isLeftYAxis = true;
-        //         d3.selectAll(".grid.y-left").attr("visibility", "visible");
-        //         d3.selectAll(".grid.y-right").attr("visibility", "hidden");
-        //     } else {
-        //         isLeftYAxis = false;
-        //         d3.selectAll(".grid.y-left").attr("visibility", "hidden");
-        //         d3.selectAll(".grid.y-right").attr("visibility", "visible");
-        //     }
-        // }
-
-        function toggleChart(left=true) {
-            if (left) {
-                isLeftYAxis = true;
-                document.getElementById("socButton").classList.remove("active");
-                document.getElementById("kWButton").classList.add("active");
-                // toggleGrid(left);
-                drawAxis(svg);
-                drawContainers(points, left);
-            } else {
-                isLeftYAxis = false;
-                document.getElementById("kWButton").classList.remove("active");
-                document.getElementById("socButton").classList.add("active");
-                // toggleGrid(left);
-                drawAxis(svg);
-                drawContainers(points, left);
-            }
         }
 
         function drawAxis(el) {
