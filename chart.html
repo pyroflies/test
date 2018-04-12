@@ -57,13 +57,14 @@
 </head>
 <body>
     <div id="chartContainer">
-        <svg id="chargeSessionDetails"></svg>
+        <svg id="socChart"></svg>
+        <svg id="kwhChart"></svg>
         <svg id="liquidFillLoading" width="19%" height="200"></svg>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
-        var xScale, yScaleLeft, yScaleRight, y0Max, histogram;
-        var width, height, svg;
+        var xScale, yScaleLeft, socScale, y0Max, histogram;
+        var width, height, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 30, left: 50};
         var padding = {top: 20, right: 50, bottom: 50, left: 50};
         var dtFmt = d3.timeFormat("%I:%M:%S");
@@ -200,23 +201,28 @@
         }
 
         // TODO: Responsive
-        function clearChartSVG() {
-            svg = d3.select("#chargeSessionDetails");
+        function clearChartSVG(chart) {
+            svg = d3.select(chart);
             svg.selectAll("*").remove();
         }
 
-        function drawChartSVG() {
-            clearChartSVG();
-            svg = d3.select("#chargeSessionDetails")
+        function drawChartSVG() { // set up svg chart canvas
+            clearChartSVG("socChart");
+            soc = d3.select("#socChart")
                 .attr("width", width)
                 .attr("height", height)
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-
+            clearChartSVG("kwhChart");
+            kwh = d3.select("#kwhChart")
+                .attr("width", width)
+                .attr("height", height)
+                .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
             // //Container for the gradients
-            // var defs = svg.append("defs");
+            // var defs = soc.append("defs");
 
             // //Filter for the outside glow
             // var filter = defs.append("filter")
@@ -230,7 +236,7 @@
             // feMerge.append("feMergeNode")
             //     .attr("in","SourceGraphic");
 
-            // d3.select("#chargeSessionDetails")
+            // d3.select("#socChart")
             //     .style("filter", "url(#glow)");
         }
 
@@ -243,18 +249,18 @@
                 d.time = d3.isoParse(d["timestamp"]);
                 d.kwh = d["watts"] / 1000;
                 d.soc = Math.floor(d["soc"]);
-                if (d.soc < 20) {
-                    d.color = "red";
-                } else if (d.soc < 35) {
-                    d.color = "orange";
-                } else if (d.soc < 50 ) {
-                    d.color = "yellow";
-                } else if (d.soc < 80) {
-                    d.color = "green";
-                } else {
-                    d.color = "steelblue";
-                }
-                console.log(d.color);
+                // if (d.soc < 20) {
+                //     d.color = "red";
+                // } else if (d.soc < 35) {
+                //     d.color = "orange";
+                // } else if (d.soc < 50 ) {
+                //     d.color = "yellow";
+                // } else if (d.soc < 80) {
+                //     d.color = "green";
+                // } else {
+                //     d.color = "steelblue";
+                // }
+                // console.log(d.color);
             });
             return dataPoints;
         }
@@ -279,101 +285,94 @@
                 .rangeRound([height, 0])
               .domain([0, y0Max]);
 
-            yScaleRight = d3.scaleLinear()
+            // socScale = d3.scaleLinear()
+            //     .rangeRound([height, 0])
+            //   .domain([0, 100]);
+
+            // var halfMinutes = d3.timeSeconds(xScale.domain()[0], xScale.domain()[1], 30);
+
+            // histogram = d3.histogram()
+            //     .value(function(d) { return d.time; })
+            //   .domain(xScale.domain())
+            //   // .thresholds(halfMinutes);
+            //   .thresholds(xScale.ticks(d3.timeMinute));
+
+            //   console.log(xScale.domain())
+            //   console.log(xScale.ticks(d3.timeMinute))
+            //   console.log(halfMinutes)
+        }
+
+        function plotGrid() { // gridlines
+            d3.selectAll(".grid").remove();
+
+            socScale = d3.scaleLinear()
                 .rangeRound([height, 0])
               .domain([0, 100]);
 
-            var halfMinutes = d3.timeSeconds(xScale.domain()[0], xScale.domain()[1], 30);
-
-            histogram = d3.histogram()
-                .value(function(d) { return d.time; })
-              .domain(xScale.domain())
-              // .thresholds(halfMinutes);
-              .thresholds(xScale.ticks(d3.timeMinute));
-
-              console.log(xScale.domain())
-              console.log(xScale.ticks(d3.timeMinute))
-              console.log(halfMinutes)
-        }
-
-        function plotGrid(el, left=true) {
-            d3.selectAll(".grid").remove();
-            var yAxisGridLeft = d3.axisLeft(yScaleLeft).tickSize(-width).tickFormat("");
-            el.append("g")
+            var yAxisGrid1 = d3.axisLeft(socScale).tickSize(-width).tickFormat("");
+            soc.append("g")
                 .attr("class", "grid y-left")
-                .call(yAxisGridLeft);
+                .call(yAxisGrid1);
+
+            var yAxisGrid2 = d3.axisLeft(yScaleLeft).tickSize(-width).tickFormat("");
+            kwh.append("g")
+                .attr("class", "grid y-left")
+                .call(yAxisGrid2);
         }
 
-        function drawAxis(el) {
+        function drawAxis() { // axis ticks and display text
             updateScale();
-            plotGrid(el, left=isLeftYAxis);
+            plotGrid();
 
             d3.selectAll(".axis-container").remove();
 
-            // TODO: xAxis minimum length 30 minutes
-            var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
-            var yAxisLeft = d3.axisLeft(yScaleLeft);
-            var yAxisRight = d3.axisRight(yScaleRight);
+            var socAxis = soc.append("g").attr("class", "axis-container");
 
-            var axis = el.append("g").attr("class", "axis-container");
+            socAxis.append("g")
+                .attr("class", "y axis y-right")
+                .call(d3.axisLeft(socScale));
 
-            var yAxisLeftClass = "y axis y-left";
-            var yAxisLeftTextClass = "y-axis-text";
-            var yAxisRightClass = "y axis y-right";
-            var yAxisRightTextClass = "y-axis-text";
-
-            if (isLeftYAxis) {
-                yAxisLeftClass += " active";
-                yAxisLeftTextClass += " active";
-            } else {
-                yAxisRightClass += " active";
-                yAxisRightTextClass += " active";
-            }
-
-            axis.append("g")
-                .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
-                .call(xAxis);
-            axis.append("text")
-                .attr("class", "x-axis-text")
-                .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 30) + ")")
-                .style("text-anchor", "middle")
-                .text("Time ({{ tz }})");
-
-            axis.append("g")
-                .attr("class", yAxisLeftClass)
-                .call(yAxisLeft);
-
-            axis.append("text")
+            socAxis.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 0 - margin.left)
                 .attr("x", 0 - (height / 2))
                 .attr("dy", "1em")
-                .attr("class", yAxisLeftTextClass)
+                .attr("class", "y-axis-text")
+                .style("text-anchor", "middle")
+                .text("% Charge");
+
+
+            var kwhAxis = kwh.append("g").attr("class", "axis-container");
+
+            kwhAxis.append("g")
+                .attr("class", "y axis y-left")
+                .call(d3.axisLeft(yScaleLeft));
+
+            kwhAxis.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (height / 2))
+                .attr("dy", "1em")
+                .attr("class", "y-axis-text")
                 .style("text-anchor", "middle")
                 .text("kW");
 
-            axis.append("g")
-                .attr("class", yAxisRightClass)
-                .attr("transform", "translate(" + width + " ,0)")
-                .call(yAxisRight);
 
-            axis.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", width + 30)
-                .attr("x", 0 - (height / 2))
-                .attr("dy", "1em")
-                .attr("class", yAxisRightTextClass)
+            // TODO: xAxis minimum length 30 minutes
+            var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+
+            kwhAxis.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+            kwhAxis.append("text")
+                .attr("class", "x-axis-text")
+                .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 30) + ")")
                 .style("text-anchor", "middle")
-                .text("% Charge");
+                .text("Time ({{ tz }})");
         }
 
-        function drawSOCContainer(dataPoints, active=false) {
-
-            var className = "soc-plot";
-
-            if (active) className += " active";
-
+        function drawSOCContainer(dataPoints) {
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return yScaleLeft(d.soc/2) })
@@ -385,8 +384,8 @@
                 .y1(function (d) { return yScaleLeft(d.soc/2) })
                 .curve(d3.curveMonotoneX);
 
-            var socContainer = svg.append("g")
-                .attr("class", className);
+            var socContainer = soc.append("g")
+                .attr("class", "soc-plot");
 
             var graphLine = socContainer.append("path")
               .datum(dataPoints)
@@ -413,24 +412,17 @@
                 .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
                 .attr('stroke-dashoffset', graphLineAreaTotalLength);
 
-            if (animate) {
-                graphLine
-                  .transition()
-                    .duration(2000)
-                    .attr('stroke-dashoffset', 0);
-                graphLineArea
-                  .transition()
-                    .duration(2000)
-                    .style('fill-opacity', 0.2)
-                  .transition()
-                    .duration(2000)
-                    .attr('stroke-dashoffset', 0);
-            } else {
-                graphLine.attr('stroke-dashoffset', 0);
-                graphLineArea
-                    .style('fill-opacity', 0.3)
-                    .attr('stroke-dashoffset', 0);
-            }
+            graphLine
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphLineArea
+              .transition()
+                .duration(2000)
+                .style('fill-opacity', 0.2)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
 
             // function addPoints(datum) {
             //     var pointsContainer = socContainer.append("g");
@@ -471,11 +463,7 @@
             // }
         }
 
-        function drawKWhContainer(dataPoints, active=false, animate=true) {
-            var className = "kwh-plot";
-
-            if (active) className += " active";
-
+        function drawKWhContainer(dataPoints) {
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return yScaleLeft(d.kwh) })
@@ -487,8 +475,8 @@
                 .y1(function (d) { return yScaleLeft(d.kwh) })
                 .curve(d3.curveStepBefore);
 
-            var kWContainer = svg.append("g")
-                .attr("class", className);
+            var kWContainer = kwh.append("g")
+                .attr("class", "kwh-plot");
 
             var graphLine = kWContainer.append("path")
               .datum(dataPoints)
@@ -515,24 +503,17 @@
                 .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
                 .attr('stroke-dashoffset', graphLineAreaTotalLength);
 
-            if (animate) {
-                graphLine
-                  .transition()
-                    .duration(2000)
-                    .attr('stroke-dashoffset', 0);
-                graphLineArea
-                  .transition()
-                    .duration(2000)
-                    .style('fill-opacity', 0.2)
-                  .transition()
-                    .duration(2000)
-                    .attr('stroke-dashoffset', 0);
-            } else {
-                graphLine.attr('stroke-dashoffset', 0);
-                graphLineArea
-                    .style('fill-opacity', 0.3)
-                    .attr('stroke-dashoffset', 0);
-            }
+            graphLine
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphLineArea
+              .transition()
+                .duration(2000)
+                .style('fill-opacity', 0.2)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
 
             // function addPoints(datum) {
             //     var pointsContainer = kWContainer.append("g");
@@ -574,13 +555,13 @@
         }
 
         function drawContainers(dataPoints) {
-            drawSOCContainer(dataPoints, active=true, animate=true);
-            drawKWhContainer(dataPoints, active=true, animate=true);
+            drawSOCContainer(dataPoints);
+            drawKWhContainer(dataPoints);
         }
         function plotChargeSession(dataPoints) {
-            drawAxis(svg);
+            drawAxis();
             points = dataPoints;
-            drawContainers(dataPoints, left=true);
+            drawContainers(dataPoints);
         }
 
         function plotLoading() {
@@ -616,7 +597,7 @@
         }
 
         function clearPulse() {
-            svg.selectAll(".pulse").remove();
+            soc.selectAll(".pulse").remove();
         }
         function drawPulse(error=false, warning=false) {
             var pulseClass = "pulse";
@@ -626,7 +607,7 @@
             } else if (warning) {
                 pulseClass += " warning";
             }
-            svg.append("circle")
+            soc.append("circle")
                 .attr("class", pulseClass)
                 .attr("r", 0)
                 .attr("cx", 10)
@@ -645,7 +626,6 @@
         function plotGraph(dataPoints, charging, socInitial) {
             if (socInitial) socStart = socInitial;
             if (dataPoints.length > 0) {
-                d3.select("#buttonRow").attr("class", "active");
                 clearLoading();
                 updateDimensions(window.innerWidth);
                 drawChartSVG();
