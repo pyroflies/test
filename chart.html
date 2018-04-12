@@ -16,12 +16,13 @@
         .pulse.error {
             fill: #ff0000;
         }
-        .kwh-plot .area, .soc-plot .area {
+
+        .area {
             fill: #2471d0;
         }
-        .kwh-plot .line, .soc-plot .line {
+        .line {
             stroke: #2471d0;
-            stroke-width: 3;
+            stroke-width: 2;
             stroke-opacity: 1;
         }
         .grid line, .grid path {
@@ -52,6 +53,10 @@
             fill: #2471d0;
         }
 
+        .dot {
+            fill: #63a4f5;
+        }
+
     </style>
     <title>Recargo</title>
 </head>
@@ -63,9 +68,9 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
-        var xScale, yScaleLeft, socScale, y0Max, histogram;
-        var width, height, svg, soc, kwh;
-        var margin = {top: 10, right: 50, bottom: 30, left: 50};
+        var xScale, kwhScale, socScale, histogram;
+        var width, height, socHeight, kwhHeight, svg, soc, kwh;
+        var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 50, bottom: 50, left: 50};
         var dtFmt = d3.timeFormat("%I:%M:%S");
         // var tooltip = d3.select("#tooltip").style("opacity", 0);
@@ -194,10 +199,12 @@
             margin.top = 10;
             margin.right = 50;
             margin.left = 50;
-            margin.bottom = 30;
+            margin.bottom = 0;
 
             width = winWidth - margin.left - margin.right - padding.left - padding.right;
             height = 0.47 * width;
+            socHeight = 0.42 * width;
+            kwhHeight = 0.05 * width;
         }
 
         // TODO: Responsive
@@ -210,16 +217,16 @@
             clearChartSVG("socChart");
             soc = d3.select("#socChart")
                 .attr("width", width)
-                .attr("height", height)
-                .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
+                .attr("height", socHeight)
+                .style("padding", padding.top + " " + padding.right + " " + 10 + " " + padding.left)
                 .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
             clearChartSVG("kwhChart");
             kwh = d3.select("#kwhChart")
                 .attr("width", width)
-                .attr("height", height)
+                .attr("height", kwhHeight)
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+                .attr("transform", "translate(" + margin.left + "," + 0 + ")")
 
             // //Container for the gradients
             // var defs = soc.append("defs");
@@ -275,46 +282,30 @@
             return xRange;
         }
         function updateScale() {
-            y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+            var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
 
             xScale = d3.scaleTime()
                 .rangeRound([0, width])
               .domain(getTimeRange());
 
-            yScaleLeft = d3.scaleLinear()
-                .rangeRound([height, 0])
+            socScale = d3.scaleLinear()
+                .rangeRound([socHeight, 0])
+              .domain([0, 100]);
+
+            kwhScale = d3.scaleLinear()
+                .rangeRound([kwhHeight, 0])
               .domain([0, y0Max]);
-
-            // socScale = d3.scaleLinear()
-            //     .rangeRound([height, 0])
-            //   .domain([0, 100]);
-
-            // var halfMinutes = d3.timeSeconds(xScale.domain()[0], xScale.domain()[1], 30);
-
-            // histogram = d3.histogram()
-            //     .value(function(d) { return d.time; })
-            //   .domain(xScale.domain())
-            //   // .thresholds(halfMinutes);
-            //   .thresholds(xScale.ticks(d3.timeMinute));
-
-            //   console.log(xScale.domain())
-            //   console.log(xScale.ticks(d3.timeMinute))
-            //   console.log(halfMinutes)
         }
 
         function plotGrid() { // gridlines
             d3.selectAll(".grid").remove();
-
-            socScale = d3.scaleLinear()
-                .rangeRound([height, 0])
-              .domain([0, 100]);
 
             var yAxisGrid1 = d3.axisLeft(socScale).tickSize(-width).tickFormat("");
             soc.append("g")
                 .attr("class", "grid y-left")
                 .call(yAxisGrid1);
 
-            var yAxisGrid2 = d3.axisLeft(yScaleLeft).tickSize(-width).tickFormat("");
+            var yAxisGrid2 = d3.axisLeft(kwhScale).tickSize(-width).tickFormat("");
             kwh.append("g")
                 .attr("class", "grid y-left")
                 .call(yAxisGrid2);
@@ -335,7 +326,7 @@
             socAxis.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 0 - margin.left)
-                .attr("x", 0 - (height / 2))
+                .attr("x", 0 - (socHeight / 2))
                 .attr("dy", "1em")
                 .attr("class", "y-axis-text")
                 .style("text-anchor", "middle")
@@ -346,12 +337,12 @@
 
             kwhAxis.append("g")
                 .attr("class", "y axis y-left")
-                .call(d3.axisLeft(yScaleLeft));
+                .call(d3.axisLeft(kwhScale));
 
             kwhAxis.append("text")
                 .attr("transform", "rotate(-90)")
                 .attr("y", 0 - margin.left)
-                .attr("x", 0 - (height / 2))
+                .attr("x", 0 - (kwhHeight / 2))
                 .attr("dy", "1em")
                 .attr("class", "y-axis-text")
                 .style("text-anchor", "middle")
@@ -363,11 +354,11 @@
 
             kwhAxis.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + height + ")")
+                .attr("transform", "translate(0," + kwhHeight + ")")
                 .call(xAxis);
             kwhAxis.append("text")
                 .attr("class", "x-axis-text")
-                .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 30) + ")")
+                .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
                 .style("text-anchor", "middle")
                 .text("Time ({{ tz }})");
         }
@@ -375,13 +366,13 @@
         function drawSOCContainer(dataPoints) {
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
-                .y(function (d) { return yScaleLeft(d.soc/2) })
+                .y(function (d) { return socScale(d.soc) })
                 .curve(d3.curveMonotoneX);
 
             var area = d3.area()
                 .x(function (d) { return xScale(d.time) })
-                .y0(height)
-                .y1(function (d) { return yScaleLeft(d.soc/2) })
+                .y0(socHeight)
+                .y1(function (d) { return socScale(d.soc) })
                 .curve(d3.curveMonotoneX);
 
             var socContainer = soc.append("g")
@@ -424,55 +415,53 @@
                 .duration(2000)
                 .attr('stroke-dashoffset', 0);
 
-            // function addPoints(datum) {
-            //     var pointsContainer = socContainer.append("g");
-            //     datum.forEach(function(d, index) {
-            //         drawPoint(pointsContainer, d, index);
-            //     });
-            // }
+            function addPoints(datum) {
+                var pointsContainer = socContainer.append("g");
+                datum.forEach(function(d, index) {
+                    drawPoint(pointsContainer, d, index);
+                });
+            }
 
-            // function drawPoint(container, d, index) {
-            //     container.datum(d)
-            //         .append("circle")
-            //         .attr("class", "dot")
-            //         .attr("r", 0)
-            //         .attr("cx", function (d) { return xScale(d.time) })
-            //         .attr("cy", function (d) { return yScaleLeft(d.soc/2) })
-            //         // .on("mouseover", function (d) {
-            //         //     tooltip.transition()
-            //         //         .duration(200)
-            //         //         .style("opacity", .9);
-            //         //     tooltip.html(d.soc + "%")
-            //         //         .style("cursor", "pointer")
-            //         //         .style("left", (d3.event.pageX) + "px")
-            //         //         .style("top", (d3.event.pageY - 28) + "px");
-            //         // })
-            //         // .on("mouseout", function (d) {
-            //         //     tooltip.transition()
-            //         //         .duration(500)
-            //         //         .style("opacity", 0);
-            //         // })
-            //       .transition()
-            //         .delay( 1800 )
-            //         .duration( 500 )
-            //         .attr("r", 5 );
-            // }
+            function drawPoint(container, d, index) {
+                container.datum(d)
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 0)
+                    .attr("cx", function (d) { return xScale(d.time) })
+                    .attr("cy", function (d) { return socScale(d.soc) })
+                    // .on("mouseover", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(200)
+                    //         .style("opacity", .9);
+                    //     tooltip.html(d.soc + "%")
+                    //         .style("cursor", "pointer")
+                    //         .style("left", (d3.event.pageX) + "px")
+                    //         .style("top", (d3.event.pageY - 28) + "px");
+                    // })
+                    // .on("mouseout", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(500)
+                    //         .style("opacity", 0);
+                    // })
+                  .transition()
+                    .delay( 1800 )
+                    .duration( 500 )
+                    .attr("r", 2 );
+            }
 
-            // if (active) {
-            //     addPoints(dataPoints);
-            // }
+            addPoints(dataPoints);
         }
 
         function drawKWhContainer(dataPoints) {
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
-                .y(function (d) { return yScaleLeft(d.kwh) })
+                .y(function (d) { return kwhScale(d.kwh) })
                 .curve(d3.curveStepBefore);
 
             var area = d3.area()
                 .x(function (d) { return xScale(d.time) })
-                .y0(height)
-                .y1(function (d) { return yScaleLeft(d.kwh) })
+                .y0(kwhHeight)
+                .y1(function (d) { return kwhScale(d.kwh) })
                 .curve(d3.curveStepBefore);
 
             var kWContainer = kwh.append("g")
@@ -515,43 +504,41 @@
                 .duration(2000)
                 .attr('stroke-dashoffset', 0);
 
-            // function addPoints(datum) {
-            //     var pointsContainer = kWContainer.append("g");
-            //     datum.forEach(function(d, index) {
-            //         drawPoint(pointsContainer, d, index);
-            //     });
-            // }
+            function addPoints(datum) {
+                var pointsContainer = kWContainer.append("g");
+                datum.forEach(function(d, index) {
+                    drawPoint(pointsContainer, d, index);
+                });
+            }
 
-            // function drawPoint(container, d, index) {
-            //     container.datum(d)
-            //         .append("circle")
-            //         .attr("class", "dot")
-            //         .attr("r", 0)
-            //         .attr("cx", function (d) { return xScale(d.time) })
-            //         .attr("cy", function (d) { return yScaleLeft(d.kwh) })
-            //         // .on("mouseover", function (d) {
-            //         //     tooltip.transition()
-            //         //         .duration(200)
-            //         //         .style("opacity", .9);
-            //         //     tooltip.html(d.soc + "%")
-            //         //         .style("cursor", "pointer")
-            //         //         .style("left", (d3.event.pageX) + "px")
-            //         //         .style("top", (d3.event.pageY - 28) + "px");
-            //         // })
-            //         // .on("mouseout", function (d) {
-            //         //     tooltip.transition()
-            //         //         .duration(500)
-            //         //         .style("opacity", 0);
-            //         // })
-            //       .transition()
-            //         .delay( 1800 )
-            //         .duration( 500 )
-            //         .attr("r", 5 );
-            // }
+            function drawPoint(container, d, index) {
+                container.datum(d)
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 0)
+                    .attr("cx", function (d) { return xScale(d.time) })
+                    .attr("cy", function (d) { return kwhScale(d.kwh) })
+                    // .on("mouseover", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(200)
+                    //         .style("opacity", .9);
+                    //     tooltip.html(d.soc + "%")
+                    //         .style("cursor", "pointer")
+                    //         .style("left", (d3.event.pageX) + "px")
+                    //         .style("top", (d3.event.pageY - 28) + "px");
+                    // })
+                    // .on("mouseout", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(500)
+                    //         .style("opacity", 0);
+                    // })
+                  .transition()
+                    .delay( 1800 )
+                    .duration( 500 )
+                    .attr("r", 2 );
+            }
 
-            // if (active) {
-            //     addPoints(dataPoints);
-            // }
+            addPoints(dataPoints);
         }
 
         function drawContainers(dataPoints) {
