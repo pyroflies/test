@@ -33,6 +33,11 @@
             stroke-width: 2;
             stroke-opacity: 1;
         }
+        .baseline {
+            stroke: #2471d0;
+            stroke-width: 1;
+            stroke-opacity: 0.5;
+        }
         .grid line, .grid path {
           stroke: #1e37c1;
           stroke-opacity: 0.7;
@@ -87,10 +92,16 @@
             display: table-cell;
             font-size: 4em;
             font-weight: 100;
-            width: 120px;
-            text-align: right;
+            width: 70px;
+            padding-left: 40px;
+            text-align: center;
             color: #3a89ea;
             text-shadow: 0px 0px 15px #2471d0;
+        }
+        .data.active {
+            width: 120px;
+            text-align: right;
+            padding: 0;
         }
         .units {
             display: table-cell;
@@ -115,7 +126,7 @@
         <div id="metrics">
             <div class="container">
                 <div class="display">
-                    <div id="" class="data">60</div><div class="units"> %</div>
+                    <div id="current" class="data">-</div><div class="units"> %</div>
                 </div>
                 <div class="description">
                     Current Charge
@@ -123,7 +134,7 @@
             </div>
             <div class="container">
                 <div class="display">
-                    <div id="" class="data">59</div><div class="units"> kWh</div>
+                    <div id="added" class="data">-</div><div class="units"> kWh</div>
                 </div>
                 <div class="description">
                     Energy Added
@@ -131,7 +142,7 @@
             </div>
             <div class="container">
                 <div class="display">
-                    <div id="" class="data">35</div><div class="units"> %</div>
+                    <div id="base" class="data">-</div><div class="units"> %</div>
                 </div>
                 <div class="description">
                     Base Charge
@@ -139,7 +150,7 @@
             </div>
             <div class="container">
                 <div class="display">
-                    <div id="" class="data">46</div><div class="units"> kW</div>
+                    <div id="rate" class="data">-</div><div class="units"> kW</div>
                 </div>
                 <div class="description">
                     Rate of Charge
@@ -502,7 +513,11 @@
             //     .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
             //     .attr('stroke-dashoffset', graphLineAreaTotalLength);
 
-
+            var graphInitialLine = socContainer.append("path")
+              .datum(points)
+                .attr("class", "baseline")
+                .attr("fill", "none")
+                .attr("d", initialArea);
             var graphLineInitialArea = socContainer.append('path')
               .datum(points)
                 .attr("class", 'area')
@@ -517,6 +532,10 @@
               .transition()
                 .duration(2000)
                 .style('fill-opacity', 0.2)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphInitialLine
               .transition()
                 .duration(2000)
                 .attr('stroke-dashoffset', 0);
@@ -727,12 +746,29 @@
                 updateDimensions(1080);
                 drawChartSVG();
                 plotChargeSession();
+                updateData();
                 drawPulse();
             } else if (dataPoints.length === 0 && !charging) {
                 plotLoading();
             } else {
                 drawPulse(warning=true);
             }
+        }
+
+        function updateData() {
+            var current = points[points.length - 1].soc;
+            document.getElementById("current").innerHTML = current;
+            document.getElementById("current").classList.add("active");
+            if (socStart) {
+                document.getElementById("added").innerHTML = (current - socStart);
+                document.getElementById("added").classList.add("active");
+                document.getElementById("base").innerHTML = socStart;
+                document.getElementById("base").classList.add("active");
+            }
+            var roc = Math.round(points[points.length - 1].kwh);
+            document.getElementById("rate").innerHTML = roc;
+            document.getElementById("rate").classList.add("active");
+
         }
 
         plotGraph(points);
