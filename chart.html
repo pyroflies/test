@@ -2,11 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400" rel="stylesheet">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
             background-color: #070d2f;
+            width: 1080px;
+            border: 1px solid white;
         }
+        #chartContainer {
+            position: relative;
+        }
+
+
         .pulse {
             fill: #00ff00;
         }
@@ -57,6 +65,45 @@
             fill: #63a4f5;
         }
 
+
+        #metrics {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: #2471d0;
+            width: 200px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .container {
+            margin: 60px 0;
+        }
+        .display {
+            display: table;
+            margin: 0 auto;
+        }
+        .data {
+            display: table-cell;
+            font-size: 4em;
+            font-weight: 100;
+            width: 120px;
+            text-align: right;
+            color: #3a89ea;
+            text-shadow: 0px 0px 15px #2471d0;
+        }
+        .units {
+            display: table-cell;
+            font-size: 1.2em;
+            font-weight: 300;
+            text-align: left;
+            padding-left: 5px;
+            width: 50px;
+        }
+        .description {
+            font-size: 0.8em;
+        }
+
     </style>
     <title>Recargo</title>
 </head>
@@ -65,11 +112,45 @@
         <svg id="socChart"></svg>
         <svg id="kwhChart"></svg>
         <svg id="liquidFillLoading" width="19%" height="200"></svg>
+        <div id="metrics">
+            <div class="container">
+                <div class="display">
+                    <div id="" class="data">60</div><div class="units"> %</div>
+                </div>
+                <div class="description">
+                    Current Charge
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div id="" class="data">59</div><div class="units"> kWh</div>
+                </div>
+                <div class="description">
+                    Energy Added
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div id="" class="data">35</div><div class="units"> %</div>
+                </div>
+                <div class="description">
+                    Base Charge
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div id="" class="data">46</div><div class="units"> kW</div>
+                </div>
+                <div class="description">
+                    Rate of Charge
+                </div>
+            </div>
+        </div>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
         var xScale, kwhScale, socScale;
-        var width, height, socHeight, kwhHeight, svg, soc, kwh;
+        var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 50, bottom: 50, left: 50};
         var dtFmt = d3.timeFormat("%I:%M:%S");
@@ -197,14 +278,13 @@
 
         function updateDimensions(winWidth) {
             margin.top = 10;
-            margin.right = 50;
+            margin.right = 150;
             margin.left = 50;
             margin.bottom = 0;
 
             width = winWidth - margin.left - margin.right - padding.left - padding.right;
-            height = 0.47 * width;
-            socHeight = 0.42 * width;
-            kwhHeight = 0.05 * width;
+            socHeight = 0.6 * width;
+            kwhHeight = 0.15 * width;
         }
 
         // TODO: Responsive
@@ -643,7 +723,8 @@
             if (socInitial) socStart = socInitial;
             if (dataPoints.length > 0) {
                 clearLoading();
-                updateDimensions(window.innerWidth);
+                // updateDimensions(window.innerWidth);
+                updateDimensions(1080);
                 drawChartSVG();
                 plotChargeSession();
                 drawPulse();
