@@ -68,7 +68,7 @@
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
-        var xScale, kwhScale, socScale, histogram;
+        var xScale, kwhScale, socScale;
         var width, height, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 50, bottom: 50, left: 50};
@@ -271,6 +271,17 @@
             });
             return dataPoints;
         }
+        function processSOC(dataPoints) {
+            var active = [];
+            dataPoints.forEach(function(d) {
+                if (d.soc > 0) {
+                    active.push(d);
+                    if (socStart == 0)
+                        socStart = d.soc;
+                }
+            });
+            return active;
+        }
 
         function getTimeRange() {
             var xRange = d3.extent(points, function (d) { return d.time });
@@ -363,7 +374,9 @@
                 .text("Time ({{ tz }})");
         }
 
-        function drawSOCContainer(dataPoints) {
+        function drawSOCContainer() {
+            var socPoints = processSOC(points);
+
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return socScale(d.soc) })
@@ -372,14 +385,20 @@
             var area = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(socHeight)
-                .y1(function (d) { return socScale(d.soc) })
+                .y1(function (d) { return socScale(d.soc - socStart) })
+                .curve(d3.curveMonotoneX);
+
+            var initialArea = d3.area()
+                .x(function (d) { return xScale(d.time) })
+                .y0(socHeight)
+                .y1(function (d) { return socScale(socStart) - 1 })
                 .curve(d3.curveMonotoneX);
 
             var socContainer = soc.append("g")
                 .attr("class", "soc-plot");
 
             var graphLine = socContainer.append("path")
-              .datum(dataPoints)
+              .datum(socPoints)
                 .attr("class", "line")
                 .attr("fill", "none")
                 .attr("stroke-linejoin", "round")
@@ -391,17 +410,24 @@
             graphLine
                 .attr('stroke-dasharray', totalLength + ' ' + totalLength)
                 .attr('stroke-dashoffset', totalLength);
-
             var graphLineArea = socContainer.append('path')
-              .datum(dataPoints)
+              .datum(socPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
+                .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
                 .attr('d', area);
 
-            var graphLineAreaTotalLength = graphLine.node().getTotalLength();
-            graphLineArea
-                .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
-                .attr('stroke-dashoffset', graphLineAreaTotalLength);
+            // var graphLineAreaTotalLength = graphLine.node().getTotalLength();
+            // graphLineArea
+            //     .attr('stroke-dasharray', graphLineAreaTotalLength + ' ' + graphLineAreaTotalLength)
+            //     .attr('stroke-dashoffset', graphLineAreaTotalLength);
+
+
+            var graphLineInitialArea = socContainer.append('path')
+              .datum(points)
+                .attr("class", 'area')
+                .style('fill-opacity', 0)
+                .attr('d', initialArea);
 
             graphLine
               .transition()
@@ -411,6 +437,13 @@
               .transition()
                 .duration(2000)
                 .style('fill-opacity', 0.2)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphLineInitialArea
+              .transition()
+                .duration(2000)
+                .style('fill-opacity', 0.3)
               .transition()
                 .duration(2000)
                 .attr('stroke-dashoffset', 0);
@@ -449,10 +482,10 @@
                     .attr("r", 2 );
             }
 
-            addPoints(dataPoints);
+            addPoints(socPoints);
         }
 
-        function drawKWhContainer(dataPoints) {
+        function drawKWhContainer() {
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return kwhScale(d.kwh) })
@@ -468,7 +501,7 @@
                 .attr("class", "kwh-plot");
 
             var graphLine = kWContainer.append("path")
-              .datum(dataPoints)
+              .datum(points)
                 .attr("class", "line")
                 .attr("fill", "none")
                 .attr("stroke-linejoin", "round")
@@ -482,7 +515,7 @@
                 .attr('stroke-dashoffset', totalLength);
 
             var graphLineArea = kWContainer.append('path')
-              .datum(dataPoints)
+              .datum(points)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr('d', area);
@@ -538,17 +571,13 @@
                     .attr("r", 2 );
             }
 
-            addPoints(dataPoints);
+            addPoints(points);
         }
 
-        function drawContainers(dataPoints) {
-            drawSOCContainer(dataPoints);
-            drawKWhContainer(dataPoints);
-        }
-        function plotChargeSession(dataPoints) {
+        function plotChargeSession() {
             drawAxis();
-            points = dataPoints;
-            drawContainers(dataPoints);
+            drawSOCContainer();
+            drawKWhContainer();
         }
 
         function plotLoading() {
@@ -616,8 +645,7 @@
                 clearLoading();
                 updateDimensions(window.innerWidth);
                 drawChartSVG();
-                dataPoints = processPoints(dataPoints);
-                plotChargeSession(dataPoints);
+                plotChargeSession();
                 drawPulse();
             } else if (dataPoints.length === 0 && !charging) {
                 plotLoading();
