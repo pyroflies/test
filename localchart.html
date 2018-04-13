@@ -34,9 +34,9 @@
             stroke-opacity: 1;
         }
         .baseline {
-            stroke: #2471d0;
+            /*stroke: #2471d0;
             stroke-width: 1;
-            stroke-opacity: 0.5;
+            stroke-opacity: 0.5;*/
         }
         .grid line, .grid path {
           stroke: #1e37c1;
@@ -300,7 +300,11 @@
                 index++;
                 points = processPoints(points);
                 // TODO: animate instead of redraw
-                plotGraph(points);
+                if (points.length >= 2) {
+                    drawSOCContainer();
+                    drawKWhContainer();
+                    updateData();
+                }
             }
         }
         addPoint();
@@ -324,7 +328,7 @@
 
         function drawChartSVG() { // set up svg chart canvas
 
-            d3.selectAll("svg > *").remove();
+            // d3.selectAll("svg > *").remove();
 
             // clearChartSVG("socChart");
             soc = d3.select("#socChart")
@@ -406,7 +410,8 @@
             return xRange;
         }
         function updateScale() {
-            var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+            // var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+            var y0Max = 40; // TODO: set sane defaults so scale doesn't have to re-adjust
 
             // TODO: Make X axis draggable
             xScale = d3.scaleTime()
@@ -490,6 +495,10 @@
 
         function drawSOCContainer() {
             var socPoints = processSOC(points);
+            if (socPoints.length >= 2) {
+                var socPoints = [socPoints[socPoints.length - 2], socPoints[socPoints.length - 1]];
+            }
+            console.log(socPoints);
 
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
@@ -532,12 +541,12 @@
                 .attr('d', area);
 
             var graphInitialLine = socContainer.append("path")
-              .datum(points)
+              .datum(socPoints)
                 .attr("class", "baseline")
                 .attr("fill", "none")
                 .attr("d", initialArea);
             var graphLineInitialArea = socContainer.append('path')
-              .datum(points)
+              .datum(socPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr('d', initialArea);
@@ -603,6 +612,12 @@
         }
 
         function drawKWhContainer() {
+            var kwhPoints = points;
+            if (kwhPoints.length >= 2) {
+                var kwhPoints = [kwhPoints[kwhPoints.length - 2], kwhPoints[kwhPoints.length - 1]];
+            }
+            console.log(kwhPoints);
+
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return kwhScale(d.kwh) })
@@ -618,7 +633,7 @@
                 .attr("class", "kwh-plot");
 
             var graphLine = kWContainer.append("path")
-              .datum(points)
+              .datum(kwhPoints)
                 .attr("class", "line")
                 .attr("fill", "none")
                 .attr("stroke-linejoin", "round")
@@ -632,7 +647,7 @@
                 .attr('stroke-dashoffset', totalLength);
 
             var graphLineArea = kWContainer.append('path')
-              .datum(points)
+              .datum(kwhPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr('d', area);
@@ -683,7 +698,7 @@
                     .attr("r", 2 );
             }
 
-            addPoints(points);
+            addPoints(kwhPoints);
         }
 
         function plotChargeSession() {
