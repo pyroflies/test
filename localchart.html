@@ -168,7 +168,7 @@
         var xScale, kwhScale, socScale;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
-        var padding = {top: 20, right: 50, bottom: 50, left: 50};
+        var padding = {top: 20, right: 0, bottom: 50, left: 50};
         var dtFmt = d3.timeFormat("%I:%M:%S");
         // var tooltip = d3.select("#tooltip").style("opacity", 0);
         var isLeftYAxis = true;
@@ -299,6 +299,7 @@
                 points.push(source[index]);
                 index++;
                 points = processPoints(points);
+                // TODO: animate instead of redraw
                 plotGraph(points);
             }
         }
@@ -306,7 +307,7 @@
 
         function updateDimensions(winWidth) {
             margin.top = 10;
-            margin.right = 150;
+            margin.right = 200;
             margin.left = 50;
             margin.bottom = 0;
 
@@ -396,16 +397,18 @@
 
         function getTimeRange() {
             var xRange = d3.extent(points, function (d) { return d.time });
-            // if (xRange[1] - xRange[0] < (30 * 60 * 1000)) {
-            //     var newDateObj = new Date();
-            //     newDateObj.setTime(xRange[0].getTime() + (30 * 60 * 1000));
-            //     xRange = [xRange[0], newDateObj];
+            var defaultMinutes = 15; // default view to preset minutes range
+            // if (xRange[1] - xRange[0] < (defaultMinutes * 60 * 1000)) {
+                var newDateObj = new Date();
+                newDateObj.setTime(xRange[0].getTime() + (defaultMinutes * 60 * 1000));
+                xRange = [xRange[0], newDateObj];
             // }
             return xRange;
         }
         function updateScale() {
             var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
 
+            // TODO: Make X axis draggable
             xScale = d3.scaleTime()
                 .rangeRound([0, width])
               .domain(getTimeRange());
