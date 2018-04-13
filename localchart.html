@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #070d2f;
+            width: 1080px;
+        }
+        #chartContainer {
+            position: relative;
+            border: 1px solid #2471d0;
+        }
+
+
+        .pulse {
+            fill: #00ff00;
+        }
+        .pulse.warning {
+            fill: #ffa500;
+        }
+        .pulse.error {
+            fill: #ff0000;
+        }
+
+        .area {
+            fill: #2471d0;
+        }
+        .line {
+            stroke: #2471d0;
+            stroke-width: 2;
+            stroke-opacity: 1;
+        }
+        .baseline {
+            stroke: #2471d0;
+            stroke-width: 1;
+            stroke-opacity: 0.5;
+        }
+        .grid line, .grid path {
+          stroke: #1e37c1;
+          stroke-opacity: 0.7;
+          shape-rendering: crispEdges;
+        }
+
+        .y-axis-text {
+            text-anchor: middle;
+            fill: #2471d0;
+        }
+        .y.axis path, .y.axis line {
+            stroke: #2471d0;
+        }
+        .y.axis text {
+            fill: #2471d0;
+        }
+
+        .x-axis-text {
+            text-anchor: middle;
+            fill: #2471d0;
+        }
+        .x.axis path, .x.axis line {
+            stroke: #2471d0;
+        }
+        .x.axis text {
+            fill: #2471d0;
+        }
+
+        .dot {
+            fill: #63a4f5;
+        }
+
+
+        #metrics {
+            position: absolute;
+            top: 0;
+            right: 0;
+            color: #2471d0;
+            width: 200px;
+            padding: 20px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+        .container {
+            margin: 60px 0;
+        }
+        .display {
+            display: table;
+            margin: 0 auto;
+        }
+        .data {
+            display: table-cell;
+            font-size: 4em;
+            font-weight: 100;
+            width: 70px;
+            padding-left: 40px;
+            text-align: center;
+            color: #3a89ea;
+            text-shadow: 0px 0px 15px #2471d0;
+        }
+        .data.active {
+            width: 120px;
+            text-align: right;
+            padding: 0;
+        }
+        .units {
+            display: table-cell;
+            font-size: 1.2em;
+            font-weight: 300;
+            text-align: left;
+            padding-left: 5px;
+            width: 50px;
+        }
+        .description {
+            font-size: 0.8em;
+        }
+
+        #test {
+            display: block;
+            margin: 20px auto;
+        }
+
+    </style>
+    <title>Recargo</title>
+</head>
+<body>
+    <div id="chartContainer">
+        <svg id="socChart"></svg>
+        <svg id="kwhChart"></svg>
+        <div id="metrics">
+            <div class="container">
+                <div class="display">
+                    <div id="current" class="data">-</div><div class="units"> %</div>
+                </div>
+                <div class="description">
+                    Current Charge
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div id="added" class="data">-</div><div class="units"> kWh</div>
+                </div>
+                <div class="description">
+                    Energy Added
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div id="base" class="data">-</div><div class="units"> %</div>
+                </div>
+                <div class="description">
+                    Base Charge
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div id="rate" class="data">-</div><div class="units"> kW</div>
+                </div>
+                <div class="description">
+                    Rate of Charge
+                </div>
+            </div>
+        </div>
+    </div>
+    <button onclick="addPoint()" id="test">Add</button>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
+    <script type="text/javascript">
+        var xScale, kwhScale, socScale;
+        var width, socHeight, kwhHeight, svg, soc, kwh;
+        var margin = {top: 10, right: 50, bottom: 0, left: 50};
+        var padding = {top: 20, right: 50, bottom: 50, left: 50};
+        var dtFmt = d3.timeFormat("%I:%M:%S");
+        // var tooltip = d3.select("#tooltip").style("opacity", 0);
+        var isLeftYAxis = true;
+        var socStart = 0; //{{ soc_start|safe }};
+        // var points = []; //{{ dataset|safe }};
+        var source = [
+          {
+            "amps": null, 
+            "soc": null, 
+            "timestamp": "2018-04-05T16:04:33.586690-07:00", 
+            "volts": null, 
+            "watts": null
+          }, 
+          {
+            "amps": null, 
+            "soc": null, 
+            "timestamp": "2018-04-05T16:04:35.112828-07:00", 
+            "volts": null, 
+            "watts": null
+          }, 
+          {
+            "amps": null, 
+            "soc": null, 
+            "timestamp": "2018-04-05T16:04:50.451531-07:00", 
+            "volts": 377, 
+            "watts": 0
+          }, 
+          {
+            "amps": null, 
+            "soc": 35, 
+            "timestamp": "2018-04-05T16:05:21.085889-07:00", 
+            "volts": 391, 
+            "watts": 0
+          }, 
+          {
+            "amps": null, 
+            "soc": 38, 
+            "timestamp": "2018-04-05T16:05:51.744536-07:00", 
+            "volts": 394, 
+            "watts": 35972
+          }, 
+          {
+            "amps": null, 
+            "soc": 40, 
+            "timestamp": "2018-04-05T16:06:22.454744-07:00", 
+            "volts": 394, 
+            "watts": 35972
+          }, 
+          {
+            "amps": null, 
+            "soc": 42, 
+            "timestamp": "2018-04-05T16:06:53.071918-07:00", 
+            "volts": 397, 
+            "watts": 36735
+          }, 
+          {
+            "amps": null, 
+            "soc": 45, 
+            "timestamp": "2018-04-05T16:07:23.785812-07:00", 
+            "volts": 397, 
+            "watts": 36735
+          }, 
+          {
+            "amps": null, 
+            "soc": 47, 
+            "timestamp": "2018-04-05T16:07:54.294834-07:00", 
+            "volts": 398, 
+            "watts": 36921
+          }, 
+          {
+            "amps": null, 
+            "soc": 50, 
+            "timestamp": "2018-04-05T16:08:24.927551-07:00", 
+            "volts": 398, 
+            "watts": 36921
+          }, 
+          {
+            "amps": null, 
+            "soc": 52, 
+            "timestamp": "2018-04-05T16:08:55.521776-07:00", 
+            "volts": 398, 
+            "watts": 36218
+          }, 
+          {
+            "amps": null, 
+            "soc": 55, 
+            "timestamp": "2018-04-05T16:09:26.258409-07:00", 
+            "volts": 398, 
+            "watts": 36218
+          }, 
+          {
+            "amps": null, 
+            "soc": 56, 
+            "timestamp": "2018-04-05T16:09:56.904760-07:00", 
+            "volts": 398, 
+            "watts": 31840
+          }, 
+          {
+            "amps": null, 
+            "soc": 58, 
+            "timestamp": "2018-04-05T16:10:27.703898-07:00", 
+            "volts": 398, 
+            "watts": 31840
+          }, 
+          {
+            "amps": null, 
+            "soc": 60, 
+            "timestamp": "2018-04-05T16:10:58.357652-07:00", 
+            "volts": 398, 
+            "watts": 29054
+          }, 
+          {
+            "amps": null, 
+            "soc": 60, 
+            "timestamp": "2018-04-05T16:11:18.430488-07:00", 
+            "volts": 398, 
+            "watts": 29054
+          }
+        ]
+        // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
+
+        // var points = processPoints(source);
+        var points = [];
+
+        var index = 0;
+        function addPoint() {
+            if (index < source.length) {
+                points.push(source[index]);
+                index++;
+                points = processPoints(points);
+                plotGraph(points);
+            }
+        }
+        addPoint();
+
+        function updateDimensions(winWidth) {
+            margin.top = 10;
+            margin.right = 150;
+            margin.left = 50;
+            margin.bottom = 0;
+
+            width = winWidth - margin.left - margin.right - padding.left - padding.right;
+            socHeight = 0.6 * width;
+            kwhHeight = 0.15 * width;
+        }
+
+        // TODO: Responsive
+        function clearChartSVG(chart) {
+            svg = d3.select(chart);
+            svg.selectAll("*").remove();
+        }
+
+        function drawChartSVG() { // set up svg chart canvas
+
+            d3.selectAll("svg > *").remove();
+
+            // clearChartSVG("socChart");
+            soc = d3.select("#socChart")
+                .attr("width", width)
+                .attr("height", socHeight)
+                .style("padding", padding.top + " " + padding.right + " " + 10 + " " + padding.left)
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+
+            // clearChartSVG("kwhChart");
+            kwh = d3.select("#kwhChart")
+                .attr("width", width)
+                .attr("height", kwhHeight)
+                .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
+                .attr("transform", "translate(" + margin.left + "," + 0 + ")")
+
+            // //Container for the gradients
+            // var defs = soc.append("defs");
+
+            // //Filter for the outside glow
+            // var filter = defs.append("filter")
+            //     .attr("id","glow");
+            // filter.append("feGaussianBlur")
+            //     .attr("stdDeviation","7.5")
+            //     .attr("result","coloredBlur");
+            // var feMerge = filter.append("feMerge");
+            // feMerge.append("feMergeNode")
+            //     .attr("in","coloredBlur");
+            // feMerge.append("feMergeNode")
+            //     .attr("in","SourceGraphic");
+
+            // d3.select("#socChart")
+            //     .style("filter", "url(#glow)");
+        }
+
+        function roundUp5(x) {
+            return Math.ceil((x+2)/5)*5;
+        }
+
+        function processPoints(dataPoints) {
+            dataPoints.forEach(function(d) {
+                d.time = d3.isoParse(d["timestamp"]);
+                d.kwh = d["watts"] / 1000;
+                d.soc = Math.floor(d["soc"]);
+                // if (d.soc < 20) {
+                //     d.color = "red";
+                // } else if (d.soc < 35) {
+                //     d.color = "orange";
+                // } else if (d.soc < 50 ) {
+                //     d.color = "yellow";
+                // } else if (d.soc < 80) {
+                //     d.color = "green";
+                // } else {
+                //     d.color = "steelblue";
+                // }
+                // console.log(d.color);
+            });
+            return dataPoints;
+        }
+        function processSOC(dataPoints) {
+            var active = [];
+            dataPoints.forEach(function(d) {
+                if (d.soc > 0) {
+                    active.push(d);
+                    if (socStart == 0)
+                        socStart = d.soc;
+                }
+            });
+            return active;
+        }
+
+        function getTimeRange() {
+            var xRange = d3.extent(points, function (d) { return d.time });
+            // if (xRange[1] - xRange[0] < (30 * 60 * 1000)) {
+            //     var newDateObj = new Date();
+            //     newDateObj.setTime(xRange[0].getTime() + (30 * 60 * 1000));
+            //     xRange = [xRange[0], newDateObj];
+            // }
+            return xRange;
+        }
+        function updateScale() {
+            var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+
+            xScale = d3.scaleTime()
+                .rangeRound([0, width])
+              .domain(getTimeRange());
+
+            socScale = d3.scaleLinear()
+                .rangeRound([socHeight, 0])
+              .domain([0, 100]);
+
+            kwhScale = d3.scaleLinear()
+                .rangeRound([kwhHeight, 0])
+              .domain([0, y0Max]);
+        }
+
+        function plotGrid() { // gridlines
+            d3.selectAll(".grid").remove();
+
+            var yAxisGrid1 = d3.axisLeft(socScale).tickSize(-width).tickFormat("");
+            soc.append("g")
+                .attr("class", "grid y-left")
+                .call(yAxisGrid1);
+
+            var yAxisGrid2 = d3.axisLeft(kwhScale).tickSize(-width).tickFormat("");
+            kwh.append("g")
+                .attr("class", "grid y-left")
+                .call(yAxisGrid2);
+        }
+
+        function drawAxis() { // axis ticks and display text
+            updateScale();
+            plotGrid();
+
+            d3.selectAll(".axis-container").remove();
+
+            var socAxis = soc.append("g").attr("class", "axis-container");
+
+            socAxis.append("g")
+                .attr("class", "y axis y-right")
+                .call(d3.axisLeft(socScale));
+
+            socAxis.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (socHeight / 2))
+                .attr("dy", "1em")
+                .attr("class", "y-axis-text")
+                .style("text-anchor", "middle")
+                .text("% Charge");
+
+
+            var kwhAxis = kwh.append("g").attr("class", "axis-container");
+
+            kwhAxis.append("g")
+                .attr("class", "y axis y-left")
+                .call(d3.axisLeft(kwhScale));
+
+            kwhAxis.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 0 - margin.left)
+                .attr("x", 0 - (kwhHeight / 2))
+                .attr("dy", "1em")
+                .attr("class", "y-axis-text")
+                .style("text-anchor", "middle")
+                .text("kW");
+
+
+            // TODO: xAxis minimum length 30 minutes
+            var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+
+            kwhAxis.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + kwhHeight + ")")
+                .call(xAxis);
+            kwhAxis.append("text")
+                .attr("class", "x-axis-text")
+                .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
+                .style("text-anchor", "middle")
+                .text("Time ({{ tz }})");
+        }
+
+        function drawSOCContainer() {
+            var socPoints = processSOC(points);
+
+            var line = d3.line()
+                .x(function (d) { return xScale(d.time) })
+                .y(function (d) { return socScale(d.soc) })
+                .curve(d3.curveMonotoneX);
+
+            var area = d3.area()
+                .x(function (d) { return xScale(d.time) })
+                .y0(socHeight)
+                .y1(function (d) { return socScale(d.soc - socStart) })
+                .curve(d3.curveMonotoneX);
+
+            var initialArea = d3.area()
+                .x(function (d) { return xScale(d.time) })
+                .y0(socHeight)
+                .y1(function (d) { return socScale(socStart) - 1 })
+                .curve(d3.curveMonotoneX);
+
+            var socContainer = soc.append("g")
+                .attr("class", "soc-plot");
+
+            var graphLine = socContainer.append("path")
+              .datum(socPoints)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("d", line);
+
+            var totalLength = graphLine.node().getTotalLength();
+
+            graphLine
+                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                .attr('stroke-dashoffset', totalLength);
+            var graphLineArea = socContainer.append('path')
+              .datum(socPoints)
+                .attr("class", 'area')
+                .style('fill-opacity', 0)
+                .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
+                .attr('d', area);
+
+            var graphInitialLine = socContainer.append("path")
+              .datum(points)
+                .attr("class", "baseline")
+                .attr("fill", "none")
+                .attr("d", initialArea);
+            var graphLineInitialArea = socContainer.append('path')
+              .datum(points)
+                .attr("class", 'area')
+                .style('fill-opacity', 0)
+                .attr('d', initialArea);
+
+            graphLine
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphLineArea
+              .transition()
+                .duration(2000)
+                .style('fill-opacity', 0.4)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphInitialLine
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphLineInitialArea
+              .transition()
+                .duration(2000)
+                .style('fill-opacity', 0.2)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+
+            function addPoints(datum) {
+                var pointsContainer = socContainer.append("g");
+                datum.forEach(function(d, index) {
+                    drawPoint(pointsContainer, d, index);
+                });
+            }
+
+            function drawPoint(container, d, index) {
+                container.datum(d)
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 0)
+                    .attr("cx", function (d) { return xScale(d.time) })
+                    .attr("cy", function (d) { return socScale(d.soc) })
+                    // .on("mouseover", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(200)
+                    //         .style("opacity", .9);
+                    //     tooltip.html(d.soc + "%")
+                    //         .style("cursor", "pointer")
+                    //         .style("left", (d3.event.pageX) + "px")
+                    //         .style("top", (d3.event.pageY - 28) + "px");
+                    // })
+                    // .on("mouseout", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(500)
+                    //         .style("opacity", 0);
+                    // })
+                  .transition()
+                    .delay( 1800 )
+                    .duration( 500 )
+                    .attr("r", 2 );
+            }
+
+            addPoints(socPoints);
+        }
+
+        function drawKWhContainer() {
+            var line = d3.line()
+                .x(function (d) { return xScale(d.time) })
+                .y(function (d) { return kwhScale(d.kwh) })
+                .curve(d3.curveStepBefore);
+
+            var area = d3.area()
+                .x(function (d) { return xScale(d.time) })
+                .y0(kwhHeight)
+                .y1(function (d) { return kwhScale(d.kwh) })
+                .curve(d3.curveStepBefore);
+
+            var kWContainer = kwh.append("g")
+                .attr("class", "kwh-plot");
+
+            var graphLine = kWContainer.append("path")
+              .datum(points)
+                .attr("class", "line")
+                .attr("fill", "none")
+                .attr("stroke-linejoin", "round")
+                .attr("stroke-linecap", "round")
+                .attr("d", line);
+
+            var totalLength = graphLine.node().getTotalLength();
+
+            graphLine
+                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                .attr('stroke-dashoffset', totalLength);
+
+            var graphLineArea = kWContainer.append('path')
+              .datum(points)
+                .attr("class", 'area')
+                .style('fill-opacity', 0)
+                .attr('d', area);
+
+            graphLine
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+            graphLineArea
+              .transition()
+                .duration(2000)
+                .style('fill-opacity', 0.2)
+              .transition()
+                .duration(2000)
+                .attr('stroke-dashoffset', 0);
+
+            function addPoints(datum) {
+                var pointsContainer = kWContainer.append("g");
+                datum.forEach(function(d, index) {
+                    drawPoint(pointsContainer, d, index);
+                });
+            }
+
+            function drawPoint(container, d, index) {
+                container.datum(d)
+                    .append("circle")
+                    .attr("class", "dot")
+                    .attr("r", 0)
+                    .attr("cx", function (d) { return xScale(d.time) })
+                    .attr("cy", function (d) { return kwhScale(d.kwh) })
+                    // .on("mouseover", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(200)
+                    //         .style("opacity", .9);
+                    //     tooltip.html(d.soc + "%")
+                    //         .style("cursor", "pointer")
+                    //         .style("left", (d3.event.pageX) + "px")
+                    //         .style("top", (d3.event.pageY - 28) + "px");
+                    // })
+                    // .on("mouseout", function (d) {
+                    //     tooltip.transition()
+                    //         .duration(500)
+                    //         .style("opacity", 0);
+                    // })
+                  .transition()
+                    .delay( 1800 )
+                    .duration( 500 )
+                    .attr("r", 2 );
+            }
+
+            addPoints(points);
+        }
+
+        function plotChargeSession() {
+            drawAxis();
+            drawSOCContainer();
+            drawKWhContainer();
+        }
+
+        function clearPulse() {
+            soc.selectAll(".pulse").remove();
+        }
+        function drawPulse(error=false, warning=false) {
+            var pulseClass = "pulse";
+            clearPulse();
+            if (error) {
+                pulseClass += " error";
+            } else if (warning) {
+                pulseClass += " warning";
+            }
+            soc.append("circle")
+                .attr("class", pulseClass)
+                .attr("r", 0)
+                .attr("cx", 10)
+                .attr("cy", 10)
+                .node().animate([
+                    {r: 0, opacity: .5},
+                    {r: 5, opacity: 1}
+                ], {
+                    duration: 1000,
+                    easing: "linear",
+                    iterations: Infinity,
+                    direction: "alternate"
+                });
+        }
+
+        function plotGraph(dataPoints, charging, socInitial) {
+            if (socInitial) socStart = socInitial;
+            if (dataPoints.length > 0) {
+                // updateDimensions(window.innerWidth);
+                updateDimensions(1080);
+                drawChartSVG();
+                plotChargeSession();
+                updateData();
+                drawPulse();
+            } else {
+                drawPulse(warning=true);
+            }
+        }
+
+        function updateData() {
+            var current = points[points.length - 1].soc;
+            document.getElementById("current").innerHTML = current;
+            document.getElementById("current").classList.add("active");
+            if (socStart) {
+                document.getElementById("added").innerHTML = (current - socStart);
+                document.getElementById("added").classList.add("active");
+                document.getElementById("base").innerHTML = socStart;
+                document.getElementById("base").classList.add("active");
+            }
+            var roc = Math.round(points[points.length - 1].kwh);
+            document.getElementById("rate").innerHTML = roc;
+            document.getElementById("rate").classList.add("active");
+
+        }
+
+        plotGraph(points);
+    </script>
+
+    <!-- {# If the uid is 'index' we do not want to poll for new results so we shouldn't include in the view. #}
+    {# If charging has completed, we shouldn't include polling in the view. #}
+
+    {% if uid != 'index' and not charging_complete %} -->
+    <script type="text/javascript">
+        /*var csDetailsUrl = "{{ polling_url }}";
+        var maxFail = 18;  // stop trying if it fails more than 18 times or 3 minutes
+        var failedAttempts = 0;
+        var inUse = true;
+        var lastDT = new Date().toISOString();
+        var graphPoints = [];
+        var responseDetails = [];
+        var url = csDetailsUrl;
+        var socInitial = 0 //{{ soc_start|safe }};
+
+        function getUpdates(url) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', url + '?last_dt=' + lastDT);
+            xhr.timeout = 5000;
+            xhr.onerror = function(e) {
+                failedAttempts++;
+            };
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    failedAttempts = 0;
+                    var myArr = JSON.parse(xhr.responseText);
+                    var responseDict = myArr['response'];
+                    if (responseDict.hasOwnProperty('soc_start')) socInitial = responseDict['soc_start'];
+                    if (responseDict.hasOwnProperty('is_in_use')) inUse = responseDict['is_in_use'];
+                    if (responseDict.hasOwnProperty('details')) {
+                        responseDetails = responseDict['details'];
+                        if (graphPoints.length === 0) {
+                            graphPoints = responseDetails;
+                        } else {
+                            graphPoints = graphPoints.concat(responseDetails);
+                        }
+                        plotGraph(graphPoints, inUse, socInitial);
+                    } else if (!inUse) {
+                        clearPulse();
+                    } else {
+                        plotGraph([], inUse, socInitial);
+                        failedAttempts++;
+                    }
+                } else if (xhr.status >= 400) {
+                    drawPulse(error=true);
+                    failedAttempts++;
+                }
+            };
+            xhr.send();
+        }
+
+        setInterval(function() {
+            if (failedAttempts < maxFail || inUse) {
+                getUpdates(url);
+            }
+        }, 1000*10);*/
+    </script>
+    <!-- {% endif %} -->
+
+</body>
+</html>
