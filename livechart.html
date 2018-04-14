@@ -14,17 +14,6 @@
             border: 1px solid #2471d0;
         }
 
-
-        .pulse {
-            fill: #00ff00;
-        }
-        .pulse.warning {
-            fill: #ffa500;
-        }
-        .pulse.error {
-            fill: #ff0000;
-        }
-
         .area {
             fill: #2471d0;
         }
@@ -177,116 +166,11 @@
         var source = [
           {
             "amps": null, 
-            "soc": null, 
-            "timestamp": "2018-04-05T16:04:33.586690-07:00", 
-            "volts": null, 
-            "watts": null
-          }, 
-          {
-            "amps": null, 
-            "soc": null, 
-            "timestamp": "2018-04-05T16:04:35.112828-07:00", 
-            "volts": null, 
-            "watts": null
-          }, 
-          {
-            "amps": null, 
-            "soc": null, 
-            "timestamp": "2018-04-05T16:04:50.451531-07:00", 
-            "volts": 377, 
-            "watts": 0
-          }, 
-          {
-            "amps": null, 
-            "soc": 35, 
-            "timestamp": "2018-04-05T16:05:21.085889-07:00", 
-            "volts": 391, 
-            "watts": 0
-          }, 
-          {
-            "amps": null, 
             "soc": 38, 
             "timestamp": "2018-04-05T16:05:51.744536-07:00", 
             "volts": 394, 
             "watts": 35972
           }, 
-          {
-            "amps": null, 
-            "soc": 40, 
-            "timestamp": "2018-04-05T16:06:22.454744-07:00", 
-            "volts": 394, 
-            "watts": 35972
-          }, 
-          {
-            "amps": null, 
-            "soc": 42, 
-            "timestamp": "2018-04-05T16:06:53.071918-07:00", 
-            "volts": 397, 
-            "watts": 36735
-          }, 
-          {
-            "amps": null, 
-            "soc": 45, 
-            "timestamp": "2018-04-05T16:07:23.785812-07:00", 
-            "volts": 397, 
-            "watts": 36735
-          }, 
-          {
-            "amps": null, 
-            "soc": 47, 
-            "timestamp": "2018-04-05T16:07:54.294834-07:00", 
-            "volts": 398, 
-            "watts": 36921
-          }, 
-          {
-            "amps": null, 
-            "soc": 50, 
-            "timestamp": "2018-04-05T16:08:24.927551-07:00", 
-            "volts": 398, 
-            "watts": 36921
-          }, 
-          {
-            "amps": null, 
-            "soc": 52, 
-            "timestamp": "2018-04-05T16:08:55.521776-07:00", 
-            "volts": 398, 
-            "watts": 36218
-          }, 
-          {
-            "amps": null, 
-            "soc": 55, 
-            "timestamp": "2018-04-05T16:09:26.258409-07:00", 
-            "volts": 398, 
-            "watts": 36218
-          }, 
-          {
-            "amps": null, 
-            "soc": 56, 
-            "timestamp": "2018-04-05T16:09:56.904760-07:00", 
-            "volts": 398, 
-            "watts": 31840
-          }, 
-          {
-            "amps": null, 
-            "soc": 58, 
-            "timestamp": "2018-04-05T16:10:27.703898-07:00", 
-            "volts": 398, 
-            "watts": 31840
-          }, 
-          {
-            "amps": null, 
-            "soc": 60, 
-            "timestamp": "2018-04-05T16:10:58.357652-07:00", 
-            "volts": 398, 
-            "watts": 29054
-          }, 
-          {
-            "amps": null, 
-            "soc": 60, 
-            "timestamp": "2018-04-05T16:11:18.430488-07:00", 
-            "volts": 398, 
-            "watts": 29054
-          }
         ]
         // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
 
@@ -617,124 +501,97 @@
         }
 
         function stepKWh() {
-            var kwhPoints = points;
-            kwhPoints = getLastStep(kwhPoints) ? getLastStep(kwhPoints) : kwhPoints;
-            console.log(kwhPoints);
+            // var kwhPoints = points;
+            // kwhPoints = getLastStep(kwhPoints) ? getLastStep(kwhPoints) : kwhPoints;
+            // console.log(kwhPoints);
 
-            var line = d3.line()
-                .x(function (d) { return xScale(d.time) })
-                .y(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepBefore);
+            // var line = d3.line()
+            //     .x(function (d) { return xScale(d.time) })
+            //     .y(function (d) { return kwhScale(d.kwh) })
+            //     .curve(d3.curveStepBefore);
 
-            var area = d3.area()
-                .x(function (d) { return xScale(d.time) })
-                .y0(kwhHeight)
-                .y1(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepBefore);
+            // var area = d3.area()
+            //     .x(function (d) { return xScale(d.time) })
+            //     .y0(kwhHeight)
+            //     .y1(function (d) { return kwhScale(d.kwh) })
+            //     .curve(d3.curveStepBefore);
 
-            var kWContainer = kwh.append("g")
-                .attr("class", "kwh-plot");
+            // var kWContainer = kwh.append("g")
+            //     .attr("class", "kwh-plot");
 
-            var graphLine = kWContainer.append("path")
-              .datum(kwhPoints)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke-linejoin", "round")
-                .attr("stroke-linecap", "round")
-                .attr("d", line);
+            // var graphLine = kWContainer.append("path")
+            //   .datum(kwhPoints)
+            //     .attr("class", "line")
+            //     .attr("fill", "none")
+            //     .attr("stroke-linejoin", "round")
+            //     .attr("stroke-linecap", "round")
+            //     .attr("d", line);
 
-            var totalLength = graphLine.node().getTotalLength();
+            // var totalLength = graphLine.node().getTotalLength();
 
-            graphLine
-                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
-                .attr('stroke-dashoffset', totalLength);
+            // graphLine
+            //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+            //     .attr('stroke-dashoffset', totalLength);
 
-            var graphLineArea = kWContainer.append('path')
-              .datum(kwhPoints)
-                .attr("class", 'area')
-                .style('fill-opacity', 0)
-                .attr('d', area);
+            // var graphLineArea = kWContainer.append('path')
+            //   .datum(kwhPoints)
+            //     .attr("class", 'area')
+            //     .style('fill-opacity', 0)
+            //     .attr('d', area);
 
-            graphLine
-              .transition()
-                .duration(2000)
-                .attr('stroke-dashoffset', 0);
-            graphLineArea
-              .transition()
-                .duration(2000)
-                .style('fill-opacity', 0.2)
-              .transition()
-                .duration(2000)
-                .attr('stroke-dashoffset', 0);
+            // graphLine
+            //   .transition()
+            //     .duration(2000)
+            //     .attr('stroke-dashoffset', 0);
+            // graphLineArea
+            //   .transition()
+            //     .duration(2000)
+            //     .style('fill-opacity', 0.2)
+            //   .transition()
+            //     .duration(2000)
+            //     .attr('stroke-dashoffset', 0);
 
-            function addPoints(datum) {
-                var pointsContainer = kWContainer.append("g");
-                datum.forEach(function(d, index) {
-                    drawPoint(pointsContainer, d, index);
-                });
-            }
+            // function addPoints(datum) {
+            //     var pointsContainer = kWContainer.append("g");
+            //     datum.forEach(function(d, index) {
+            //         drawPoint(pointsContainer, d, index);
+            //     });
+            // }
 
-            function drawPoint(container, d, index) {
-                container.datum(d)
-                    .append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 0)
-                    .attr("cx", function (d) { return xScale(d.time) })
-                    .attr("cy", function (d) { return kwhScale(d.kwh) })
-                    // .on("mouseover", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(200)
-                    //         .style("opacity", .9);
-                    //     tooltip.html(d.soc + "%")
-                    //         .style("cursor", "pointer")
-                    //         .style("left", (d3.event.pageX) + "px")
-                    //         .style("top", (d3.event.pageY - 28) + "px");
-                    // })
-                    // .on("mouseout", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(500)
-                    //         .style("opacity", 0);
-                    // })
-                  .transition()
-                    .delay( 1800 )
-                    .duration( 500 )
-                    .attr("r", 2 );
-            }
+            // function drawPoint(container, d, index) {
+            //     container.datum(d)
+            //         .append("circle")
+            //         .attr("class", "dot")
+            //         .attr("r", 0)
+            //         .attr("cx", function (d) { return xScale(d.time) })
+            //         .attr("cy", function (d) { return kwhScale(d.kwh) })
+            //         // .on("mouseover", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(200)
+            //         //         .style("opacity", .9);
+            //         //     tooltip.html(d.soc + "%")
+            //         //         .style("cursor", "pointer")
+            //         //         .style("left", (d3.event.pageX) + "px")
+            //         //         .style("top", (d3.event.pageY - 28) + "px");
+            //         // })
+            //         // .on("mouseout", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(500)
+            //         //         .style("opacity", 0);
+            //         // })
+            //       .transition()
+            //         .delay( 1800 )
+            //         .duration( 500 )
+            //         .attr("r", 2 );
+            // }
 
-            addPoints(kwhPoints);
+            // addPoints(kwhPoints);
         }
 
         function plotChargeSession() {
             drawAxis();
             stepSOC();
             stepKWh();
-        }
-
-        function clearPulse() {
-            soc.selectAll(".pulse").remove();
-        }
-        function drawPulse(error=false, warning=false) {
-            var pulseClass = "pulse";
-            clearPulse();
-            if (error) {
-                pulseClass += " error";
-            } else if (warning) {
-                pulseClass += " warning";
-            }
-            soc.append("circle")
-                .attr("class", pulseClass)
-                .attr("r", 0)
-                .attr("cx", 10)
-                .attr("cy", 10)
-                .node().animate([
-                    {r: 0, opacity: .5},
-                    {r: 5, opacity: 1}
-                ], {
-                    duration: 1000,
-                    easing: "linear",
-                    iterations: Infinity,
-                    direction: "alternate"
-                });
         }
 
         function plotGraph(dataPoints, charging, socInitial) {
@@ -745,9 +602,7 @@
                 drawChartSVG();
                 plotChargeSession();
                 updateData();
-                drawPulse();
             } else {
-                drawPulse(warning=true);
             }
         }
 
@@ -769,66 +624,6 @@
 
         plotGraph(points);
     </script>
-
-    <!-- {# If the uid is 'index' we do not want to poll for new results so we shouldn't include in the view. #}
-    {# If charging has completed, we shouldn't include polling in the view. #}
-
-    {% if uid != 'index' and not charging_complete %} -->
-    <script type="text/javascript">
-        /*var csDetailsUrl = "{{ polling_url }}";
-        var maxFail = 18;  // stop trying if it fails more than 18 times or 3 minutes
-        var failedAttempts = 0;
-        var inUse = true;
-        var lastDT = new Date().toISOString();
-        var graphPoints = [];
-        var responseDetails = [];
-        var url = csDetailsUrl;
-        var socInitial = 0 //{{ soc_start|safe }};
-
-        function getUpdates(url) {
-            var xhr = new XMLHttpRequest();
-
-            xhr.open('GET', url + '?last_dt=' + lastDT);
-            xhr.timeout = 5000;
-            xhr.onerror = function(e) {
-                failedAttempts++;
-            };
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    failedAttempts = 0;
-                    var myArr = JSON.parse(xhr.responseText);
-                    var responseDict = myArr['response'];
-                    if (responseDict.hasOwnProperty('soc_start')) socInitial = responseDict['soc_start'];
-                    if (responseDict.hasOwnProperty('is_in_use')) inUse = responseDict['is_in_use'];
-                    if (responseDict.hasOwnProperty('details')) {
-                        responseDetails = responseDict['details'];
-                        if (graphPoints.length === 0) {
-                            graphPoints = responseDetails;
-                        } else {
-                            graphPoints = graphPoints.concat(responseDetails);
-                        }
-                        plotGraph(graphPoints, inUse, socInitial);
-                    } else if (!inUse) {
-                        clearPulse();
-                    } else {
-                        plotGraph([], inUse, socInitial);
-                        failedAttempts++;
-                    }
-                } else if (xhr.status >= 400) {
-                    drawPulse(error=true);
-                    failedAttempts++;
-                }
-            };
-            xhr.send();
-        }
-
-        setInterval(function() {
-            if (failedAttempts < maxFail || inUse) {
-                getUpdates(url);
-            }
-        }, 1000*10);*/
-    </script>
-    <!-- {% endif %} -->
 
 </body>
 </html>
