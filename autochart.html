@@ -185,7 +185,7 @@
                 "soc": (points.length == 0) ? 0 : current, 
                 "timestamp": new Date(Date.now()),
                 "volts": 394, 
-                "watts": watts,
+                "watts": (points.length == 0) ? 0 : watts,
             };
             points.push(entry);
             points = processPoints(points);
@@ -197,6 +197,8 @@
             if (points.length >= 2) {
                 stepKWh();
             }
+
+            updateData();
 
             if (current < 100) {
                 setTimeout(function() {
@@ -423,7 +425,7 @@
 
 
             var socContainer = soc.append("g")
-                .attr("class", "soc-plot");
+                .attr("class", "soc-section");
 
             var socGraphLine = socContainer.append("path")
               .datum(socPoints)
@@ -515,16 +517,16 @@
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepBefore);
+                .curve(d3.curveStepAfter);
 
             var area = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(kwhHeight)
                 .y1(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepBefore);
+                .curve(d3.curveStepAfter);
 
             var kWContainer = kwh.append("g")
-                .attr("class", "kwh-plot");
+                .attr("class", "kwh-section");
 
             var graphLine = kWContainer.append("path")
               .datum(kwhPoints)
@@ -609,7 +611,6 @@
                 drawChartSVG();
                 plotChargeSession();
                 updateData();
-            } else {
             }
         }
 
