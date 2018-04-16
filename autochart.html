@@ -154,7 +154,7 @@
     <button onclick="generateData()" id="test">Add</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
-        var xScale, kwhScale, socScale;
+        var xScale, socScale, kwhScale, socAxis, kwhAxis, xAxis, chartXAxis;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 0, bottom: 50, left: 50};
@@ -173,13 +173,17 @@
         var current = 35;
         var remainder = 100 - current;
         var maxup = 3;
+        var lastcharge = 0;
 
         function generateData() {
             var add = Math.random() * remainder;
             add = add > maxup ? Math.random() * maxup : add;
-            var watts = (add / maxup) * 40 * 1000;
-            current = current + add;
-            remainder = remainder - add;
+            var watts = lastcharge;
+            if (points.length != 0) {
+                lastcharge = (add / maxup) * 40 * 1000;
+                current = current + add;
+                remainder = remainder - add;
+            }
             var entry = {
                 "amps": null, 
                 "soc": (points.length == 0) ? 0 : current, 
@@ -191,19 +195,35 @@
             points = processPoints(points);
             socPoints = processSOC(points);
 
+            // if (points.length > 5)
+            //     points.shift();
+
+            console.log(points);
+
             if (socPoints.length >= 2) {
-                stepSOC();
+
+                socPoints = getLastStep(socPoints) ? getLastStep(socPoints) : socPoints;
+                // console.log(socPoints);
+
+                stepSOC(socPoints);
             }
             if (points.length >= 2) {
-                stepKWh();
+
+                var kwhPoints = getLastStep(points) ? getLastStep(points) : points;
+                // console.log(kwhPoints);
+
+                stepKWh(kwhPoints);
+                updateAxis();
             }
 
             updateData();
 
+
             if (current < 100) {
                 setTimeout(function() {
                     generateData();
-                }, Math.random() * 3000 + 300);
+                // }, Math.random() * 3000 + 300);
+                }, 2000);
             }
         }
         generateData();
@@ -309,12 +329,17 @@
 
         function getTimeRange() {
             var xRange = d3.extent(points, function (d) { return d.time });
+            console.log(xRange);
+            console.log(xRange[0].getTime())
             var defaultMinutes = 1; // default view to preset minutes range
             // if (xRange[1] - xRange[0] < (defaultMinutes * 60 * 1000)) {
                 var newDateObj = new Date();
                 newDateObj.setTime(xRange[0].getTime() + (defaultMinutes * 60 * 1000));
                 xRange = [xRange[0], newDateObj];
             // }
+            var now = new Date(Date.now()).getTime();
+            // xRange =  [now, now + (defaultMinutes * 60 * 1000)];
+            xRange =  [now - (defaultMinutes * 60 * 1000), now];
             return xRange;
         }
         function updateScale() {
@@ -349,13 +374,21 @@
                 .call(yAxisGrid2);
         }
 
+        function updateAxis() {
+            updateScale();
+            xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+            chartXAxis.transition()
+             .duration(2000)
+             .ease(d3.easeLinear,2)
+             .call(xAxis);
+        }
+
         function drawAxis() { // axis ticks and display text
             updateScale();
-            plotGrid();
 
             d3.selectAll(".axis-container").remove();
 
-            var socAxis = soc.append("g").attr("class", "axis-container");
+            socAxis = soc.append("g").attr("class", "axis-container");
 
             socAxis.append("g")
                 .attr("class", "y axis y-right")
@@ -371,7 +404,7 @@
                 .text("% Charge");
 
 
-            var kwhAxis = kwh.append("g").attr("class", "axis-container");
+            kwhAxis = kwh.append("g").attr("class", "axis-container");
 
             kwhAxis.append("g")
                 .attr("class", "y axis y-left")
@@ -388,9 +421,9 @@
 
 
             // TODO: xAxis minimum length 30 minutes
-            var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+            xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
 
-            kwhAxis.append("g")
+            chartXAxis = kwhAxis.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + kwhHeight + ")")
                 .call(xAxis);
@@ -401,11 +434,7 @@
                 .text("Time ({{ tz }})");
         }
 
-        function stepSOC() {
-            socPoints = processSOC(points);
-            socPoints = getLastStep(socPoints) ? getLastStep(socPoints) : socPoints;
-            console.log(socPoints);
-
+        function stepSOC(sectionPoints) {
             var socLine = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return socScale(d.soc) })
@@ -428,7 +457,7 @@
                 .attr("class", "soc-section");
 
             var socGraphLine = socContainer.append("path")
-              .datum(socPoints)
+              .datum(sectionPoints)
                 .attr("class", "line")
                 .attr("fill", "none")
                 .attr("stroke-linejoin", "round")
@@ -442,13 +471,13 @@
                 .attr('stroke-dashoffset', totalLength);
 
             var socGraphArea = socContainer.append('path')
-              .datum(socPoints)
+              .datum(sectionPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
                 .attr('d', socArea);
             var socGraphBaseArea = socContainer.append('path')
-              .datum(socPoints)
+              .datum(sectionPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr('d', socBaseArea);
@@ -480,13 +509,13 @@
             }
 
 
-            setTimeout(function() {
+            /*setTimeout(function() {
                 socContainer.attr('transform', null)
                     .transition()
                     .duration(1000)
                     .ease(d3.easeLinear,2)
                     .attr('transform', 'translate(-50)')
-            }, 3000);
+            }, 3000);*/
 
             function drawPoint(container, d, index) {
                 container.datum(d)
@@ -515,30 +544,27 @@
                     .attr("r", 2 );
             }
 
-            addPoints(socPoints);
+            addPoints(sectionPoints);
         }
 
-        function stepKWh() {
-            var kwhPoints = points;
-            kwhPoints = getLastStep(kwhPoints) ? getLastStep(kwhPoints) : kwhPoints;
-            console.log(kwhPoints);
+        function stepKWh(sectionPoints) {
 
             var line = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepAfter);
+                .curve(d3.curveStepBefore);
 
             var area = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(kwhHeight)
                 .y1(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepAfter);
+                .curve(d3.curveStepBefore);
 
             var kWContainer = kwh.append("g")
                 .attr("class", "kwh-section");
 
             var graphLine = kWContainer.append("path")
-              .datum(kwhPoints)
+              .datum(sectionPoints)
                 .attr("class", "line")
                 .attr("fill", "none")
                 .attr("stroke-linejoin", "round")
@@ -552,7 +578,7 @@
                 .attr('stroke-dashoffset', totalLength);
 
             var graphLineArea = kWContainer.append('path')
-              .datum(kwhPoints)
+              .datum(sectionPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr('d', area);
@@ -603,14 +629,20 @@
                     .attr("r", 2 );
             }
 
-            addPoints(kwhPoints);
+            addPoints(sectionPoints);
+
+            // chartXAxis.transition()
+            //  .duration(2000)
+            //     .attr("transform", "translate(-50," + kwhHeight + ")")
+            //  .ease(d3.easeLinear,2)
+            //  .call(xAxis);
         }
 
-        function plotChargeSession() {
-            drawAxis();
-            stepSOC();
-            stepKWh();
-        }
+        // function plotChargeSession() {
+        //     drawAxis();
+        //     stepSOC();
+        //     stepKWh();
+        // }
 
         function plotGraph(dataPoints, charging, socInitial) {
             if (socInitial) socStart = socInitial;
@@ -618,7 +650,8 @@
                 // updateDimensions(window.innerWidth);
                 updateDimensions(1080);
                 drawChartSVG();
-                plotChargeSession();
+                drawAxis();
+                plotGrid();
                 updateData();
             }
         }
