@@ -155,6 +155,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
         var xScale, socScale, kwhScale, socAxis, kwhAxis, xAxis, chartXAxis;
+        var socContainer, socLine, socArea, socBaseArea, socGraphLine, socGraphArea, socGraphBaseArea;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 0, bottom: 50, left: 50};
@@ -164,6 +165,9 @@
         var socStart = 0; //{{ soc_start|safe }};
         // var points = []; //{{ dataset|safe }};
         var date = new Date(Date.now());
+
+        var defaultMinutes = 1; // default view to preset minutes range
+        var tickWidth = 25; // this depends on screen width and time frame move speed
 
         // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
 
@@ -175,7 +179,10 @@
         var maxup = 3;
         var lastcharge = 0;
 
+        var tick = 0;
+
         function generateData() {
+            tick++;
             var add = Math.random() * remainder;
             add = add > maxup ? Math.random() * maxup : add;
             var watts = lastcharge;
@@ -195,44 +202,40 @@
             points = processPoints(points);
             socPoints = processSOC(points);
 
-            // if (points.length > 5)
-            //     points.shift();
-
-            console.log(points);
-
-            if (socPoints.length >= 2) {
-
-                socPoints = getLastStep(socPoints) ? getLastStep(socPoints) : socPoints;
-                // console.log(socPoints);
-
-                stepSOC(socPoints);
-            }
-            if (points.length >= 2) {
-
-                var kwhPoints = getLastStep(points) ? getLastStep(points) : points;
-                // console.log(kwhPoints);
-
-                stepKWh(kwhPoints);
+            updateChart();
+            if (points.length > 2 && current < 99) {
                 updateAxis();
             }
 
-            updateData();
-
-
-            if (current < 100) {
-                setTimeout(function() {
-                    generateData();
-                // }, Math.random() * 3000 + 300);
-                }, 2000);
-            }
+            // if (current < 100) {
+            //     setTimeout(function() {
+            //         generateData();
+            //     }, 2000);
+            // }
         }
         generateData();
 
-        function getLastStep(dataset) {
-            if (dataset.length >= 2) {
-                return dataset = [dataset[dataset.length - 2], dataset[dataset.length - 1]];
+        function updateChart() {
+            if (socPoints.length >= 2) {
+                socGraphLine.datum(socPoints)
+                    .attr("d", socLine);
+                socGraphArea.datum(socPoints)
+                    .attr("d", socArea);
+                socGraphBaseArea.datum(socPoints)
+                    .attr("d", socBaseArea);
+
+                totalLength = socGraphLine.node().getTotalLength();
+
+                console.log(totalLength);
+
+                // socGraphLine
+                //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                //     .attr('stroke-dashoffset', totalLength);
+
+                // socAnimateSteps();
+
+                // addPoints(socPoints, socContainer);
             }
-            return false;
         }
 
         function updateDimensions(winWidth) {
@@ -321,6 +324,7 @@
                     active.push(d);
                     if (socStart == 0) {
                         socStart = d.soc;
+                        setupSOC();
                     }
                 }
             });
@@ -331,7 +335,6 @@
             var xRange = d3.extent(points, function (d) { return d.time });
             console.log(xRange);
             console.log(xRange[0].getTime())
-            var defaultMinutes = 1; // default view to preset minutes range
             // if (xRange[1] - xRange[0] < (defaultMinutes * 60 * 1000)) {
                 var newDateObj = new Date();
                 newDateObj.setTime(xRange[0].getTime() + (defaultMinutes * 60 * 1000));
@@ -381,6 +384,23 @@
              .duration(2000)
              .ease(d3.easeLinear,2)
              .call(xAxis);
+
+            socGraphLine.attr('transform', null)
+                .transition()
+                .duration(2000)
+                .ease(d3.easeLinear,2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+            socGraphArea.attr('transform', 'translate(0, ' + (-socStart/100 * socHeight) + ')')
+                .transition()
+                .duration(2000)
+                .ease(d3.easeLinear,2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ', ' + (-socStart/100 * socHeight) + ')')
+            socGraphBaseArea.attr('transform', null)
+                .transition()
+                .duration(2000)
+                .ease(d3.easeLinear,2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+                .on('end', generateData)
         }
 
         function drawAxis() { // axis ticks and display text
@@ -434,118 +454,121 @@
                 .text("Time ({{ tz }})");
         }
 
-        function stepSOC(sectionPoints) {
-            var socLine = d3.line()
+        function setupSOC() {
+            console.log('setup soc');
+            console.log(socStart);
+            socLine = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return socScale(d.soc) })
                 .curve(d3.curveMonotoneX);
 
-            var socArea = d3.area()
+            socArea = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(socHeight)
                 .y1(function (d) { return socScale(d.soc - socStart) })
                 .curve(d3.curveMonotoneX);
 
-            var socBaseArea = d3.area()
+            socBaseArea = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(socHeight)
                 .y1(function (d) { return socScale(socStart) - 1 })
                 .curve(d3.curveMonotoneX);
 
 
-            var socContainer = soc.append("g")
-                .attr("class", "soc-section");
+            socContainer = soc.append("g")
+                .attr("class", "soc-plot");
 
-            var socGraphLine = socContainer.append("path")
-              .datum(sectionPoints)
+            socContainer.append("defs").append("clipPath")
+                .attr("id", "clip")
+                  .append("rect")
+                .attr("width", width + tickWidth)
+                .attr("height", socHeight)
+                // .attr("transform", "translate(" + tickWidth + ", 0)");
+
+            socGraphLine = socContainer.append("path")
+              .datum(socPoints)
                 .attr("class", "line")
                 .attr("fill", "none")
                 .attr("stroke-linejoin", "round")
                 .attr("stroke-linecap", "round")
-                .attr("d", socLine);
+                .attr("d", socLine)
+                .attr("clip-path", "url(#clip)");
 
-            var totalLength = socGraphLine.node().getTotalLength();
+            // var totalLength = socGraphLine.node().getTotalLength();
 
-            socGraphLine
-                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
-                .attr('stroke-dashoffset', totalLength);
+            // socGraphLine
+            //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+            //     .attr('stroke-dashoffset', totalLength);
 
-            var socGraphArea = socContainer.append('path')
-              .datum(sectionPoints)
+            socGraphArea = socContainer.append('path')
+              .datum(socPoints)
                 .attr("class", 'area')
-                .style('fill-opacity', 0)
+                .style('fill-opacity', 0.4)
                 .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
-                .attr('d', socArea);
-            var socGraphBaseArea = socContainer.append('path')
-              .datum(sectionPoints)
+                .attr('d', socArea)
+                .attr("clip-path", "url(#clip)");
+            socGraphBaseArea = socContainer.append('path')
+              .datum(socPoints)
                 .attr("class", 'area')
-                .style('fill-opacity', 0)
-                .attr('d', socBaseArea);
+                .style('fill-opacity', 0.2)
+                .attr('d', socBaseArea)
+                .attr("clip-path", "url(#clip)");
+        }
 
+        /*function socAnimateSteps() {
             socGraphLine
               .transition()
-                .duration(2000)
+                .duration(0)
                 .attr('stroke-dashoffset', 0);
             socGraphArea
               .transition()
-                .duration(2000)
+                .duration(0)
                 .style('fill-opacity', 0.4)
               .transition()
-                .duration(2000)
+                .duration(0)
                 .attr('stroke-dashoffset', 0);
             socGraphBaseArea
               .transition()
-                .duration(2000)
+                .duration(0)
                 .style('fill-opacity', 0.2)
               .transition()
-                .duration(2000)
+                .duration(0)
                 .attr('stroke-dashoffset', 0);
-
-            function addPoints(datum) {
-                var pointsContainer = socContainer.append("g");
-                datum.forEach(function(d, index) {
-                    drawPoint(pointsContainer, d, index);
-                });
-            }
-
-
-            /*setTimeout(function() {
-                socContainer.attr('transform', null)
-                    .transition()
-                    .duration(1000)
-                    .ease(d3.easeLinear,2)
-                    .attr('transform', 'translate(-50)')
-            }, 3000);*/
-
-            function drawPoint(container, d, index) {
-                container.datum(d)
-                    .append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 0)
-                    .attr("cx", function (d) { return xScale(d.time) })
-                    .attr("cy", function (d) { return socScale(d.soc) })
-                    // .on("mouseover", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(200)
-                    //         .style("opacity", .9);
-                    //     tooltip.html(d.soc + "%")
-                    //         .style("cursor", "pointer")
-                    //         .style("left", (d3.event.pageX) + "px")
-                    //         .style("top", (d3.event.pageY - 28) + "px");
-                    // })
-                    // .on("mouseout", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(500)
-                    //         .style("opacity", 0);
-                    // })
-                  .transition()
-                    .delay( 1800 )
-                    .duration( 500 )
-                    .attr("r", 2 );
-            }
-
-            addPoints(sectionPoints);
         }
+
+        function addPoints(datum, container) {
+            var pointsContainer = container.append("g");
+            datum.forEach(function(d, index) {
+                drawPoint(pointsContainer, d, index);
+            });
+        }
+
+        function drawPoint(container, d, index) {
+            container.datum(d)
+                .append("circle")
+                .attr("class", "dot")
+                .attr("r", 0)
+                .attr("cx", function (d) { return xScale(d.time) })
+                .attr("cy", function (d) { return socScale(d.soc) })
+                // .on("mouseover", function (d) {
+                //     tooltip.transition()
+                //         .duration(200)
+                //         .style("opacity", .9);
+                //     tooltip.html(d.soc + "%")
+                //         .style("cursor", "pointer")
+                //         .style("left", (d3.event.pageX) + "px")
+                //         .style("top", (d3.event.pageY - 28) + "px");
+                // })
+                // .on("mouseout", function (d) {
+                //     tooltip.transition()
+                //         .duration(500)
+                //         .style("opacity", 0);
+                // })
+              .transition()
+                .delay( 1800 )
+                .duration( 500 )
+                .attr("r", 2 );
+        }*/
 
         function stepKWh(sectionPoints) {
 
