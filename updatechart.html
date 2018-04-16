@@ -155,6 +155,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
         var xScale, kwhScale, socScale;
+        var socContainer, socLine, socArea, socBaseArea, socGraphLine, socGraphArea, socGraphBaseArea;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 0, bottom: 50, left: 50};
@@ -177,7 +178,6 @@
         function generateData() {
             var add = Math.random() * remainder;
             add = add > maxup ? Math.random() * maxup : add;
-            var watts = (add / maxup) * 40 * 1000;
             current = current + add;
             remainder = remainder - add;
             var entry = {
@@ -185,18 +185,13 @@
                 "soc": (points.length == 0) ? 0 : current, 
                 "timestamp": new Date(Date.now()),
                 "volts": 394, 
-                "watts": watts,
+                "watts": 20 + Math.random() * 100 * 1000,
             };
             points.push(entry);
             points = processPoints(points);
             socPoints = processSOC(points);
 
-            if (socPoints.length >= 2) {
-                stepSOC();
-            }
-            if (points.length >= 2) {
-                stepKWh();
-            }
+            updateChart();
 
             if (current < 100) {
                 setTimeout(function() {
@@ -205,6 +200,29 @@
             }
         }
         generateData();
+
+        function updateChart() {
+            if (socPoints.length >= 2) {
+                socGraphLine.datum(socPoints)
+                    .attr("d", socLine);
+                socGraphArea.datum(socPoints)
+                    .attr("d", socArea);
+                socGraphBaseArea.datum(socPoints)
+                    .attr("d", socBaseArea);
+
+                totalLength = socGraphLine.node().getTotalLength();
+
+                console.log(totalLength);
+
+                socGraphLine
+                    .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+                    .attr('stroke-dashoffset', totalLength);
+
+                socAnimateSteps();
+
+                // addPoints(socPoints, socContainer);
+            }
+        }
 
         function getLastStep(dataset) {
             if (dataset.length >= 2) {
@@ -299,6 +317,7 @@
                     active.push(d);
                     if (socStart == 0) {
                         socStart = d.soc;
+                        setupSOC();
                     }
                 }
             });
@@ -399,33 +418,33 @@
                 .text("Time ({{ tz }})");
         }
 
-        function stepSOC() {
+        function setupSOC() {
             socPoints = processSOC(points);
-            socPoints = getLastStep(socPoints) ? getLastStep(socPoints) : socPoints;
+            // socPoints = getLastStep(socPoints) ? getLastStep(socPoints) : socPoints;
             console.log(socPoints);
 
-            var socLine = d3.line()
+            socLine = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return socScale(d.soc) })
                 .curve(d3.curveMonotoneX);
 
-            var socArea = d3.area()
+            socArea = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(socHeight)
                 .y1(function (d) { return socScale(d.soc - socStart) })
                 .curve(d3.curveMonotoneX);
 
-            var socBaseArea = d3.area()
+            socBaseArea = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(socHeight)
                 .y1(function (d) { return socScale(socStart) - 1 })
                 .curve(d3.curveMonotoneX);
 
 
-            var socContainer = soc.append("g")
+            socContainer = soc.append("g")
                 .attr("class", "soc-plot");
 
-            var socGraphLine = socContainer.append("path")
+            socGraphLine = socContainer.append("path")
               .datum(socPoints)
                 .attr("class", "line")
                 .attr("fill", "none")
@@ -439,165 +458,165 @@
                 .attr('stroke-dasharray', totalLength + ' ' + totalLength)
                 .attr('stroke-dashoffset', totalLength);
 
-            var socGraphArea = socContainer.append('path')
+            socGraphArea = socContainer.append('path')
               .datum(socPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
                 .attr('d', socArea);
-            var socGraphBaseArea = socContainer.append('path')
+            socGraphBaseArea = socContainer.append('path')
               .datum(socPoints)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
                 .attr('d', socBaseArea);
+        }
 
+        function socAnimateSteps() {
             socGraphLine
               .transition()
-                .duration(2000)
+                .duration(0)
                 .attr('stroke-dashoffset', 0);
             socGraphArea
               .transition()
-                .duration(2000)
+                .duration(0)
                 .style('fill-opacity', 0.4)
               .transition()
-                .duration(2000)
+                .duration(0)
                 .attr('stroke-dashoffset', 0);
             socGraphBaseArea
               .transition()
-                .duration(2000)
+                .duration(0)
                 .style('fill-opacity', 0.2)
               .transition()
-                .duration(2000)
+                .duration(0)
                 .attr('stroke-dashoffset', 0);
+        }
 
-            function addPoints(datum) {
-                var pointsContainer = socContainer.append("g");
-                datum.forEach(function(d, index) {
-                    drawPoint(pointsContainer, d, index);
-                });
-            }
+        function addPoints(datum, container) {
+            var pointsContainer = container.append("g");
+            datum.forEach(function(d, index) {
+                drawPoint(pointsContainer, d, index);
+            });
+        }
 
-            function drawPoint(container, d, index) {
-                container.datum(d)
-                    .append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 0)
-                    .attr("cx", function (d) { return xScale(d.time) })
-                    .attr("cy", function (d) { return socScale(d.soc) })
-                    // .on("mouseover", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(200)
-                    //         .style("opacity", .9);
-                    //     tooltip.html(d.soc + "%")
-                    //         .style("cursor", "pointer")
-                    //         .style("left", (d3.event.pageX) + "px")
-                    //         .style("top", (d3.event.pageY - 28) + "px");
-                    // })
-                    // .on("mouseout", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(500)
-                    //         .style("opacity", 0);
-                    // })
-                  .transition()
-                    .delay( 1800 )
-                    .duration( 500 )
-                    .attr("r", 2 );
-            }
-
-            addPoints(socPoints);
+        function drawPoint(container, d, index) {
+            container.datum(d)
+                .append("circle")
+                .attr("class", "dot")
+                .attr("r", 0)
+                .attr("cx", function (d) { return xScale(d.time) })
+                .attr("cy", function (d) { return socScale(d.soc) })
+                // .on("mouseover", function (d) {
+                //     tooltip.transition()
+                //         .duration(200)
+                //         .style("opacity", .9);
+                //     tooltip.html(d.soc + "%")
+                //         .style("cursor", "pointer")
+                //         .style("left", (d3.event.pageX) + "px")
+                //         .style("top", (d3.event.pageY - 28) + "px");
+                // })
+                // .on("mouseout", function (d) {
+                //     tooltip.transition()
+                //         .duration(500)
+                //         .style("opacity", 0);
+                // })
+              .transition()
+                .delay( 1800 )
+                .duration( 500 )
+                .attr("r", 2 );
         }
 
         function stepKWh() {
-            var kwhPoints = points;
-            kwhPoints = getLastStep(kwhPoints) ? getLastStep(kwhPoints) : kwhPoints;
-            console.log(kwhPoints);
+            // var kwhPoints = points;
+            // kwhPoints = getLastStep(kwhPoints) ? getLastStep(kwhPoints) : kwhPoints;
+            // console.log(kwhPoints);
 
-            var line = d3.line()
-                .x(function (d) { return xScale(d.time) })
-                .y(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepBefore);
+            // var line = d3.line()
+            //     .x(function (d) { return xScale(d.time) })
+            //     .y(function (d) { return kwhScale(d.kwh) })
+            //     .curve(d3.curveStepBefore);
 
-            var area = d3.area()
-                .x(function (d) { return xScale(d.time) })
-                .y0(kwhHeight)
-                .y1(function (d) { return kwhScale(d.kwh) })
-                .curve(d3.curveStepBefore);
+            // var area = d3.area()
+            //     .x(function (d) { return xScale(d.time) })
+            //     .y0(kwhHeight)
+            //     .y1(function (d) { return kwhScale(d.kwh) })
+            //     .curve(d3.curveStepBefore);
 
-            var kWContainer = kwh.append("g")
-                .attr("class", "kwh-plot");
+            // var kWContainer = kwh.append("g")
+            //     .attr("class", "kwh-plot");
 
-            var graphLine = kWContainer.append("path")
-              .datum(kwhPoints)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke-linejoin", "round")
-                .attr("stroke-linecap", "round")
-                .attr("d", line);
+            // var graphLine = kWContainer.append("path")
+            //   .datum(kwhPoints)
+            //     .attr("class", "line")
+            //     .attr("fill", "none")
+            //     .attr("stroke-linejoin", "round")
+            //     .attr("stroke-linecap", "round")
+            //     .attr("d", line);
 
-            var totalLength = graphLine.node().getTotalLength();
+            // var totalLength = graphLine.node().getTotalLength();
 
-            graphLine
-                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
-                .attr('stroke-dashoffset', totalLength);
+            // graphLine
+            //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+            //     .attr('stroke-dashoffset', totalLength);
 
-            var graphLineArea = kWContainer.append('path')
-              .datum(kwhPoints)
-                .attr("class", 'area')
-                .style('fill-opacity', 0)
-                .attr('d', area);
+            // var graphLineArea = kWContainer.append('path')
+            //   .datum(kwhPoints)
+            //     .attr("class", 'area')
+            //     .style('fill-opacity', 0)
+            //     .attr('d', area);
 
-            graphLine
-              .transition()
-                .duration(2000)
-                .attr('stroke-dashoffset', 0);
-            graphLineArea
-              .transition()
-                .duration(2000)
-                .style('fill-opacity', 0.2)
-              .transition()
-                .duration(2000)
-                .attr('stroke-dashoffset', 0);
+            // graphLine
+            //   .transition()
+            //     .duration(2000)
+            //     .attr('stroke-dashoffset', 0);
+            // graphLineArea
+            //   .transition()
+            //     .duration(2000)
+            //     .style('fill-opacity', 0.2)
+            //   .transition()
+            //     .duration(2000)
+            //     .attr('stroke-dashoffset', 0);
 
-            function addPoints(datum) {
-                var pointsContainer = kWContainer.append("g");
-                datum.forEach(function(d, index) {
-                    drawPoint(pointsContainer, d, index);
-                });
-            }
+            // function addPoints(datum) {
+            //     var pointsContainer = kWContainer.append("g");
+            //     datum.forEach(function(d, index) {
+            //         drawPoint(pointsContainer, d, index);
+            //     });
+            // }
 
-            function drawPoint(container, d, index) {
-                container.datum(d)
-                    .append("circle")
-                    .attr("class", "dot")
-                    .attr("r", 0)
-                    .attr("cx", function (d) { return xScale(d.time) })
-                    .attr("cy", function (d) { return kwhScale(d.kwh) })
-                    // .on("mouseover", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(200)
-                    //         .style("opacity", .9);
-                    //     tooltip.html(d.soc + "%")
-                    //         .style("cursor", "pointer")
-                    //         .style("left", (d3.event.pageX) + "px")
-                    //         .style("top", (d3.event.pageY - 28) + "px");
-                    // })
-                    // .on("mouseout", function (d) {
-                    //     tooltip.transition()
-                    //         .duration(500)
-                    //         .style("opacity", 0);
-                    // })
-                  .transition()
-                    .delay( 1800 )
-                    .duration( 500 )
-                    .attr("r", 2 );
-            }
+            // function drawPoint(container, d, index) {
+            //     container.datum(d)
+            //         .append("circle")
+            //         .attr("class", "dot")
+            //         .attr("r", 0)
+            //         .attr("cx", function (d) { return xScale(d.time) })
+            //         .attr("cy", function (d) { return kwhScale(d.kwh) })
+            //         // .on("mouseover", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(200)
+            //         //         .style("opacity", .9);
+            //         //     tooltip.html(d.soc + "%")
+            //         //         .style("cursor", "pointer")
+            //         //         .style("left", (d3.event.pageX) + "px")
+            //         //         .style("top", (d3.event.pageY - 28) + "px");
+            //         // })
+            //         // .on("mouseout", function (d) {
+            //         //     tooltip.transition()
+            //         //         .duration(500)
+            //         //         .style("opacity", 0);
+            //         // })
+            //       .transition()
+            //         .delay( 1800 )
+            //         .duration( 500 )
+            //         .attr("r", 2 );
+            // }
 
-            addPoints(kwhPoints);
+            // addPoints(kwhPoints);
         }
 
         function plotChargeSession() {
             drawAxis();
-            stepSOC();
+            setupSOC();
             stepKWh();
         }
 
@@ -607,7 +626,7 @@
                 // updateDimensions(window.innerWidth);
                 updateDimensions(1080);
                 drawChartSVG();
-                plotChargeSession();
+                drawAxis();
                 updateData();
             } else {
             }
