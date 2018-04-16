@@ -80,13 +80,6 @@ div.radial_container {
 }
 
 #viz_container {
-    /*background-image: linear-gradient(
-            to bottom,
-            #403030,
-            #404040,
-            #303030,
-            #202020
-    );*/
     background-color: #070d2f;
     /*border-radius:6px;*/
 }

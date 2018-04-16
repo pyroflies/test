@@ -15,6 +15,7 @@
 body {
     margin:0px;
     overflow: hidden;
+    background-color: #070d2f;
 }
 
 @media only screen {

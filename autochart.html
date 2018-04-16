@@ -479,6 +479,15 @@
                 });
             }
 
+
+            setTimeout(function() {
+                socContainer.attr('transform', null)
+                    .transition()
+                    .duration(1000)
+                    .ease(d3.easeLinear,2)
+                    .attr('transform', 'translate(-50)')
+            }, 3000);
+
             function drawPoint(container, d, index) {
                 container.datum(d)
                     .append("circle")
