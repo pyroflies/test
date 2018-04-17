@@ -305,7 +305,8 @@
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
                 .attr("transform", "translate(" + margin.left + "," + 0 + ")")
 
-            //Container for the gradients
+            // glow is too much for station cpu to handle
+           /* //Container for the gradients
             var defs = soc.append("defs");
 
             //Filter for the outside glow
@@ -323,7 +324,7 @@
             d3.select("#socChart")
                 .style("filter", "url(#glow)");
             d3.select("#kwhChart")
-                .style("filter", "url(#glow)");
+                .style("filter", "url(#glow)");*/
         }
 
         function roundUp5(x) {
