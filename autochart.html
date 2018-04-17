@@ -156,6 +156,7 @@
     <script type="text/javascript">
         var xScale, socScale, kwhScale, socAxis, kwhAxis, xAxis, chartXAxis;
         var socContainer, socLine, socArea, socBaseArea, socGraphLine, socGraphArea, socGraphBaseArea;
+        var kwhLine, kwhArea, kwhContainer, kwhGraphLine, kwhGraphArea;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
         var padding = {top: 20, right: 0, bottom: 50, left: 50};
@@ -205,6 +206,7 @@
             updateChart();
             if (points.length > 2 && current < 99) {
                 updateAxis();
+                updateData();
             }
 
             // if (current < 100) {
@@ -224,9 +226,9 @@
                 socGraphBaseArea.datum(socPoints)
                     .attr("d", socBaseArea);
 
-                totalLength = socGraphLine.node().getTotalLength();
+                // totalLength = socGraphLine.node().getTotalLength();
 
-                console.log(totalLength);
+                // console.log(totalLength);
 
                 // socGraphLine
                 //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
@@ -235,6 +237,12 @@
                 // socAnimateSteps();
 
                 // addPoints(socPoints, socContainer);
+
+
+                kwhGraphLine.datum(points)
+                    .attr("d", kwhLine);
+                kwhGraphArea.datum(points)
+                    .attr("d", kwhArea);
             }
         }
 
@@ -400,6 +408,16 @@
                 .duration(2000)
                 .ease(d3.easeLinear,2)
                 .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+            kwhGraphLine.attr('transform', null)
+                .transition()
+                .duration(2000)
+                .ease(d3.easeLinear,2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+            kwhGraphArea.attr('transform', null)
+                .transition()
+                .duration(2000)
+                .ease(d3.easeLinear,2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
                 .on('end', generateData)
         }
 
@@ -482,17 +500,17 @@
                 .attr("id", "clip")
                   .append("rect")
                 .attr("width", width + tickWidth)
-                .attr("height", socHeight)
-                // .attr("transform", "translate(" + tickWidth + ", 0)");
+                .attr("height", socHeight);
 
-            socGraphLine = socContainer.append("path")
-              .datum(socPoints)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke-linejoin", "round")
-                .attr("stroke-linecap", "round")
-                .attr("d", socLine)
-                .attr("clip-path", "url(#clip)");
+            socGraphLine = socContainer.append("g")
+                    .attr("clip-path", "url(#clip)")
+                .append("path")
+                    .datum(socPoints)
+                    .attr("class", "line")
+                    .attr("fill", "none")
+                    .attr("stroke-linejoin", "round")
+                    .attr("stroke-linecap", "round")
+                    .attr("d", socLine);
 
             // var totalLength = socGraphLine.node().getTotalLength();
 
@@ -500,19 +518,23 @@
             //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
             //     .attr('stroke-dashoffset', totalLength);
 
-            socGraphArea = socContainer.append('path')
-              .datum(socPoints)
-                .attr("class", 'area')
-                .style('fill-opacity', 0.4)
-                .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
-                .attr('d', socArea)
-                .attr("clip-path", "url(#clip)");
-            socGraphBaseArea = socContainer.append('path')
-              .datum(socPoints)
-                .attr("class", 'area')
-                .style('fill-opacity', 0.2)
-                .attr('d', socBaseArea)
-                .attr("clip-path", "url(#clip)");
+            socGraphArea = socContainer.append("g")
+                    .attr("clip-path", "url(#clip)")
+                .append('path')
+                    .datum(socPoints)
+                    .attr("class", 'area')
+                    .style('fill-opacity', 0.4)
+                    .attr("transform", "translate(0 ," + (-socStart/100 * socHeight) + ")")
+                    .attr('d', socArea)
+                    .attr("clip-path", "url(#clip)");
+            socGraphBaseArea = socContainer.append("g")
+                    .attr("clip-path", "url(#clip)")
+                .append('path')
+                    .datum(socPoints)
+                    .attr("class", 'area')
+                    .style('fill-opacity', 0.2)
+                    .attr('d', socBaseArea)
+                    .attr("clip-path", "url(#clip)");
         }
 
         /*function socAnimateSteps() {
@@ -570,56 +592,66 @@
                 .attr("r", 2 );
         }*/
 
-        function stepKWh(sectionPoints) {
+        function setupKWh() {
 
-            var line = d3.line()
+            kwhLine = d3.line()
                 .x(function (d) { return xScale(d.time) })
                 .y(function (d) { return kwhScale(d.kwh) })
                 .curve(d3.curveStepBefore);
 
-            var area = d3.area()
+            kwhArea = d3.area()
                 .x(function (d) { return xScale(d.time) })
                 .y0(kwhHeight)
                 .y1(function (d) { return kwhScale(d.kwh) })
                 .curve(d3.curveStepBefore);
 
-            var kWContainer = kwh.append("g")
+            kwhContainer = kwh.append("g")
                 .attr("class", "kwh-section");
 
-            var graphLine = kWContainer.append("path")
-              .datum(sectionPoints)
-                .attr("class", "line")
-                .attr("fill", "none")
-                .attr("stroke-linejoin", "round")
-                .attr("stroke-linecap", "round")
-                .attr("d", line);
+            kwhContainer.append("defs").append("clipPath")
+                .attr("id", "clip2")
+                  .append("rect")
+                .attr("width", width + tickWidth)
+                .attr("height", kwhHeight);
 
-            var totalLength = graphLine.node().getTotalLength();
+            kwhGraphLine = kwhContainer.append("g")
+                    .attr("clip-path", "url(#clip2)")
+                .append('path')
+                    .datum(points)
+                    .attr("class", "line")
+                    .attr("fill", "none")
+                    .attr("stroke-linejoin", "round")
+                    .attr("stroke-linecap", "round")
+                    .attr("d", kwhLine);
 
-            graphLine
-                .attr('stroke-dasharray', totalLength + ' ' + totalLength)
-                .attr('stroke-dashoffset', totalLength);
+            // var totalLength = kwhGraphLine.node().getTotalLength();
 
-            var graphLineArea = kWContainer.append('path')
-              .datum(sectionPoints)
-                .attr("class", 'area')
-                .style('fill-opacity', 0)
-                .attr('d', area);
+            // kwhGraphLine
+            //     .attr('stroke-dasharray', totalLength + ' ' + totalLength)
+            //     .attr('stroke-dashoffset', totalLength);
 
-            graphLine
-              .transition()
-                .duration(2000)
-                .attr('stroke-dashoffset', 0);
-            graphLineArea
-              .transition()
-                .duration(2000)
-                .style('fill-opacity', 0.2)
-              .transition()
-                .duration(2000)
-                .attr('stroke-dashoffset', 0);
+            kwhGraphArea = kwhContainer.append("g")
+                    .attr("clip-path", "url(#clip2)")
+                .append('path')
+                    .datum(points)
+                    .attr("class", 'area')
+                    .style('fill-opacity', 0.2)
+                    .attr('d', kwhArea);
 
-            function addPoints(datum) {
-                var pointsContainer = kWContainer.append("g");
+            // kwhGraphLine
+            //   .transition()
+            //     .duration(2000)
+            //     .attr('stroke-dashoffset', 0);
+            // kwhGraphArea
+            //   .transition()
+            //     .duration(2000)
+            //     .style('fill-opacity', 0.2)
+            //   .transition()
+            //     .duration(2000)
+            //     .attr('stroke-dashoffset', 0);
+
+            /*function addPoints(datum) {
+                var pointsContainer = kwhContainer.append("g");
                 datum.forEach(function(d, index) {
                     drawPoint(pointsContainer, d, index);
                 });
@@ -652,13 +684,7 @@
                     .attr("r", 2 );
             }
 
-            addPoints(sectionPoints);
-
-            // chartXAxis.transition()
-            //  .duration(2000)
-            //     .attr("transform", "translate(-50," + kwhHeight + ")")
-            //  .ease(d3.easeLinear,2)
-            //  .call(xAxis);
+            addPoints(points);*/
         }
 
         // function plotChargeSession() {
@@ -675,6 +701,7 @@
                 drawChartSVG();
                 drawAxis();
                 plotGrid();
+                setupKWh();
                 updateData();
             }
         }
