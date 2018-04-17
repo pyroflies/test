@@ -305,23 +305,25 @@
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
                 .attr("transform", "translate(" + margin.left + "," + 0 + ")")
 
-            // //Container for the gradients
-            // var defs = soc.append("defs");
+            //Container for the gradients
+            var defs = soc.append("defs");
 
-            // //Filter for the outside glow
-            // var filter = defs.append("filter")
-            //     .attr("id","glow");
-            // filter.append("feGaussianBlur")
-            //     .attr("stdDeviation","7.5")
-            //     .attr("result","coloredBlur");
-            // var feMerge = filter.append("feMerge");
-            // feMerge.append("feMergeNode")
-            //     .attr("in","coloredBlur");
-            // feMerge.append("feMergeNode")
-            //     .attr("in","SourceGraphic");
+            //Filter for the outside glow
+            var filter = defs.append("filter")
+                .attr("id","glow");
+            filter.append("feGaussianBlur")
+                .attr("stdDeviation","7.5")
+                .attr("result","coloredBlur");
+            var feMerge = filter.append("feMerge");
+            feMerge.append("feMergeNode")
+                .attr("in","coloredBlur");
+            feMerge.append("feMergeNode")
+                .attr("in","SourceGraphic");
 
-            // d3.select("#socChart")
-            //     .style("filter", "url(#glow)");
+            d3.select("#socChart")
+                .style("filter", "url(#glow)");
+            d3.select("#kwhChart")
+                .style("filter", "url(#glow)");
         }
 
         function roundUp5(x) {
