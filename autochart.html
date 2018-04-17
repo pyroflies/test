@@ -11,7 +11,7 @@
         }
         #chartContainer {
             position: relative;
-            border: 1px solid #2471d0;
+            /*border: 1px solid #2471d0;*/
         }
 
         .area {
@@ -151,7 +151,6 @@
             </div>
         </div>
     </div>
-    <button onclick="generateData()" id="test">Add</button>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
         var xScale, socScale, kwhScale, socAxis, kwhAxis, xAxis, chartXAxis;
@@ -173,7 +172,21 @@
         // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
 
         // var points = processPoints(source);
-        var points = [], socPoints = [];
+        var points = [{
+            "amps": null, 
+            "soc": 0, 
+            "timestamp": new Date(Date.now()),
+            "volts": 0, 
+            "watts": 0,
+        }, {
+            "amps": null, 
+            "soc": 0, 
+            "timestamp": new Date(Date.now()),
+            "volts": 0, 
+            "watts": 0,
+        }];
+        points = processPoints(points);
+        var socPoints = [];
 
         var current = 35;
         var remainder = 100 - current;
@@ -181,6 +194,18 @@
         var lastcharge = 0;
 
         var tick = 0;
+
+        // setup chart
+        // updateDimensions(window.innerWidth);
+        updateDimensions(1080);
+        drawChartSVG();
+        drawAxis();
+        plotGrid();
+
+        setupKWh();
+        updateData();
+
+        generateData();
 
         function generateData() {
             tick++;
@@ -204,7 +229,7 @@
             socPoints = processSOC(points);
 
             updateChart();
-            if (points.length > 2 && current < 99) {
+            if (points.length > 2 && current < 100) {
                 updateAxis();
                 updateData();
             }
@@ -215,7 +240,6 @@
             //     }, 2000);
             // }
         }
-        generateData();
 
         function updateChart() {
             if (socPoints.length >= 2) {
@@ -465,11 +489,11 @@
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + kwhHeight + ")")
                 .call(xAxis);
-            kwhAxis.append("text")
-                .attr("class", "x-axis-text")
-                .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
-                .style("text-anchor", "middle")
-                .text("Time ({{ tz }})");
+            // kwhAxis.append("text")
+            //     .attr("class", "x-axis-text")
+            //     .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
+            //     .style("text-anchor", "middle")
+            //     .text("Time ({{ tz }})");
         }
 
         function setupSOC() {
@@ -693,18 +717,6 @@
         //     stepKWh();
         // }
 
-        function plotGraph(dataPoints, charging, socInitial) {
-            if (socInitial) socStart = socInitial;
-            if (dataPoints.length > 0) {
-                // updateDimensions(window.innerWidth);
-                updateDimensions(1080);
-                drawChartSVG();
-                drawAxis();
-                plotGrid();
-                setupKWh();
-                updateData();
-            }
-        }
 
         function updateData() {
             var current = points[points.length - 1].soc;
@@ -721,8 +733,6 @@
             document.getElementById("rate").classList.add("active");
 
         }
-
-        plotGraph(points);
     </script>
 
 </body>
