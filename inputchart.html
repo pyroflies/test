@@ -160,14 +160,10 @@
         var dtFmt = d3.timeFormat("%I:%M:%S");
         // var tooltip = d3.select("#tooltip").style("opacity", 0);
 
+        var socStart = 0;
         var socValue = 0;
         var wattsValue = 0;
-        var voltsValue = 0;
-        var ampsValue = 50;
-
-        var socStart = 0;
-        var voltsStart = 0;
-        var ampsStart = 0;
+        var energyAdded = 0;
 
         var date = new Date(Date.now());
 
@@ -176,10 +172,8 @@
         var tickDuration = 2000;
 
         var points = [{
-            "amps": ampsValue, 
             "soc": socValue, 
             "timestamp": new Date(Date.now()),
-            "volts": voltsValue, 
             "watts": wattsValue,
         }];
         points = processPoints(points);
@@ -202,10 +196,8 @@
 
         function tick() {
             var entry = {
-                "amps": ampsValue, 
                 "soc": socValue, 
                 "timestamp": new Date(Date.now()),
-                "volts": voltsValue, 
                 "watts": wattsValue,
             };
             points.push(entry);
@@ -224,12 +216,6 @@
                 socStart = socValue;
                 setupSOC(); // set up SOC once initial value is determined
             }
-            if (voltsStart == 0 && voltsValue > 0) {
-                voltsStart = voltsValue;
-            }
-            if (ampsStart == 0 && ampsValue > 0) {
-                ampsStart = ampsValue;
-            }
 
             updateChart();
             animateData();
@@ -237,17 +223,27 @@
         }
 
         function counter() {
-            if (socValue < 100)
-                setValues(socValue + 5, wattsValue + 5000, voltsValue + 50, ampsValue);
+            if (socValue < 100) {
+                updateSOC(socValue + 5);
+                updateWatts(wattsValue + 5000);
+                updateEnergyAdded(energyAdded + 15);
+            }
         }
 
         // pass in data from station
-        function setValues(soc, watts, volts, amps) {
-            socValue = soc;
-            wattsValue = watts;
-            voltsValue = volts;
-            ampsValue = amps;
+        function updateBase(soc) {
+            socStart = soc;
         }
+        function updateSOC(soc) {
+            socValue = soc;
+        }
+        function updateWatts(watts) {
+            wattsValue = watts;
+        }
+        function updateEnergyAdded(kwh) {
+            energyAdded = kwh;
+        }
+
 
         function updateChart() {
             if (socPoints.length >= 2) {
@@ -559,8 +555,8 @@
         function updateData() {
             document.getElementById("current").innerHTML = points[points.length - 1].soc;
             document.getElementById("current").classList.add("active");
-            if (voltsStart && ampsStart) {
-                document.getElementById("added").innerHTML = Math.round(((points[points.length - 1].volts * points[points.length - 1].amps) - (voltsStart * ampsStart)) / 1000); // (volts * amps) / 1000 = kwh
+            if (energyAdded) {
+                document.getElementById("added").innerHTML = energyAdded;
                 document.getElementById("added").classList.add("active");
             }
             if (socStart) {
