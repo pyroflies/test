@@ -336,7 +336,7 @@
         }
         function updateScale() {
             // var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
-            var y0Max = 40; // TODO: set sane defaults so scale doesn't have to re-adjust
+            var y0Max = 80; // TODO: set sane defaults so scale doesn't have to re-adjust
 
             xScale = d3.scaleTime()
                 .rangeRound([0, width])
@@ -554,7 +554,7 @@
             document.getElementById("current").innerHTML = points[points.length - 1].soc;
             document.getElementById("current").classList.add("active");
             if (energyAdded) {
-                document.getElementById("added").innerHTML = Math.round(energyAdded); // .toFixed(2) too much space
+                document.getElementById("added").innerHTML = energyAdded > 100 ? Math.round(energyAdded) : energyAdded.toFixed(1);
                 document.getElementById("added").classList.add("active");
             }
             if (socStart) {
