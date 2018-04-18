@@ -12,6 +12,7 @@
         }
         #chartContainer {
             position: relative;
+            overflow: hidden;
             /*border: 1px solid #2471d0;*/
         }
 
@@ -231,9 +232,6 @@
         }
 
         // pass in data from station
-        function updateBase(soc) {
-            socStart = soc;
-        }
         function updateSOC(soc) {
             socValue = soc;
         }
@@ -556,7 +554,7 @@
             document.getElementById("current").innerHTML = points[points.length - 1].soc;
             document.getElementById("current").classList.add("active");
             if (energyAdded) {
-                document.getElementById("added").innerHTML = energyAdded;
+                document.getElementById("added").innerHTML = Math.round(energyAdded); // .toFixed(2) too much space
                 document.getElementById("added").classList.add("active");
             }
             if (socStart) {
