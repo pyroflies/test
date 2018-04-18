@@ -61,7 +61,7 @@
             top: 0;
             right: 0;
             color: #2471d0;
-            width: 200px;
+            width: 180px;
             padding: 0 20px;
             box-sizing: border-box;
             text-align: center;
@@ -163,7 +163,7 @@
         var socValue = 0;
         var wattsValue = 0;
         var voltsValue = 0;
-        var ampsValue = 0;
+        var ampsValue = 50;
 
         var socStart = 0;
         var voltsStart = 0;
@@ -209,6 +209,11 @@
                 "watts": wattsValue,
             };
             points.push(entry);
+
+            if (points.length > 50) { // set this to width of visualized data points
+                points.shift();
+            }
+
             points = processPoints(points);
             socPoints = processSOC(points);
 
@@ -232,7 +237,8 @@
         }
 
         function counter() {
-            setValues(socValue + 5, wattsValue + 5000, voltsValue + 50, ampsValue + 50);
+            if (socValue < 100)
+                setValues(socValue + 5, wattsValue + 5000, voltsValue + 50, ampsValue);
         }
 
         // pass in data from station
@@ -261,7 +267,7 @@
 
         function updateDimensions(winWidth) {
             margin.top = 10;
-            margin.right = 200;
+            margin.right = 180;
             margin.left = 50;
             margin.bottom = 0;
 
