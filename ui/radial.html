@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Radial Progress</title>
+
+    <!-- We use google fonts for many of the examples, but they are not necessary -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Roboto|Raleway:600,400,200' rel='stylesheet' type='text/css'>
+
+    <!-- Vizuly specific style sheets -->
+    <link rel="stylesheet" href="src/styles/vizuly.css">
+
+    <script type="text/javascript" src="lib/jquery-2.1.1.min.js"></script>
+    <script src="lib/d3.min.js"></script>
+
+    <script src="src/core/namespace.js"></script>
+    <script src="src/core/component.js"></script>
+    <script src="src/core/util.js"></script>
+    <script src="src/js/theme.js"></script>
+    <script src="src/js/radialprogress.js"></script>
+    <script src="src/js/main.js"></script>
+
+</head>
+
+<body>
+<!-- Our main content container-->
+<div class="container" style="width:100%">
+    <div id="viz_container" class="">
+        <div id="radial" class="radial_container"></div>
+        <div id="counters">
+            <button onclick="startCount()">Start</button>
+            <button onclick="stopCount()">Stop</button>
+            <input type="number" id="number" step="1" min="0" max="100" />
+            <button onclick="setNumber()">Go</button>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    //Once the document is ready we set javascript and page settings
+    var screenWidth;
+    var screenHeight = 600;
+
+    $(document).ready(function () {
+
+        var rect;
+        if (self==top) {
+            rect = document.body.getBoundingClientRect();
+        }
+        else {
+            rect =  parent.document.body.getBoundingClientRect();
+        }
+
+        //Set display size based on window size.
+        // screenWidth = (rect.width < 960) ? Math.round(rect.width*.95) : Math.round((rect.width - 210) *.95)
+        screenWidth = rect.width;
+        // Set the size of our container element.
+        viz_container = d3.selectAll("#viz_container")
+                .style("width", screenWidth + "px")
+                .style("height", "600px");
+
+        initialize();
+
+        changeSize(screenWidth + "," + screenHeight);
+    });
+
+</script>
+
+
+</body>
+
+
+</html>
