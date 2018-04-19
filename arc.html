@@ -106,7 +106,7 @@
   </div>
   <div class="container">
     <div class="data">
-      <span id="base" class="value">0</span><span class="units">kWh</span>
+      <span id="add" class="value">0</span><span class="units">kWh</span>
     </div>
     <div class="label">Energy Added</div>
   </div>
@@ -119,6 +119,8 @@
 <script>
 var initialCharge = 0;
 var activeCharge = 0;
+var initialMaxRate = 60;
+var maxRate = 60;
 
 var circ = 2 * Math.PI;
 var arc = d3.arc()
@@ -176,6 +178,10 @@ function init() {
         .duration(750)
         .attrTween("d", arcTween((activeCharge/100) * circ));
   }, 1500);
+
+  d3.interval(function() {
+    tweenNumber("add", activeCharge * 0.7, 1);
+  }, 1500);
 }
 
 
@@ -192,39 +198,41 @@ function arcTween(newAngle) {
   };
 }
 
-function updateRate(roc) {
+function updateGlow(roc) {
   $(".block").removeClass("glow");
   for (var x = 0; x < roc; x++) {
-    $(".rate" + x).addClass("glow");
+    var check = Math.floor(x * (initialMaxRate/maxRate)); // max glowing based on highest max rate reached
+    $(".rate" + check).addClass("glow");
   }
 }
 
-// d3.interval(function() {
-//   updateRate(Math.random() * 60);
-// }, 1500);
+function updateRate(rate) {
+  rate = rate ? rate : Math.random() * 60;
+  if (rate > maxRate) // if new max rate is reached, update glowing blocks to reflect new max
+    maxRate = rate;
+  d3.select("#rate")
+    .transition()
+      .duration(1500)
+      .on("start", function() {
+        d3.active(this)
+            .tween("text", function() {
+              var that = d3.select(this),
+                  i = d3.interpolateNumber(that.text().replace(/,/g, ""), rate);
+              return function(t) {
+                var rate = Math.round(i(t));
+                // console.log(rate);
+                updateGlow(rate);
+                that.text(rate);
+              };
+            })
+          .transition()
+            .delay(1500)
+            .on("start", updateRate);
+      });
+}
+updateRate();
 
-
-d3.select("#rate")
-  .transition()
-    .duration(1500)
-    .on("start", function repeat() {
-      d3.active(this)
-          .tween("text", function() {
-            var that = d3.select(this),
-                i = d3.interpolateNumber(that.text().replace(/,/g, ""), Math.random() * 60);
-            return function(t) {
-              var rate = Math.round(i(t));
-              // console.log(rate);
-              updateRate(rate);
-              that.text(rate);
-            };
-          })
-        .transition()
-          .delay(1500)
-          .on("start", repeat);
-    });
-
-function tweenNumber(id, value) {
+function tweenNumber(id, value, decimals) {
   d3.select("#" + id)
   .transition()
     .duration(1500)
@@ -234,7 +242,7 @@ function tweenNumber(id, value) {
             var that = d3.select(this),
                 i = d3.interpolateNumber(that.text().replace(/,/g, ""), value);
             return function(t) {
-              var output = Math.round(i(t));
+              var output = decimals ? i(t).toFixed(decimals) : Math.round(i(t));
               that.text(output);
             };
           })
