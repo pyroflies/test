@@ -117,8 +117,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
 <script>
-var initialCharge = 15;
-var activeCharge = initialCharge;
+var initialCharge = 0;
+var activeCharge = 0;
 
 var circ = 2 * Math.PI;
 var arc = d3.arc()
@@ -140,22 +140,44 @@ var background = g.append("path")
 
 // active arc
 var active = g.append("path")
-    .datum({endAngle: (initialCharge/100) * circ})
+    .datum({endAngle: 0})
     .style("fill", "#1934a7")
     .attr("d", arc);
 
-// starting arc
-var starting = g.append("path")
-    .datum({endAngle: (initialCharge/100) * circ})
-    .style("fill", "#2643c1")
-    .attr("d", arc);
+// generate blocks
+for (var x = 0; x < 60; x++) {
+  $("#roc").append('<div class="block rate'  + x + '"></div>');
+}
 
-d3.interval(function() {
-  activeCharge++;
-  active.transition()
+
+init();
+
+function init() {
+  initialCharge = 15;
+  tweenNumber("base", initialCharge);
+  activeCharge = initialCharge;
+
+  // starting arc
+  var starting = g.append("path")
+      .datum({endAngle: 0})
+      .style("fill", "#2643c1")
+      .attr("d", arc);
+
+  starting.transition()
       .duration(750)
-      .attrTween("d", arcTween((activeCharge/100) * circ));
-}, 1500);
+      .attrTween("d", arcTween((initialCharge/100) * circ))
+      .on("end", function() {
+        active.datum({endAngle: (activeCharge/100) * circ})
+      })
+
+  d3.interval(function() {
+    activeCharge++;
+    active.transition()
+        .duration(750)
+        .attrTween("d", arcTween((activeCharge/100) * circ));
+  }, 1500);
+}
+
 
 function arcTween(newAngle) {
   return function(d) {
@@ -163,15 +185,11 @@ function arcTween(newAngle) {
     return function(t) {
       d.endAngle = interpolate(t);
       var percent = Math.round((d.endAngle/circ) * 100);
-      console.log(percent);
+      // console.log(percent);
       $("#percent").html(percent);
       return arc(d);
     };
   };
-}
-
-for (var x = 0; x < 60; x++) {
-  $("#roc").append('<div class="block rate'  + x + '"></div>');
 }
 
 function updateRate(roc) {
@@ -205,4 +223,21 @@ d3.select("#rate")
           .delay(1500)
           .on("start", repeat);
     });
+
+function tweenNumber(id, value) {
+  d3.select("#" + id)
+  .transition()
+    .duration(1500)
+    .on("start", function() {
+      d3.active(this)
+          .tween("text", function() {
+            var that = d3.select(this),
+                i = d3.interpolateNumber(that.text().replace(/,/g, ""), value);
+            return function(t) {
+              var output = Math.round(i(t));
+              that.text(output);
+            };
+          })
+    });
+}
 </script>
