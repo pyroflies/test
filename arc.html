@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  body {
+    background-color: #070d2f;
+  }
+  .clearfix:before,
+  .clearfix:after { content: " "; display: table; }
+  .clearfix:after { clear: both; }
+  .clearfix { *zoom: 1; }
+
+  #arc {
+    display: block;
+    margin: 20px auto;
+  }
+  #display {
+    font-weight: 100;
+    font-family: "Roboto";
+    color: #3a89ea;
+    text-shadow: 0px 0px 15px #2471d0;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    top: 185px;
+  }
+  .data {
+    text-align: center;
+  }
+  .value {
+    font-size: 80px;
+  }
+  #percent {
+    font-size: 100px;
+  }
+  #display .units {
+    font-size: 50px;
+  }
+  .units {
+    font-size: 30px;
+    margin-left: 5px;
+  }
+  #battery {
+
+  }
+  .label {
+    font-size: 1.2em;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    margin-top: 30px;
+  }
+  #metrics {
+    font-weight: 100;
+    font-family: "Roboto";
+    color: #3a89ea;
+    text-shadow: 0px 0px 15px #2471d0;
+    text-align: center;
+    margin: -40px auto 0;
+    width: 900px;
+  }
+  .container {
+    float: left;
+    width: 300px;
+  }
+  .roc {
+    margin-top: 60px;
+  }
+
+  #roc {
+    margin-top: 20px;
+    text-align: center;
+  }
+  .block {
+    width: 7px;
+    height: 30px;
+    border-radius: 5px;
+    background-color: #0b1b61;
+    box-shadow: 0px 0px 15px #0b1b61;
+    display: inline-block;
+    margin: 0 3px;
+  }
+  .glow {
+    background-color: #1934a7;
+    box-shadow: 0px 0px 15px #1935a7;
+  }
+
+</style>
+<svg width="500" height="500" id="arc"></svg>
+<div id="display">
+  <div class="data">
+    <span id="percent" class="value">0</span><span class="units">%</span>
+  </div>
+  <div id="battery" class="label">Battery Level</div>
+</div>
+<div id="metrics" class="clearfix">
+  <div class="container">
+    <div class="data">
+      <span id="base" class="value">0</span><span class="units">%</span>
+    </div>
+    <div class="label">Base Charge</div>
+  </div>
+  <div class="container roc">
+    <div class="data">
+      <span id="base" class="value">0</span><span class="units">kW</span>
+    </div>
+    <div class="label">Rate of Charge</div>
+  </div>
+  <div class="container">
+    <div class="data">
+      <span id="base" class="value">0</span><span class="units">kWh</span>
+    </div>
+    <div class="label">Energy Added</div>
+  </div>
+</div>
+<div id="roc">
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+<link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
+<script>
+var circ = 2 * Math.PI;
+var arc = d3.arc()
+    .innerRadius(225)
+    .outerRadius(250)
+    .cornerRadius(100)
+    .startAngle(0);
+
+var svg = d3.select("svg"),
+    width = +svg.attr("width"),
+    height = +svg.attr("height"),
+    g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+
+// background arc
+var background = g.append("path")
+    .datum({endAngle: circ})
+    .style("fill", "#0b1b61")
+    .attr("d", arc);
+
+// active arc
+var active = g.append("path")
+    .datum({endAngle: 2})
+    .style("fill", "#1934a7")
+    .attr("d", arc);
+
+// starting arc
+var starting = g.append("path")
+    .datum({endAngle: 1})
+    .style("fill", "#2643c1")
+    .attr("d", arc);
+
+var count = 0;
+// d3.interval(function() {
+//   count++;
+//   active.transition()
+//       .duration(750)
+//       .attrTween("d", arcTween(count / circ));
+// }, 1500);
+
+function arcTween(newAngle) {
+  return function(d) {
+    var interpolate = d3.interpolate(d.endAngle, newAngle);
+    return function(t) {
+      d.endAngle = interpolate(t);
+      var percent = Math.round((d.endAngle/circ) * 100);
+      console.log(percent);
+      $("#percent").html(percent);
+      return arc(d);
+    };
+  };
+}
+
+for (var x = 0; x < 60; x++) {
+  $("#roc").append('<div class="block rate'  + x + '"></div>');
+}
+
+function updateRate(roc) {
+  $(".block").removeClass("glow");
+  for (var x = 0; x < roc; x++) {
+    $(".rate" + x).addClass("glow");
+  }
+}
+
+d3.interval(function() {
+  updateRate(Math.random() * 60);
+}, 1500);
+</script>

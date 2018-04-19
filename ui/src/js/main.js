@@ -45,8 +45,6 @@ function initialize() {
     //Here we use the three div tags from our HTML page to load the three components into.
     div = d3.select("#radial");
 
-    //Store the divs in an array for easy access
-
     //Here we create our three radial progress components by passing in a parent DOM element (our div tags)
     viz = vizuly.viz.radial_progress(document.getElementById("radial"));
 
@@ -84,10 +82,6 @@ function initialize() {
         .endAngle(360)
         .arcThickness(.10);
         // .label(function (d,i) { return d3.format(".0f")(d) + "%"; });
-
-    //We use this function to size the components based on the selected value from the RadiaLProgressTest.html page.
-    // changeSize(d3.select("#currentDisplay").attr("item_value"));
-
 
     var divWidth = 580;
 
