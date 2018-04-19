@@ -100,7 +100,7 @@
   </div>
   <div class="container roc">
     <div class="data">
-      <span id="base" class="value">0</span><span class="units">kW</span>
+      <span id="rate" class="value">0</span><span class="units">kW</span>
     </div>
     <div class="label">Rate of Charge</div>
   </div>
@@ -117,6 +117,9 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
 <link href='https://fonts.googleapis.com/css?family=Roboto:100' rel='stylesheet' type='text/css'>
 <script>
+var initialCharge = 15;
+var activeCharge = initialCharge;
+
 var circ = 2 * Math.PI;
 var arc = d3.arc()
     .innerRadius(225)
@@ -137,23 +140,22 @@ var background = g.append("path")
 
 // active arc
 var active = g.append("path")
-    .datum({endAngle: 2})
+    .datum({endAngle: (initialCharge/100) * circ})
     .style("fill", "#1934a7")
     .attr("d", arc);
 
 // starting arc
 var starting = g.append("path")
-    .datum({endAngle: 1})
+    .datum({endAngle: (initialCharge/100) * circ})
     .style("fill", "#2643c1")
     .attr("d", arc);
 
-var count = 0;
-// d3.interval(function() {
-//   count++;
-//   active.transition()
-//       .duration(750)
-//       .attrTween("d", arcTween(count / circ));
-// }, 1500);
+d3.interval(function() {
+  activeCharge++;
+  active.transition()
+      .duration(750)
+      .attrTween("d", arcTween((activeCharge/100) * circ));
+}, 1500);
 
 function arcTween(newAngle) {
   return function(d) {
@@ -179,7 +181,28 @@ function updateRate(roc) {
   }
 }
 
-d3.interval(function() {
-  updateRate(Math.random() * 60);
-}, 1500);
+// d3.interval(function() {
+//   updateRate(Math.random() * 60);
+// }, 1500);
+
+
+d3.select("#rate")
+  .transition()
+    .duration(1500)
+    .on("start", function repeat() {
+      d3.active(this)
+          .tween("text", function() {
+            var that = d3.select(this),
+                i = d3.interpolateNumber(that.text().replace(/,/g, ""), Math.random() * 60);
+            return function(t) {
+              var rate = Math.round(i(t));
+              // console.log(rate);
+              updateRate(rate);
+              that.text(rate);
+            };
+          })
+        .transition()
+          .delay(1500)
+          .on("start", repeat);
+    });
 </script>
