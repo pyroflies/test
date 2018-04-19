@@ -1,0 +1,63 @@
+body {
+    margin:0px;
+    overflow: hidden;
+    background-color: #070d2f;
+}
+div.container {
+    width:100%;
+    position:relative;
+    text-align: center;
+}
+
+svg {
+    fill:#070d2f;
+}
+
+/*****  DEFAULTS ******/
+
+circle.vz-radial_progress-back-circle {
+    fill:#FFF;
+    fill-opacity: .001;
+}
+
+.vz-radial_progress-plot {
+    stroke-opacity:.1;
+    fill: #3a89ea;
+    fill-opacity: 1;
+    stroke: #3a89ea;
+}
+
+.vz-radial_progress-track {
+    fill:#0b1b61 !important;
+    stroke:#CCC;
+    fill-opacity: 1;
+    stroke-opacity: 0;
+}
+
+.vz-radial_progress-back-circle {
+    fill:none;
+    stroke:none;
+}
+
+.vz-radial_progress-label {
+    font-weight:100;
+    font-family: "Roboto";
+    text-anchor: middle;
+    fill: #3a89ea;
+    stroke-opacity: 0;
+    font-size: 100px;
+    text-shadow: 0px 0px 15px #2471d0;
+}
+
+
+
+#counters {
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%);
+    position: absolute;
+}
+#number {
+    margin-left: 10px;
+    width: 40px;
+}
