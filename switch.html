@@ -263,17 +263,34 @@
         font-weight: 100;
     }
     #extras .container {
+        position: relative;
         float: left;
         width: 300px;
         border: 1px solid #1934a7;
+        border-top: 7px solid #1934a7;
         box-sizing: border-box;
-        margin-left: -1px;
         padding: 60px 0;
         box-shadow: 0px 0px 15px rgba(36, 113, 208, 0.2);
     }
-    #extras .icon {
-
+    #extras .container:first-of-type {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        margin-right: -1px;
     }
+    #extras .container:last-of-type {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        margin-left: -1px;
+    }
+    #extras .fill {
+        position: absolute;
+        width: 298px;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(58, 137, 234, 0.1);
+        height: 0;
+    }
+
     #extras .value {
         font-size: 4em;
     }
@@ -386,33 +403,33 @@
     <button onclick="counter()" id="test">Update</button>
 
     <div id="extras" class="clearfix">
-        <div class="container">
-            <div class="icon">
+        <div id="cost" class="container">
+            <div class="fill">
             </div>
             <div class="data">
                 <span class="units">$</span>
-                <span class="value">7.25</span>
+                <span class="value">0</span>
             </div>
             <div class="description">
                 Cost
             </div>
         </div>
-        <div class="container">
-            <div class="icon">
+        <div id="eighty" class="container">
+            <div class="fill">
             </div>
             <div class="data">
-                <span class="value">8</span>
+                <span class="value">0</span>
                 <span class="units">mins</span>
             </div>
             <div class="description">
                 Time to 80%
             </div>
         </div>
-        <div class="container">
-            <div class="icon">
+        <div id="full" class="container">
+            <div class="fill">
             </div>
             <div class="data">
-                <span class="value">30</span>
+                <span class="value">0</span>
                 <span class="units">mins</span>
             </div>
             <div class="description">
@@ -444,6 +461,56 @@
 
     function updateEnergyAdded(kwh) {
         energyAdded = kwh;
+    }
+
+    var testCost = 3;
+    var test80 = 8;
+    var test100 = 25;
+    var start80 = test80;
+    var start100 = test100;
+    var containerHeight = $("#extras .container").outerHeight() - 8;
+    var maxCost = 30;
+
+    updateCost(testCost);
+    updateTimeToEighty(test80);
+    updateTimeToFull(test100);
+
+    d3.interval(function() {
+        testCost += Math.random() * 50 / 100; // up to 50 cents
+        var timeDecrease = Math.random();
+        test80 -= timeDecrease;
+        test100 -= timeDecrease;
+        updateCost(testCost);
+        updateTimeToEighty(test80);
+        updateTimeToFull(test100);
+    }, 3000);
+
+
+    function updateCost(cost) {
+        if (cost <= maxCost) {
+            tweenNumber('#cost .value', cost, 2);
+            $("#cost .fill").animate({height: Math.floor((cost/maxCost) * containerHeight) + "px"});
+        }
+    }
+    function updateTimeToEighty(mins) {
+        if (mins > 0) {
+            tweenNumber('#eighty .value', mins);
+            $("#eighty .fill").animate({height: Math.floor(((start80 - mins)/start80) * containerHeight) + "px"});
+        } else {
+            tweenNumber('#eighty .value', 0);
+            $("#eighty .description").html("80% Reached");
+            $("#eighty .fill").animate({height: containerHeight + "px"});
+        }
+    }
+    function updateTimeToFull(mins) {
+        if (mins > 0) {
+            tweenNumber('#full .value', mins);
+            $("#full .fill").animate({height: Math.floor(((start100 - mins)/start100) * containerHeight) + "px"});
+        } else {
+            tweenNumber('#full .value', 0);
+            $("#full .description").html("100% Reached");
+            $("#full .fill").animate({height: containerHeight + "px"});
+        }
     }
 
     function showGraph() {
@@ -856,7 +923,7 @@
         }
         if (energyAdded) {
             // $(".added").innerHTML = energyAdded > 100 ? Math.round(energyAdded) : energyAdded.toFixed(1);
-            tweenNumber("added", energyAdded, 1);
+            tweenNumber(".added", energyAdded, 1);
         }
         // if (socStart) {
         //     $(".base").innerHTML = socStart;
@@ -897,7 +964,7 @@
 
 
     function initCircle() {
-        tweenNumber("base", socStart);
+        tweenNumber(".base", socStart);
 
         // starting arc
         var starting = g.append("path")
@@ -922,7 +989,7 @@
         // }, 1500);
 
         // d3.interval(function() {
-        //     tweenNumber("added", socValue * 0.7, 1);
+        //     tweenNumber(".added", socValue * 0.7, 1);
         // }, 1500);
 
         // updateRate();
@@ -976,7 +1043,7 @@
     }
 
     function tweenNumber(id, value, decimals) {
-        d3.select("." + id)
+        d3.select(id)
             .transition()
             .duration(1500)
             .on("start", function() {
@@ -987,7 +1054,7 @@
                         return function(t) {
                             var output = decimals ? i(t).toFixed(decimals) : Math.round(i(t));
                             output = output > 100 ? Math.round(output) : output;
-                            $("." + id).html(output);
+                            $(id).html(output);
                         };
                     })
             });
