@@ -173,10 +173,12 @@ function init() {
       })
 
   d3.interval(function() {
-    activeCharge++;
-    active.transition()
-        .duration(750)
-        .attrTween("d", arcTween((activeCharge/100) * circ));
+    if (activeCharge < 100) {
+      activeCharge++;
+      active.transition()
+          .duration(750)
+          .attrTween("d", arcTween((activeCharge/100) * circ));
+    }
   }, 1500);
 
   d3.interval(function() {
