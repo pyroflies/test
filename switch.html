@@ -9,6 +9,7 @@
     <style>
     body {
         font-family: 'Roboto', sans-serif;
+        color: #3a89ea;
         background-color: #070d2f;
         width: 1000px;
         margin: 0 auto;
@@ -48,7 +49,6 @@
     #circle #display {
         font-weight: 100;
         font-family: "Roboto";
-        color: #3a89ea;
         text-shadow: 0px 0px 15px #2471d0;
         position: absolute;
         left: 50%;
@@ -64,21 +64,14 @@
     #circle .data {
         text-align: center;
     }
-
     #circle .value {
-        font-size: 80px;
+        font-size: 5em;
     }
-
     #circle .current {
-        font-size: 100px;
+        font-size: 6em;
     }
-
-    #circle #display .units {
-        font-size: 50px;
-    }
-
     #circle .units {
-        font-size: 30px;
+        font-size: 2em;
         margin-left: 5px;
     }
 
@@ -93,7 +86,6 @@
     #circle #metrics {
         font-weight: 100;
         font-family: "Roboto";
-        color: #3a89ea;
         text-shadow: 0px 0px 15px #2471d0;
         text-align: center;
         margin: -40px auto 0;
@@ -202,7 +194,7 @@
     }
 
     #chart .container {
-        margin: 50px 0;
+        margin: 58px 0;
     }
 
     #chart .display {
@@ -214,7 +206,6 @@
         font-size: 4em;
         font-weight: 100;
         text-align: center;
-        color: #3a89ea;
         text-shadow: 0px 0px 15px #2471d0;
     }
 
@@ -249,7 +240,6 @@
         display: inline-block;
         width: 170px;
         padding: 15px 20px;
-        color: #3a89ea;
         font-size: 1.2em;
         font-weight: 300;
         letter-spacing: 5px;
@@ -265,13 +255,43 @@
     }
 
 
+    #extras {
+        text-shadow: 0px 0px 15px #2471d0;
+        width: 900px;
+        margin: 60px auto;
+        text-align: center;
+        font-weight: 100;
+    }
+    #extras .container {
+        float: left;
+        width: 300px;
+        border: 1px solid #1934a7;
+        box-sizing: border-box;
+        margin-left: -1px;
+        padding: 60px 0;
+        box-shadow: 0px 0px 15px rgba(36, 113, 208, 0.2);
+    }
+    #extras .icon {
 
-
+    }
+    #extras .value {
+        font-size: 4em;
+    }
+    #extras .units {
+        font-size: 1.2em;
+    }
+    #extras .description {
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
 
 
     #test {
-        display: block;
-        margin: 20px auto;
+        position: absolute;
+        top: 10px;
+        left: 10px;
     }
 
 
@@ -364,6 +384,42 @@
         <div id="viewBasic" class="button noselect" onclick="showBasic()">View Basic</div>
     </div>
     <button onclick="counter()" id="test">Update</button>
+
+    <div id="extras" class="clearfix">
+        <div class="container">
+            <div class="icon">
+            </div>
+            <div class="data">
+                <span class="units">$</span>
+                <span class="value">7.25</span>
+            </div>
+            <div class="description">
+                Cost
+            </div>
+        </div>
+        <div class="container">
+            <div class="icon">
+            </div>
+            <div class="data">
+                <span class="value">8</span>
+                <span class="units">mins</span>
+            </div>
+            <div class="description">
+                Time to 80%
+            </div>
+        </div>
+        <div class="container">
+            <div class="icon">
+            </div>
+            <div class="data">
+                <span class="value">30</span>
+                <span class="units">mins</span>
+            </div>
+            <div class="description">
+                Time to 100%
+            </div>
+        </div>
+    </div>
 
     <script type="text/javascript">
 
