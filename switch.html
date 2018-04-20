@@ -489,27 +489,27 @@
     function updateCost(cost) {
         if (cost <= maxCost) {
             tweenNumber('#cost .value', cost, 2);
-            $("#cost .fill").animate({height: Math.floor((cost/maxCost) * containerHeight) + "px"});
+            // $("#cost .fill").animate({height: Math.floor((cost/maxCost) * containerHeight) + "px"});
         }
     }
     function updateTimeToEighty(mins) {
         if (mins > 0) {
             tweenNumber('#eighty .value', mins);
-            $("#eighty .fill").animate({height: Math.floor(((start80 - mins)/start80) * containerHeight) + "px"});
+            // $("#eighty .fill").animate({height: Math.floor(((start80 - mins)/start80) * containerHeight) + "px"});
         } else {
             tweenNumber('#eighty .value', 0);
             $("#eighty .description").html("80% Reached");
-            $("#eighty .fill").animate({height: containerHeight + "px"});
+            // $("#eighty .fill").animate({height: containerHeight + "px"});
         }
     }
     function updateTimeToFull(mins) {
         if (mins > 0) {
             tweenNumber('#full .value', mins);
-            $("#full .fill").animate({height: Math.floor(((start100 - mins)/start100) * containerHeight) + "px"});
+            // $("#full .fill").animate({height: Math.floor(((start100 - mins)/start100) * containerHeight) + "px"});
         } else {
             tweenNumber('#full .value', 0);
             $("#full .description").html("100% Reached");
-            $("#full .fill").animate({height: containerHeight + "px"});
+            // $("#full .fill").animate({height: containerHeight + "px"});
         }
     }
 
