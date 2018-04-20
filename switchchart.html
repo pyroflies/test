@@ -26,6 +26,13 @@
         *zoom: 1;
     }
 
+    .noselect {
+      -webkit-user-select: none;  /* Chrome all / Safari all */
+      -moz-user-select: none;     /* Firefox all */
+      -ms-user-select: none;      /* IE 10+ */
+      user-select: none;          /* Likely future */      
+    }
+
     #circle,
     #chart {
         position: relative;
@@ -33,6 +40,11 @@
     }
 
 
+    #circleContainer {
+        position: relative;
+        overflow: hidden;
+        transform: translateY(30px);
+    }
     #circle #display {
         font-weight: 100;
         font-family: "Roboto";
@@ -46,7 +58,7 @@
 
     #circle #arc {
         display: block;
-        margin: 20px auto;
+        margin: 0 auto;
     }
 
     #circle .data {
@@ -119,11 +131,14 @@
 
 
 
+    #chart {
+        display: none;
+    }
 
     #chartContainer {
         position: relative;
         overflow: hidden;
-        /*border: 1px solid #2471d0;*/
+        transform: translateY(70px);
     }
 
     .area {
@@ -226,10 +241,41 @@
         font-weight: 400;
     }
 
+
+    #switch {
+        text-align: center;
+    }
+    #switch .button {
+        display: inline-block;
+        width: 170px;
+        padding: 15px 20px;
+        color: #3a89ea;
+        font-size: 1.2em;
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        border: 1px solid;
+        text-shadow: 0px 0px 15px rgba(58, 137, 234, 0.25);
+        box-shadow: 0px 0px 5px rgba(58, 137, 234, 0.25);
+        background-color: rgba(58, 137, 234, 0.1);
+        cursor: pointer;
+    }
+    #switch #viewBasic {
+        display: none;
+    }
+
+
+
+
+
+
     #test {
         display: block;
         margin: 20px auto;
     }
+
+
+
 
     </style>
     <title>Recargo</title>
@@ -237,34 +283,36 @@
 
 <body>
     <div id="circle">
-        <svg width="500" height="500" id="arc"></svg>
-        <div id="display">
-            <div class="data">
-                <span class="current value">0</span><span class="units">%</span>
-            </div>
-            <div id="battery" class="label">Battery Level</div>
-        </div>
-        <div id="metrics" class="clearfix">
-            <div class="container">
+        <div id="circleContainer">
+            <svg width="500" height="500" id="arc"></svg>
+            <div id="display">
                 <div class="data">
-                    <span class="base value">0</span><span class="units">%</span>
+                    <span class="current value">0</span><span class="units">%</span>
                 </div>
-                <div class="label">Base Charge</div>
+                <div id="battery" class="label">Battery Level</div>
             </div>
-            <div class="container roc">
-                <div class="data">
-                    <span class="rate value">0</span><span class="units">kW</span>
+            <div id="metrics" class="clearfix">
+                <div class="container">
+                    <div class="data">
+                        <span class="base value">0</span><span class="units">%</span>
+                    </div>
+                    <div class="label">Base Charge</div>
                 </div>
-                <div class="label">Rate of Charge</div>
-            </div>
-            <div class="container">
-                <div class="data">
-                    <span class="added value">0</span><span class="units">kWh</span>
+                <div class="container roc">
+                    <div class="data">
+                        <span class="rate value">0</span><span class="units">kW</span>
+                    </div>
+                    <div class="label">Rate of Charge</div>
                 </div>
-                <div class="label">Energy Added</div>
+                <div class="container">
+                    <div class="data">
+                        <span class="added value">0</span><span class="units">kWh</span>
+                    </div>
+                    <div class="label">Energy Added</div>
+                </div>
             </div>
-        </div>
-        <div id="roc">
+            <div id="roc">
+            </div>
         </div>
     </div>
     <div id="chart">
@@ -310,8 +358,12 @@
                 </div>
             </div>
         </div>
-        <button onclick="counter()" id="test">Update</button>
     </div>
+    <div id="switch">
+        <div id="viewGraph" class="button noselect" onclick="showGraph()">View Graph</div>
+        <div id="viewBasic" class="button noselect" onclick="showBasic()">View Basic</div>
+    </div>
+    <button onclick="counter()" id="test">Update</button>
 
     <script type="text/javascript">
 
@@ -336,6 +388,19 @@
 
     function updateEnergyAdded(kwh) {
         energyAdded = kwh;
+    }
+
+    function showGraph() {
+        $("#circle").hide();
+        $("#chart").show();
+        $("#viewGraph").hide();
+        $("#viewBasic").css("display", "inline-block");
+    }
+    function showBasic() {
+        $("#circle").show();
+        $("#chart").hide();
+        $("#viewGraph").css("display", "inline-block");
+        $("#viewBasic").hide();
     }
 
 
