@@ -3,26 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <style>
         body {
             font-family: 'Roboto', sans-serif;
+            color: #3a89ea;
             background-color: #070d2f;
-            width: 1080px;
-            border: 1px solid white;
+            width: 1000px;
+            margin: 0 auto;
         }
         #chartContainer {
             position: relative;
-        }
-
-
-        .pulse {
-            fill: #00ff00;
-        }
-        .pulse.warning {
-            fill: #ffa500;
-        }
-        .pulse.error {
-            fill: #ff0000;
         }
 
         .area {
@@ -76,43 +68,43 @@
             top: 0;
             right: 0;
             color: #2471d0;
-            width: 200px;
-            padding: 20px;
+            width: 230px;
             box-sizing: border-box;
             text-align: center;
         }
+
         .container {
-            margin: 60px 0;
+            margin: 50px 0;
         }
+
         .display {
-            display: table;
-            margin: 0 auto;
+            display: inline-block;
+            position: relative;
         }
-        .data {
-            display: table-cell;
+
+        .value {
             font-size: 4em;
             font-weight: 100;
-            width: 70px;
-            padding-left: 40px;
             text-align: center;
-            color: #3a89ea;
             text-shadow: 0px 0px 15px #2471d0;
         }
-        .data.active {
-            width: 120px;
-            text-align: right;
-            padding: 0;
-        }
+
         .units {
-            display: table-cell;
+            position: absolute;
+            bottom: 12px;
             font-size: 1.2em;
             font-weight: 300;
             text-align: left;
             padding-left: 5px;
-            width: 50px;
         }
-        .description {
-            font-size: 0.8em;
+        .one {
+            right: -20px;
+        }
+        .two {
+            right: -32px;
+        }
+        .three {
+            right: -43px;
         }
 
     </style>
@@ -122,19 +114,20 @@
     <div id="chartContainer">
         <svg id="socChart"></svg>
         <svg id="kwhChart"></svg>
-        <svg id="liquidFillLoading" width="19%" height="200"></svg>
         <div id="metrics">
             <div class="container">
                 <div class="display">
-                    <div id="current" class="data">-</div><div class="units"> %</div>
+                    <div class="current value">0</div>
+                    <div class="units one"> %</div>
                 </div>
                 <div class="description">
-                    Current Charge
+                    Battery Level
                 </div>
             </div>
             <div class="container">
                 <div class="display">
-                    <div id="added" class="data">-</div><div class="units"> kWh</div>
+                    <div class="added value">0</div>
+                    <div class="units three"> kWh</div>
                 </div>
                 <div class="description">
                     Energy Added
@@ -142,7 +135,8 @@
             </div>
             <div class="container">
                 <div class="display">
-                    <div id="base" class="data">-</div><div class="units"> %</div>
+                    <div class="base value">0</div>
+                    <div class="units one"> %</div>
                 </div>
                 <div class="description">
                     Base Charge
@@ -150,7 +144,8 @@
             </div>
             <div class="container">
                 <div class="display">
-                    <div id="rate" class="data">-</div><div class="units"> kW</div>
+                    <div class="rate value">0</div>
+                    <div class="units two"> kW</div>
                 </div>
                 <div class="description">
                     Rate of Charge
@@ -158,12 +153,11 @@
             </div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script type="text/javascript">
         var xScale, kwhScale, socScale;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = {top: 10, right: 50, bottom: 0, left: 50};
-        var padding = {top: 20, right: 50, bottom: 50, left: 50};
+        var padding = {top: 20, right: 0, bottom: 50, left: 50};
         var dtFmt = d3.timeFormat("%I:%M:%S");
         // var tooltip = d3.select("#tooltip").style("opacity", 0);
         var isLeftYAxis = true;
@@ -285,6 +279,32 @@
         ]
         // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
 
+        function getData(id) {
+            var xhr = new XMLHttpRequest();
+
+            xhr.open('GET', 'https://network-api-staging.recargo.com/cp/charge_session/' + id + '/details/json');
+            xhr.timeout = 5000;
+            xhr.onerror = function(e) {
+            };
+            xhr.onload = function () {
+                if (xhr.status === 200) {
+                    var myArr = JSON.parse(xhr.responseText);
+                    var responseDict = myArr['response'];
+                    if (responseDict.hasOwnProperty('soc_start')) socInitial = responseDict['soc_start'];
+                    if (responseDict.hasOwnProperty('is_in_use')) inUse = responseDict['is_in_use'];
+                    if (responseDict.hasOwnProperty('details')) {
+                        responseDetails = responseDict['details'];
+                        graphPoints = responseDetails;
+                        plotGraph(graphPoints, inUse, socInitial);
+                    }
+                } else if (xhr.status >= 400) {
+                }
+            };
+            xhr.send();
+        }
+
+        // getData(489);
+
         points = processPoints(points);
 
         function updateDimensions(winWidth) {
@@ -298,44 +318,16 @@
             kwhHeight = 0.15 * width;
         }
 
-        // TODO: Responsive
-        function clearChartSVG(chart) {
-            svg = d3.select(chart);
-            svg.selectAll("*").remove();
-        }
-
         function drawChartSVG() { // set up svg chart canvas
-            clearChartSVG("socChart");
             soc = d3.select("#socChart")
                 .attr("width", width)
                 .attr("height", socHeight)
                 .style("padding", padding.top + " " + padding.right + " " + 10 + " " + padding.left)
-                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-            clearChartSVG("kwhChart");
             kwh = d3.select("#kwhChart")
                 .attr("width", width)
                 .attr("height", kwhHeight)
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
-                .attr("transform", "translate(" + margin.left + "," + 0 + ")")
-
-            // //Container for the gradients
-            // var defs = soc.append("defs");
-
-            // //Filter for the outside glow
-            // var filter = defs.append("filter")
-            //     .attr("id","glow");
-            // filter.append("feGaussianBlur")
-            //     .attr("stdDeviation","7.5")
-            //     .attr("result","coloredBlur");
-            // var feMerge = filter.append("feMerge");
-            // feMerge.append("feMergeNode")
-            //     .attr("in","coloredBlur");
-            // feMerge.append("feMergeNode")
-            //     .attr("in","SourceGraphic");
-
-            // d3.select("#socChart")
-            //     .style("filter", "url(#glow)");
         }
 
         function roundUp5(x) {
@@ -347,18 +339,6 @@
                 d.time = d3.isoParse(d["timestamp"]);
                 d.kwh = d["watts"] / 1000;
                 d.soc = Math.floor(d["soc"]);
-                // if (d.soc < 20) {
-                //     d.color = "red";
-                // } else if (d.soc < 35) {
-                //     d.color = "orange";
-                // } else if (d.soc < 50 ) {
-                //     d.color = "yellow";
-                // } else if (d.soc < 80) {
-                //     d.color = "green";
-                // } else {
-                //     d.color = "steelblue";
-                // }
-                // console.log(d.color);
             });
             return dataPoints;
         }
@@ -384,7 +364,8 @@
             return xRange;
         }
         function updateScale() {
-            var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+            // var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+            var y0Max = 80; // TODO: set sane defaults so scale doesn't have to re-adjust
 
             xScale = d3.scaleTime()
                 .rangeRound([0, width])
@@ -400,8 +381,6 @@
         }
 
         function plotGrid() { // gridlines
-            d3.selectAll(".grid").remove();
-
             var yAxisGrid1 = d3.axisLeft(socScale).tickSize(-width).tickFormat("");
             soc.append("g")
                 .attr("class", "grid y-left")
@@ -416,8 +395,6 @@
         function drawAxis() { // axis ticks and display text
             updateScale();
             plotGrid();
-
-            d3.selectAll(".axis-container").remove();
 
             var socAxis = soc.append("g").attr("class", "axis-container");
 
@@ -679,159 +656,31 @@
             drawKWhContainer();
         }
 
-        function plotLoading() {
-            /*var loadingSvg = d3.select("#liquidFillLoading");
-            if (loadingSvg.innerHTML) return;
-            var loadingConfig = liquidFillGaugeDefaultSettings();
-            loadingConfig.circleColor = "#d2d2d2";
-            loadingConfig.textColor = "#b7b7b7";
-            loadingConfig.waveTextColor = "#d2d2d2";
-            loadingConfig.waveColor = "#b7b7b7";
-            loadingConfig.circleThickness = 0.2;
-            loadingConfig.textVertPosition = 0.2;
-            loadingConfig.waveAnimateTime = 1000;
-            loadingConfig.displayPercent = false;
-            loadingConfig.displayCount = false;
-            var loadingGauge = loadLiquidFillGauge("liquidFillLoading", 20, loadingConfig);*/
-
-            // d3.select("#liquidFillLoading").append("text")
-            //     .attr("transform", "translate(90, 100)")
-            //     .attr("stroke", "#d2d2d2")
-            //     .style("text-anchor", "middle")
-            //     .text("Loading");
-        }
-
-        function hideLoading() {
-            d3.select("#liquidFillLoading").attr("display", "none");
-        }
-
-        function clearLoading() {
-            hideLoading();
-            var loadingSVG = d3.select("#liquidFillLoading");
-            loadingSVG.selectAll("*").remove();
-        }
-
-        function clearPulse() {
-            soc.selectAll(".pulse").remove();
-        }
-        function drawPulse(error=false, warning=false) {
-            var pulseClass = "pulse";
-            clearPulse();
-            if (error) {
-                pulseClass += " error";
-            } else if (warning) {
-                pulseClass += " warning";
-            }
-            soc.append("circle")
-                .attr("class", pulseClass)
-                .attr("r", 0)
-                .attr("cx", 10)
-                .attr("cy", 10)
-                .node().animate([
-                    {r: 0, opacity: .5},
-                    {r: 5, opacity: 1}
-                ], {
-                    duration: 1000,
-                    easing: "linear",
-                    iterations: Infinity,
-                    direction: "alternate"
-                });
-        }
-
         function plotGraph(dataPoints, charging, socInitial) {
             if (socInitial) socStart = socInitial;
             if (dataPoints.length > 0) {
-                clearLoading();
                 // updateDimensions(window.innerWidth);
-                updateDimensions(1080);
+                updateDimensions(1000);
                 drawChartSVG();
                 plotChargeSession();
-                updateData();
-                drawPulse();
-            } else if (dataPoints.length === 0 && !charging) {
-                plotLoading();
-            } else {
-                drawPulse(warning=true);
             }
         }
 
         function updateData() {
             var current = points[points.length - 1].soc;
-            document.getElementById("current").innerHTML = current;
-            document.getElementById("current").classList.add("active");
+            $(".current").html(current);
             if (socStart) {
-                document.getElementById("added").innerHTML = (current - socStart);
-                document.getElementById("added").classList.add("active");
-                document.getElementById("base").innerHTML = socStart;
-                document.getElementById("base").classList.add("active");
+                $(".added").html((current - socStart));
+                $(".base").html(socStart);
             }
             var roc = Math.round(points[points.length - 1].kwh);
-            document.getElementById("rate").innerHTML = roc;
-            document.getElementById("rate").classList.add("active");
+            $(".rate").html(roc);
         }
 
         plotGraph(points);
+        updateData();
+
     </script>
-
-    <!-- {# If the uid is 'index' we do not want to poll for new results so we shouldn't include in the view. #}
-    {# If charging has completed, we shouldn't include polling in the view. #}
-
-    {% if uid != 'index' and not charging_complete %} -->
-    <script type="text/javascript">
-        /*var csDetailsUrl = "{{ polling_url }}";
-        var maxFail = 18;  // stop trying if it fails more than 18 times or 3 minutes
-        var failedAttempts = 0;
-        var inUse = true;
-        var lastDT = new Date().toISOString();
-        var graphPoints = [];
-        var responseDetails = [];
-        var url = csDetailsUrl;
-        var socInitial = 0 //{{ soc_start|safe }};
-
-        function getUpdates(url) {
-            var xhr = new XMLHttpRequest();
-
-            xhr.open('GET', url + '?last_dt=' + lastDT);
-            xhr.timeout = 5000;
-            xhr.onerror = function(e) {
-                failedAttempts++;
-            };
-            xhr.onload = function () {
-                if (xhr.status === 200) {
-                    failedAttempts = 0;
-                    var myArr = JSON.parse(xhr.responseText);
-                    var responseDict = myArr['response'];
-                    if (responseDict.hasOwnProperty('soc_start')) socInitial = responseDict['soc_start'];
-                    if (responseDict.hasOwnProperty('is_in_use')) inUse = responseDict['is_in_use'];
-                    if (responseDict.hasOwnProperty('details')) {
-                        responseDetails = responseDict['details'];
-                        if (graphPoints.length === 0) {
-                            graphPoints = responseDetails;
-                        } else {
-                            graphPoints = graphPoints.concat(responseDetails);
-                        }
-                        plotGraph(graphPoints, inUse, socInitial);
-                    } else if (!inUse) {
-                        clearPulse();
-                    } else {
-                        plotGraph([], inUse, socInitial);
-                        failedAttempts++;
-                    }
-                } else if (xhr.status >= 400) {
-                    drawPulse(error=true);
-                    failedAttempts++;
-                }
-            };
-            xhr.send();
-        }
-
-        setInterval(function() {
-            if (failedAttempts < maxFail || inUse) {
-                getUpdates(url);
-            }
-        }, 1000*10);*/
-    </script>
-    <!-- {% endif %} -->
 
 </body>
 </html>
