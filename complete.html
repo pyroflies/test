@@ -74,7 +74,7 @@
         }
 
         .container {
-            margin: 50px 0;
+            margin: 55px 0;
         }
 
         .display {
@@ -364,8 +364,7 @@
             return xRange;
         }
         function updateScale() {
-            // var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
-            var y0Max = 80; // TODO: set sane defaults so scale doesn't have to re-adjust
+            var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
 
             xScale = d3.scaleTime()
                 .rangeRound([0, width])
