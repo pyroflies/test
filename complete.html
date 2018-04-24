@@ -71,11 +71,17 @@
             width: 230px;
             box-sizing: border-box;
             text-align: center;
-            font-size: 0.9em;
         }
 
-        .container {
-            margin: 40px 0;
+        .charge .container {
+            margin: 45px 0;
+        }
+
+        .rate {
+            font-size: 0.6em;
+        }
+        .rate .container {
+            margin: 20px 0;
         }
 
         .display {
@@ -116,49 +122,53 @@
         <svg id="socChart"></svg>
         <svg id="kwhChart"></svg>
         <div id="metrics">
-            <div class="container">
-                <div class="display">
-                    <div class="current value">0</div>
-                    <div class="units one"> %</div>
+            <div class="charge">
+                <div class="container">
+                    <div class="display">
+                        <div class="current value">0</div>
+                        <div class="units one"> %</div>
+                    </div>
+                    <div class="description">
+                        Battery Level
+                    </div>
                 </div>
-                <div class="description">
-                    Battery Level
+                <div class="container">
+                    <div class="display">
+                        <div class="added value">0</div>
+                        <div class="units three"> kWh</div>
+                    </div>
+                    <div class="description">
+                        Energy Added
+                    </div>
                 </div>
-            </div>
-            <div class="container">
-                <div class="display">
-                    <div class="added value">0</div>
-                    <div class="units three"> kWh</div>
-                </div>
-                <div class="description">
-                    Energy Added
-                </div>
-            </div>
-            <div class="container">
-                <div class="display">
-                    <div class="base value">0</div>
-                    <div class="units one"> %</div>
-                </div>
-                <div class="description">
-                    Base Charge
-                </div>
-            </div>
-            <div class="container">
-                <div class="display">
-                    <div class="max rate value">0</div>
-                    <div class="units two"> kW</div>
-                </div>
-                <div class="description">
-                    Max Rate
+                <div class="container">
+                    <div class="display">
+                        <div class="base value">0</div>
+                        <div class="units one"> %</div>
+                    </div>
+                    <div class="description">
+                        Base Charge
+                    </div>
                 </div>
             </div>
-            <div class="container">
-                <div class="display">
-                    <div class="average rate value">0</div>
-                    <div class="units two"> kW</div>
+            <div class="rate">
+                <div class="container">
+                    <div class="display">
+                        <div class="max rate value">0</div>
+                        <div class="units two"> kW</div>
+                    </div>
+                    <div class="description">
+                        Max Rate
+                    </div>
                 </div>
-                <div class="description">
-                    Average Rate
+                <div class="container">
+                    <div class="display">
+                        <div class="average rate value">0</div>
+                        <div class="units two"> kW</div>
+                    </div>
+                    <div class="description">
+                        Average Rate
+                    </div>
                 </div>
             </div>
         </div>

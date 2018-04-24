@@ -295,7 +295,8 @@
     }
     #switch .button {
         display: inline-block;
-        width: 170px;
+        width: 200px;
+        margin: 0 20px;
         padding: 15px 20px;
         font-size: 1.2em;
         font-weight: 300;
@@ -454,6 +455,7 @@
         </div>
     </div>
     <div id="switch">
+        <div id="stopCharge" class="button noselect" onclick="stopCharge()">Stop Charge</div>
         <div id="viewGraph" class="button noselect" onclick="showGraph()">View Graph</div>
         <div id="viewBasic" class="button noselect" onclick="showBasic()">View Basic</div>
     </div>
@@ -570,6 +572,9 @@
         }
     }
 
+    function stopCharge() {
+        console.log("stop charge");
+    }
     function showGraph() {
         $("#circle").hide();
         $("#chart").show();
