@@ -71,10 +71,11 @@
             width: 230px;
             box-sizing: border-box;
             text-align: center;
+            font-size: 0.9em;
         }
 
         .container {
-            margin: 55px 0;
+            margin: 40px 0;
         }
 
         .display {
@@ -144,11 +145,20 @@
             </div>
             <div class="container">
                 <div class="display">
-                    <div class="rate value">0</div>
+                    <div class="max rate value">0</div>
                     <div class="units two"> kW</div>
                 </div>
                 <div class="description">
-                    Rate of Charge
+                    Max Rate
+                </div>
+            </div>
+            <div class="container">
+                <div class="display">
+                    <div class="average rate value">0</div>
+                    <div class="units two"> kW</div>
+                </div>
+                <div class="description">
+                    Average Rate
                 </div>
             </div>
         </div>
@@ -665,6 +675,24 @@
             }
         }
 
+        function getMax(data, key) {
+            return data.reduce((max, p) => p[key] > max ? p[key] : max, data[0][key]);
+        }
+        // console.log(getMax(points, 'watts'));
+
+        function getAverage(data, key) {
+            var sum = 0;
+            var divisor = 0;
+            for (var x = 0; x < data.length; x++) {
+                if (data[x][key] > 0) {
+                    sum += data[x][key];
+                    divisor++;
+                }
+            }
+            return (sum/divisor);
+        }
+        // console.log(getAverage(points, 'watts'));
+
         function updateData() {
             var current = points[points.length - 1].soc;
             $(".current").html(current);
@@ -672,8 +700,12 @@
                 $(".added").html((current - socStart));
                 $(".base").html(socStart);
             }
-            var roc = Math.round(points[points.length - 1].kwh);
-            $(".rate").html(roc);
+            // var roc = Math.round(points[points.length - 1].kwh);
+            // $(".rate").html(roc);
+            var max = Math.round(getMax(points, 'watts') / 1000);
+            $(".rate.max").html(max);
+            var average = Math.round(getAverage(points, 'watts') / 1000);
+            $(".rate.average").html(average);
         }
 
         plotGraph(points);
