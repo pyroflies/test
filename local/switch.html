@@ -67,6 +67,10 @@
         background-color: #070d2f;
         width: 1000px;
         margin: 0 auto;
+        -webkit-user-select: none;  /* Chrome all / Safari all */
+        -moz-user-select: none;     /* Firefox all */
+        -ms-user-select: none;      /* IE 10+ */
+        user-select: none;          /* Likely future */    
     }
 
     .clearfix:before,
@@ -79,13 +83,6 @@
     }
     .clearfix {
         *zoom: 1;
-    }
-
-    .noselect {
-      -webkit-user-select: none;  /* Chrome all / Safari all */
-      -moz-user-select: none;     /* Firefox all */
-      -ms-user-select: none;      /* IE 10+ */
-      user-select: none;          /* Likely future */      
     }
 
     #circle,
@@ -455,9 +452,9 @@
         </div>
     </div>
     <div id="switch">
-        <div id="stopCharge" class="button noselect" onclick="stopCharge()">Stop Charge</div>
-        <div id="viewGraph" class="button noselect" onclick="showGraph()">View Graph</div>
-        <div id="viewBasic" class="button noselect" onclick="showBasic()">View Basic</div>
+        <div id="stopCharge" class="button" onclick="stopCharge()">Stop Charge</div>
+        <div id="viewGraph" class="button" onclick="showGraph()">View Graph</div>
+        <div id="viewBasic" class="button" onclick="showBasic()">View Basic</div>
     </div>
     <button onclick="counter()" id="test">Update</button>
 
