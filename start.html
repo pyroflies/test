@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500,700|Roboto:100,300,400" rel="stylesheet">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/solid.css" integrity="sha384-HTDlLIcgXajNzMJv5hiW5s2fwegQng6Hi+fN6t5VAcwO/9qbg2YEANIyKBlqLsiT" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/fontawesome.css" integrity="sha384-8WwquHbb2jqa7gKWSoAwbJBV2Q+/rQRss9UXL5wlvXOZfSodONmVnifo/+5xJIWX" crossorigin="anonymous">
+    <style>
+    body {
+        font-family: 'Roboto', sans-serif;
+        background-color: #fff;
+        margin: 0;
+    }
+    #content {
+        background-color: #070d2f;
+        width: 1200px;
+        margin: 0 auto;
+        color: #fff;
+        min-height: 1920px;
+        text-align: center;
+    }
+    #header {
+        font-size: 3em;
+        font-weight: 300;
+        padding: 30px 20px 10px 20px;
+    }
+    .container {
+        margin: 20px;
+        border-radius: 5px;
+        min-height: 500px;
+        padding: 60px 70px;
+        box-sizing: border-box;
+        position: relative;
+    }
+    .chademo {
+        background: linear-gradient(to right, #00b7ea 0%,#05718a 100%);
+    }
+    .ccs {
+        background: linear-gradient(to right, #01b931 0%,#7ac10c 100%);
+    }
+    .plug {
+        display: inline-block;
+    }
+    .title {
+        font-family: 'Quicksand', sans-serif;
+        display: inline-block;
+        font-size: 4em;
+        font-weight: 500;
+        position: relative;
+        bottom: 30px;
+        margin: 0 30px;
+    }
+    .instructions {
+        font-family: 'Quicksand', sans-serif;
+        font-size: 2.5em;
+        font-weight: 300;
+        margin-top: 10px;
+    }
+    .visuals img {
+        position: absolute;
+        bottom: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        height: 170px;
+        opacity: 0.9;
+    }
+    .caret {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        color: black;
+        opacity: 0.5;
+    }
+    .left {
+        left: 20px;
+    }
+    .right {
+        right: 20px;
+    }
+
+    .time {
+        text-align: center;
+        margin: 40px;
+    }
+    .remaining {
+        font-size: 1.5em;
+        font-weight: 300;
+        text-transform: uppercase;
+        /*display: inline-block;*/
+        position: relative;
+        bottom: 7px;
+    }
+    .value {
+        font-size: 3em;
+        font-weight: 300;
+        /*display: inline-block;*/
+        /*margin-left: 20px;*/
+    }
+    </style>
+</head>
+<body>
+    <div id="content">
+        <div id="header">
+            Ready to Charge
+        </div>
+        <div class="time">
+            <div class="remaining">
+                Time Remaining
+            </div>
+            <div class="value">
+                0:43
+            </div>
+        </div>
+        <div class="container chademo">
+            <i class="fas fa-caret-left fa-4x caret left"></i>
+            <div class="plug">
+                <img src="chademo.png">
+            </div>
+            <div class="title">
+                CHAdeMO
+            </div>
+            <div class="instructions">
+                Plug in and tap here to start charging
+            </div>
+            <div class="visuals">
+                <img src="plugintap.png">
+            </div>
+        </div>
+        <div class="container ccs">
+            <i class="fas fa-caret-right fa-4x caret right"></i>
+            <div class="plug">
+                <img src="ccs.png">
+            </div>
+            <div class="title">
+                CCS
+            </div>
+            <div class="instructions">
+                Plug in to automatically start charging
+            </div>
+            <div class="visuals">
+                <img src="pluginauto.png">
+            </div>
+        </div>
+    </div>
+</body>
+</html>
