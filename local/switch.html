@@ -63,7 +63,7 @@
 
     body {
         font-family: 'Roboto', sans-serif;
-        color: #3a89ea;
+        color: #62a0ec;
         background-color: #070d2f;
         width: 1000px;
         margin: 0 auto;
@@ -171,7 +171,7 @@
     }
 
     #circle .glow {
-        background-color: #1934a7;
+        background-color: #2946c1;
         box-shadow: 0px 0px 15px #1935a7;
     }
 
@@ -241,7 +241,7 @@
         position: absolute;
         top: 0;
         right: 0;
-        color: #2471d0;
+        color: #62a0ec;
         width: 230px;
         box-sizing: border-box;
         text-align: center;
@@ -321,8 +321,8 @@
         position: relative;
         float: left;
         width: 300px;
-        border: 1px solid #1934a7;
-        border-top: 7px solid #1934a7;
+        border: 1px solid #2946c1;
+        border-top: 7px solid #2946c1;
         box-sizing: border-box;
         padding: 60px 0;
         box-shadow: 0px 0px 15px rgba(36, 113, 208, 0.2);
@@ -519,53 +519,25 @@
         energyAdded = kwh;
     }
 
-    var testCost = 3;
-    var test80 = 8;
-    var test100 = 25;
-    var start80 = test80;
-    var start100 = test100;
-    var containerHeight = $("#extras .container").outerHeight() - 8;
-    var maxCost = 30;
-
-    updateCost(testCost);
-    updateTimeToEighty(test80);
-    updateTimeToFull(test100);
-
-    d3.interval(function() {
-        testCost += Math.random() * 50 / 100; // up to 50 cents
-        var timeDecrease = Math.random();
-        test80 -= timeDecrease;
-        test100 -= timeDecrease;
-        updateCost(testCost);
-        updateTimeToEighty(test80);
-        updateTimeToFull(test100);
-    }, 3000);
-
-
     function updateCost(cost) {
         if (cost <= maxCost) {
             tweenNumber('#cost .value', cost, 2);
-            // $("#cost .fill").animate({height: Math.floor((cost/maxCost) * containerHeight) + "px"});
         }
     }
     function updateTimeToEighty(mins) {
         if (mins > 0) {
             tweenNumber('#eighty .value', mins);
-            // $("#eighty .fill").animate({height: Math.floor(((start80 - mins)/start80) * containerHeight) + "px"});
         } else {
             tweenNumber('#eighty .value', 0);
             $("#eighty .description").html("80% Reached");
-            // $("#eighty .fill").animate({height: containerHeight + "px"});
         }
     }
     function updateTimeToFull(mins) {
         if (mins > 0) {
             tweenNumber('#full .value', mins);
-            // $("#full .fill").animate({height: Math.floor(((start100 - mins)/start100) * containerHeight) + "px"});
         } else {
             tweenNumber('#full .value', 0);
             $("#full .description").html("100% Reached");
-            // $("#full .fill").animate({height: containerHeight + "px"});
         }
     }
 
@@ -593,7 +565,7 @@
     var kwhLine, kwhArea, kwhContainer, kwhGraphLine, kwhGraphArea;
     var width, socHeight, kwhHeight, svg, socObject, kwhObject;
     var margin = { top: 10, right: 50, bottom: 0, left: 50 };
-    var padding = { top: 20, right: 0, bottom: 50, left: 50 };
+    var padding = {top: 40, right: 0, bottom: 30, left: 50};
     var dtFmt = d3.timeFormat("%I:%M:%S");
     // var tooltip = d3.select("#tooltip").style("opacity", 0);
 
@@ -1013,7 +985,7 @@
     // active arc
     var active = g.append("path")
         .datum({ endAngle: 0 })
-        .style("fill", "#1934a7")
+        .style("fill", "#2946c1")
         .attr("d", arc);
 
     // generate blocks
@@ -1028,7 +1000,7 @@
         // starting arc
         var starting = g.append("path")
             .datum({ endAngle: 0 })
-            .style("fill", "#2643c1")
+            .style("fill", "#5570e6")
             .attr("d", arc);
 
         starting.transition()
