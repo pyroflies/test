@@ -77,16 +77,12 @@
             text-align: center;
         }
 
-        .charge .container {
-            margin: 55px 0;
+        #metrics .container {
+            margin: 40px 0;
         }
 
-        .rate {
-            font-size: 0.6em;
-            padding-top: 5px;
-        }
-        .rate .container {
-            margin-top: 20px;
+        .charge, .rates {
+            margin-top: 70px;
         }
 
         .display {
@@ -95,7 +91,7 @@
         }
 
         .value {
-            font-size: 4em;
+            font-size: 3.2em;
             font-weight: 100;
             text-align: center;
             text-shadow: 0px 0px 15px #2471d0;
@@ -156,7 +152,7 @@
                     </div>
                 </div>
             </div>
-            <div class="rate">
+            <div class="rates">
                 <div class="container">
                     <div class="display">
                         <div class="max rate value">0</div>
@@ -339,8 +335,8 @@
             margin.bottom = 0;
 
             width = winWidth - margin.left - margin.right - padding.left - padding.right;
-            socHeight = 0.6 * width;
-            kwhHeight = 0.15 * width;
+            socHeight = 0.5 * width;
+            kwhHeight = 0.25 * width;
         }
 
         function drawChartSVG() { // set up svg chart canvas
