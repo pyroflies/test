@@ -229,10 +229,6 @@
         shape-rendering: crispEdges;
     }
 
-    .y.axis, .x.axis {
-        font-weight: bold;
-    }
-
     .y-axis-text {
         text-anchor: middle;
         fill: #2471d0;
@@ -283,7 +279,7 @@
     }
 
     #chart .container {
-        margin: 60px 0;
+        margin: 57px 0;
     }
 
     #chart .display {
@@ -386,6 +382,7 @@
 
     #extras .value {
         font-size: 4em;
+        padding: 0 5px;
     }
     #extras .units {
         font-size: 1.2em;
@@ -497,7 +494,7 @@
             <div class="fill">
             </div>
             <div class="data">
-                <span class="value">0</span>
+                <span class="value">-</span>
                 <span class="units">mins</span>
             </div>
             <div class="description">
@@ -507,7 +504,7 @@
             <div class="fill">
             </div>
             <div class="data">
-                <span class="value">0</span>
+                <span class="value">-</span>
                 <span class="units">mins</span>
             </div>
             <div class="description">
@@ -538,6 +535,8 @@
     var initialMaxRate = 60;
     var maxRate = 60;
 
+    var chargeTimeMax = 90; // if number passed is larger than this number, it is likely we are getting inaccurate data
+
     // pass in data from station
     function updateSOC(soc) {
         socValue = soc;
@@ -557,19 +556,32 @@
         }
     }
     function updateTimeToEighty(mins) {
-        if (mins > 0) {
-            tweenNumber('#eighty .value', mins);
+        if (mins > chargeTimeMax) {
+            $('#eighty .value').html('-');
         } else {
-            tweenNumber('#eighty .value', 0);
-            $("#eighty .description").html("80% Reached");
+            if (mins > 0) {
+                tweenNumber('#eighty .value', mins);
+            } else {
+                tweenNumber('#eighty .value', 0);
+                setTimeout(function() {
+                    $("#eighty .description").html("80% Reached");
+                }, 750);
+            }
         }
     }
     function updateTimeToFull(mins) {
-        if (mins > 0) {
-            tweenNumber('#full .value', mins);
+        var eighty = parseInt($('#eighty .value').html());
+        if (mins > chargeTimeMax || (eighty && mins < eighty)) {
+            $('#full .value').html('-');
         } else {
-            tweenNumber('#full .value', 0);
-            $("#full .description").html("100% Reached");
+            if (mins > 0) {
+                tweenNumber('#full .value', mins);
+            } else {
+                tweenNumber('#full .value', 0);
+                setTimeout(function() {
+                    $("#full .description").html("100% Reached");
+                }, 750);
+            }
         }
     }
 
@@ -1106,6 +1118,8 @@
     }
 
     function tweenNumber(id, value, decimals) {
+        if ($(id).text() == '-')
+            $(id).html(0);
         d3.select(id)
             .transition()
             .duration(1500)
