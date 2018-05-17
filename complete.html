@@ -6,6 +6,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <style>
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
         body {
             font-family: 'Roboto', sans-serif;
             color: #3a89ea;
@@ -40,6 +44,10 @@
           shape-rendering: crispEdges;
         }
 
+        .y.axis, .x.axis {
+            font-weight: bold;
+        }
+        
         .y-axis-text {
             text-anchor: middle;
             fill: #2471d0;
