@@ -115,7 +115,7 @@
     }
 
     #circle .data {
-        text-align: center;
+        text-align: right;
     }
     #circle .value {
         font-size: 5em;
@@ -125,7 +125,8 @@
     }
     #circle .units {
         font-size: 2em;
-        margin-left: 5px;
+        margin-left: 10px;
+        margin-right: 30px;
     }
 
     #circle .label {
@@ -144,7 +145,7 @@
         /*margin: 20px auto;
         width: 900px;*/
         position: absolute;
-        right: 330px;
+        left: 205px;
         font-size: 1.5em;
     }
 
@@ -366,7 +367,7 @@
 
     // generate blocks
     for (var x = 0; x < 120; x++) {
-        $("#roc").append('<div class="block index' + x + '" style="height: ' + (10 + Math.pow(1.05, 120 - x)) + 'px;"></div>');
+        $("#roc").append('<div class="block index' + x + '" style="height: ' + (10 + Math.pow(1.05, x)) + 'px;"></div>');
     }
 
     function updateGlow(roc) {
