@@ -6,10 +6,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <style>
-        * {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
         body {
             font-family: 'Roboto', sans-serif;
             color: #3a89ea;
@@ -44,10 +40,6 @@
           shape-rendering: crispEdges;
         }
 
-        .y.axis, .x.axis {
-            font-weight: bold;
-        }
-
         .y-axis-text {
             text-anchor: middle;
             fill: #2471d0;
@@ -58,9 +50,11 @@
         .y.axis text {
             fill: #2471d0;
         }
-        .axis-container text {
+        .axis-container > text {
             font-family: 'Quicksand', sans-serif;
             font-weight: bold;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .x-axis-text {
@@ -106,6 +100,8 @@
         }
         .description {
             font-family: 'Quicksand', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .value {
@@ -123,6 +119,8 @@
             font-weight: 300;
             text-align: left;
             padding-left: 5px;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .one {
             right: -20px;

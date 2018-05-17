@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <!-- d3 v4.13.0 -->
@@ -59,6 +58,32 @@
            url('fonts/roboto-v18-latin-700.woff') format('woff'), /* Modern Browsers */
            url('fonts/roboto-v18-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
            url('fonts/roboto-v18-latin-700.svg#Roboto') format('svg'); /* Legacy iOS */
+    }
+    /* quicksand-regular - latin */
+    @font-face {
+      font-family: 'Quicksand';
+      font-style: normal;
+      font-weight: 400;
+      src: url('fonts/quicksand-v7-latin-regular.eot'); /* IE9 Compat Modes */
+      src: local('Quicksand Regular'), local('Quicksand-Regular'),
+           url('fonts/quicksand-v7-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/quicksand-v7-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/quicksand-v7-latin-regular.woff') format('woff'), /* Modern Browsers */
+           url('fonts/quicksand-v7-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/quicksand-v7-latin-regular.svg#Quicksand') format('svg'); /* Legacy iOS */
+    }
+    /* quicksand-500 - latin */
+    @font-face {
+      font-family: 'Quicksand';
+      font-style: normal;
+      font-weight: 500;
+      src: url('fonts/quicksand-v7-latin-500.eot'); /* IE9 Compat Modes */
+      src: local('Quicksand Medium'), local('Quicksand-Medium'),
+           url('fonts/quicksand-v7-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/quicksand-v7-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/quicksand-v7-latin-500.woff') format('woff'), /* Modern Browsers */
+           url('fonts/quicksand-v7-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/quicksand-v7-latin-500.svg#Quicksand') format('svg'); /* Legacy iOS */
     }
 
     body {
@@ -204,6 +229,10 @@
         shape-rendering: crispEdges;
     }
 
+    .y.axis, .x.axis {
+        font-weight: bold;
+    }
+
     .y-axis-text {
         text-anchor: middle;
         fill: #2471d0;
@@ -216,6 +245,12 @@
 
     .y.axis text {
         fill: #2471d0;
+    }
+    .axis-container > text {
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 500;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
 
     .x-axis-text {
@@ -256,6 +291,12 @@
         position: relative;
     }
 
+    #chart .description {
+        font-family: 'Quicksand', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
     #chart .value {
         font-size: 4em;
         font-weight: 100;
@@ -264,12 +305,15 @@
     }
 
     #chart .units {
+        font-family: 'Quicksand', sans-serif;
         position: absolute;
         bottom: 12px;
         font-size: 1.2em;
         font-weight: 300;
         text-align: left;
         padding-left: 5px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
     }
     .one {
         right: -20px;
@@ -279,11 +323,6 @@
     }
     .three {
         right: -43px;
-    }
-
-    #chart .description {
-        font-size: 0.8em;
-        font-weight: 400;
     }
 
 
@@ -364,10 +403,6 @@
         top: 10px;
         left: 10px;
     }
-
-
-
-
     </style>
     <title>Recargo</title>
 </head>
