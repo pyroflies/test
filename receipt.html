@@ -18,6 +18,9 @@
   #content {
     width: 100%;
   }
+  #location {
+    display: block !important;
+  }
   .resize {
     font-size: 0.9em;
   }
@@ -185,6 +188,18 @@
                               <td style="border-top: 1px solid rgba(0, 0, 0, 0.3); border-bottom: 1px solid rgba(0, 0, 0, 0.3); font-size: 16px; line-height: 20px;">
                                 <h3 class="resize">Recargo Network Charge Session Details</h3>
 
+                                <div id="location" style="display: none;">
+                                  <!-- need location.name -->
+                                  <div>
+                                    Electric Lodge
+                                  </div>
+                                  <!-- need location.address -->
+                                  <div style="padding: 5px 0 15px 0;">
+                                    1234 Santa Monica Blvd.<br>
+                                    Santa Monica, CA 90221
+                                  </div>
+                                </div>
+
                                 <div style="background-color: #eee; padding: 10px; border-top-left-radius: 5px; border-top-right-radius: 5px;">
                                   <div style="text-align: center; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #888;">
                                     <!-- station.name -->
@@ -198,40 +213,39 @@
                                       <div id="soc" style="width: 85%; height: 20px; background-color: #78b4ff; box-shadow: 0 0 8px rgba(119, 181, 255, 0.5); float: left"></div>
                                     </div>
                                   </div>
-                                  <br>
                                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                     <tr>
-                                      <th style="width: 20%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="width: 20%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #0bb50b;">
                                         Start
                                       </th>
-                                      <th style="width: 20%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="width: 20%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #2f87f1;">
                                         Finish
                                       </th>
                                       <th style="width: 5%;">
                                         <!-- spacer -->
                                       </th>
-                                      <th style="width: 30%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="width: 30%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #233f73;">
                                         Energy Added
                                       </th>
-                                      <th style="width: 30%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="width: 30%; text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #233f73;">
                                         Duration
                                       </th>
                                     </tr>
                                     <tr>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #0bb50b;">
                                         <!-- soc_start -->
                                         10%
                                       </td>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #2f87f1;">
                                         <!-- soc -->
                                         95%
                                       </td>
                                       <td></td>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #233f73;">
                                         <!-- power_ended_at - power_started_at || wh_total / 1000 -->
                                         75 kWh
                                       </td>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #233f73;">
                                         <!-- disconnected_at - connected_at -->
                                         28 mins
                                       </td>
@@ -242,26 +256,26 @@
                                 <div style="padding: 10px; text-align: center; background-color: #e6e6e6; border-top: 1px solid #ddd;">
                                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                     <tr>
-                                      <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #233f73;">
                                         Cost
                                       </th>
-                                      <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #233f73;">
                                         Tax
                                       </th>
-                                      <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #333;">
+                                      <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #233f73;">
                                         Total
                                       </th>
                                     </tr>
                                     <tr>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #233f73;">
                                         <!-- cost_base -->
                                         $6.00
                                       </td>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #233f73;">
                                         <!-- cost_tax -->
                                         $0.55
                                       </td>
-                                      <td style="text-align: center; font-weight: bold;">
+                                      <td style="text-align: center; font-weight: bold; color: #233f73;">
                                         <!-- cost_total -->
                                         $6.55
                                       </td>
