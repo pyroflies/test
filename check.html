@@ -24,7 +24,10 @@ function getMobileOperatingSystem() {
         return "iOS";
     }
 
+    // fallback
+    window.location.replace("https://recargo.com/plugshare.html");
+
     return "unknown";
 }
-alert(getMobileOperatingSystem());
+console.log(getMobileOperatingSystem());
 </script>
