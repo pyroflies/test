@@ -253,7 +253,8 @@
                                   </table>
                                 </div>
 
-                                <div style="padding: 10px; text-align: center; background-color: #e6e6e6; border-top: 1px solid #ddd;">
+                                <!-- hide if no tax (currently all cases since we're only in CA) -->
+                                <div style="padding: 10px; text-align: center; background-color: #e6e6e6; border-top: 1px solid #ddd; display: none;">
                                   <table border="0" cellpadding="0" cellspacing="0" width="100%">
                                     <tr>
                                       <th style="text-transform: uppercase; letter-spacing: 2px; font-size: 0.7em; color: #233f73;">
@@ -281,6 +282,12 @@
                                       </td>
                                     </tr>
                                   </table>
+                                </div>
+
+                                <!-- cost_total onlyversion -->
+
+                                <div class="resize" style="padding: 15px 0 0 0;">
+                                  Total cost: <span style="font-weight: bold;">$6.55</span>
                                 </div>
 
                                 <div class="resize" style="padding: 15px 0;">
