@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400|Quicksand:400,600" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
     <style>
@@ -10,8 +10,6 @@
             font-family: 'Roboto', sans-serif;
             color: #3a89ea;
             background-color: #070d2f;
-            width: 1000px;
-            margin: 0 auto;
             -webkit-user-select: none;  /* Chrome all / Safari all */
             -moz-user-select: none;     /* Firefox all */
             -ms-user-select: none;      /* IE 10+ */
@@ -37,7 +35,6 @@
         .grid line, .grid path {
           stroke: #1e37c1;
           stroke-opacity: 0.7;
-          shape-rendering: crispEdges;
         }
 
         .y-axis-text {
@@ -49,12 +46,6 @@
         }
         .y.axis text {
             fill: #2471d0;
-        }
-        .axis-container > text {
-            font-family: 'Quicksand', sans-serif;
-            font-weight: bold;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
         }
 
         .x-axis-text {
@@ -73,17 +64,19 @@
         }
 
     </style>
-    <title>Recargo</title>
+    <title>PlugShare Elevation Chart</title>
 </head>
 <body>
     <div id="chartContainer">
-        <svg id="kwhChart"></svg>
+        <svg id="elevationChart"></svg>
     </div>
     <script type="text/javascript">
-        var xScale, kwhScale, socScale;
-        var width, socHeight, kwhHeight, svg, soc, kwh;
-        var margin = {top: 10, right: 50, bottom: 0, left: 50};
-        var padding = {top: 40, right: 0, bottom: 30, left: 50};
+        var xScale, yScale;
+        var width, height;
+        var margin = {top: 0, right: 0, bottom: 0, left: 0};
+        var padding = {top: 50, right: 50, bottom: 50, left: 70};
+        // TODO: clean data between meters and feet
+        var distance = 12000;
         var points = [
             {
               "elevation" : 4364.51904296875,
@@ -2135,20 +2128,19 @@
             }
             ]
 
-        function updateDimensions(winWidth) {
-            margin.top = 10;
-            margin.right = 150;
-            margin.left = 50;
-            margin.bottom = 0;
+        for (var x = 0; x < points.length; x++) {
+          points[x].index = x;
+        }
 
+        function updateDimensions(winWidth, winHeight) {
             width = winWidth - margin.left - margin.right - padding.left - padding.right;
-            kwhHeight = 0.75 * width;
+            height = winHeight - margin.top - margin.bottom - padding.top - padding.bottom;
         }
 
         function drawChartSVG() { // set up svg chart canvas
-            kwh = d3.select("#kwhChart")
+            el = d3.select("#elevationChart")
                 .attr("width", width)
-                .attr("height", kwhHeight)
+                .attr("height", height)
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
         }
 
@@ -2159,75 +2151,80 @@
         function updateScale() {
             var y0Max = roundUp5(d3.max(points, function (d) { return d.elevation }));
             var y0Min = roundUp5(d3.min(points, function (d) { return d.elevation }));
+            var range = y0Max - y0Min;
+            y0Max += range/10;
+            y0Min -= range/10;
+            if (y0Min > 0)
+              y0Min = 0;
 
             xScale = d3.scaleLinear()
                 .rangeRound([0, width])
-              .domain([0, 256]);
+              .domain([0, points.length]);
 
-            kwhScale = d3.scaleLinear()
-                .rangeRound([kwhHeight, 0])
+            yScale = d3.scaleLinear()
+                .rangeRound([height, 0])
               .domain([y0Min, y0Max]);
+
+            distanceScale = d3.scaleLinear()
+                .rangeRound([0, width])
+              .domain([0, distance]);
         }
 
         function plotGrid() { // gridlines
-            var yAxisGrid2 = d3.axisLeft(kwhScale).tickSize(-width).tickFormat("");
-            kwh.append("g")
+            var yAxisGrid = d3.axisLeft(yScale).tickSize(-width).tickFormat("");
+            el.append("g")
                 .attr("class", "grid y-left")
-                .call(yAxisGrid2);
+                .call(yAxisGrid);
         }
 
         function drawAxis() { // axis ticks and display text
             updateScale();
             plotGrid();
 
-            var kwhAxis = kwh.append("g").attr("class", "axis-container");
+            var elAxis = el.append("g").attr("class", "axis-container");
 
-            kwhAxis.append("g")
+            elAxis.append("g")
                 .attr("class", "y axis y-left")
-                .call(d3.axisLeft(kwhScale));
+                .call(d3.axisLeft(yScale));
 
-            kwhAxis.append("text")
+            elAxis.append("text")
                 .attr("transform", "rotate(-90)")
-                .attr("y", 0 - margin.left)
-                .attr("x", 0 - (kwhHeight / 2))
+                .attr("y", 0 - padding.left)
+                .attr("x", 0 - (height / 2))
                 .attr("dy", "1em")
                 .attr("class", "y-axis-text")
                 .style("text-anchor", "middle")
-                .text("kW");
+                .text("elevation (m)");
 
+            var xAxis = d3.axisBottom(distanceScale);
 
-            // var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
-            var xAxis = d3.axisBottom(xScale);
-
-            kwhAxis.append("g")
+            elAxis.append("g")
                 .attr("class", "x axis")
-                .attr("transform", "translate(0," + kwhHeight + ")")
+                .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
-            // kwhAxis.append("text")
-            //     .attr("class", "x-axis-text")
-            //     .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
-            //     .style("text-anchor", "middle")
-            //     .text("Time ({{ tz }})");
+            elAxis.append("text")
+                .attr("class", "x-axis-text")
+                .attr("transform", "translate(" + (width / 2) + " ," + (height + margin.top + 40) + ")")
+                .style("text-anchor", "middle")
+                .text("Distance (m)");
         }
 
         function drawKWhContainer() {
-            var counter = 0;
             var line = d3.line()
-                .x(function (d) { return xScale(counter++) })
-                .y(function (d) { return kwhScale(d.elevation) })
+                .x(function (d) { return xScale(d.index) })
+                .y(function (d) { return yScale(d.elevation) })
                 .curve(d3.curveBasis);
 
-            var counter2 = 0;
             var area = d3.area()
-                .x(function (d) { return xScale(counter2++) })
-                .y0(kwhHeight)
-                .y1(function (d) { return kwhScale(d.elevation) })
+                .x(function (d) { return xScale(d.index) })
+                .y0(height)
+                .y1(function (d) { return yScale(d.elevation) })
                 .curve(d3.curveBasis);
 
-            var kWContainer = kwh.append("g")
-                .attr("class", "kwh-plot");
+            var elContainer = el.append("g")
+                .attr("class", "el-plot");
 
-            var graphLine = kWContainer.append("path")
+            var graphLine = elContainer.append("path")
               .datum(points)
                 .attr("class", "line")
                 .attr("fill", "none")
@@ -2241,7 +2238,7 @@
                 .attr('stroke-dasharray', totalLength + ' ' + totalLength)
                 .attr('stroke-dashoffset', totalLength);
 
-            var graphLineArea = kWContainer.append('path')
+            var graphLineArea = elContainer.append('path')
               .datum(points)
                 .attr("class", 'area')
                 .style('fill-opacity', 0)
@@ -2263,20 +2260,16 @@
               .transition()
                 .duration(2000)
                 .attr('stroke-dashoffset', 0);
-        }
 
-        function plotChargeSession() {
-            drawAxis();
-            drawKWhContainer();
+            // TODO: addPoints draw dots where trip stop are
+            // TODO: add tooltips when hovered on
         }
 
         function plotGraph(dataPoints, charging, socInitial) {
-            if (dataPoints.length > 0) {
-                // updateDimensions(window.innerWidth);
-                updateDimensions(1000);
-                drawChartSVG();
-                plotChargeSession();
-            }
+          updateDimensions(window.innerWidth - 50, window.innerHeight - 50);
+          drawChartSVG();
+          drawAxis();
+          drawKWhContainer();
         }
 
         plotGraph(points);
