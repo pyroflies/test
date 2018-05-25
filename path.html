@@ -9,7 +9,7 @@
         body {
             font-family: 'Roboto', sans-serif;
             color: #3a89ea;
-            background-color: #070d2f;
+            /*background-color: #070d2f;*/
             -webkit-user-select: none;  /* Chrome all / Safari all */
             -moz-user-select: none;     /* Firefox all */
             -ms-user-select: none;      /* IE 10+ */
@@ -33,7 +33,7 @@
             stroke-opacity: 0.5;
         }
         .grid line, .grid path {
-          stroke: #1e37c1;
+          stroke: #bccee4;
           stroke-opacity: 0.7;
         }
 
@@ -72,7 +72,7 @@
     </div>
     <script type="text/javascript">
         var xScale, yScale;
-        var width, height;
+        var width, height, svg;
         var margin = {top: 0, right: 0, bottom: 0, left: 0};
         var padding = {top: 50, right: 50, bottom: 50, left: 70};
         // TODO: clean data between meters and feet
@@ -2138,7 +2138,7 @@
         }
 
         function drawChartSVG() { // set up svg chart canvas
-            el = d3.select("#elevationChart")
+            svg = d3.select("#elevationChart")
                 .attr("width", width)
                 .attr("height", height)
                 .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
@@ -2172,7 +2172,7 @@
 
         function plotGrid() { // gridlines
             var yAxisGrid = d3.axisLeft(yScale).tickSize(-width).tickFormat("");
-            el.append("g")
+            svg.append("g")
                 .attr("class", "grid y-left")
                 .call(yAxisGrid);
         }
@@ -2181,7 +2181,7 @@
             updateScale();
             plotGrid();
 
-            var elAxis = el.append("g").attr("class", "axis-container");
+            var elAxis = svg.append("g").attr("class", "axis-container");
 
             elAxis.append("g")
                 .attr("class", "y axis y-left")
@@ -2209,7 +2209,7 @@
                 .text("Distance (m)");
         }
 
-        function drawKWhContainer() {
+        function drawGraph() {
             var line = d3.line()
                 .x(function (d) { return xScale(d.index) })
                 .y(function (d) { return yScale(d.elevation) })
@@ -2221,8 +2221,8 @@
                 .y1(function (d) { return yScale(d.elevation) })
                 .curve(d3.curveBasis);
 
-            var elContainer = el.append("g")
-                .attr("class", "el-plot");
+            var elContainer = svg.append("g")
+                .attr("class", "data-plot");
 
             var graphLine = elContainer.append("path")
               .datum(points)
@@ -2261,15 +2261,105 @@
                 .duration(2000)
                 .attr('stroke-dashoffset', 0);
 
-            // TODO: addPoints draw dots where trip stop are
-            // TODO: add tooltips when hovered on
+
+            // mouse hover events
+            var mouseG = svg.append("g")
+              .attr("class", "mouse-over-effects");
+
+            mouseG.append("path") // this is the vertical line to follow mouse
+              .attr("class", "mouse-line")
+              .style("stroke", "#2471d0")
+              .style("stroke-width", "1px")
+              .style("opacity", "1");
+              
+            var lines = document.getElementsByClassName('line');
+
+            // current structure only has one line on this graph
+            var dataLines = [{
+              name: 'elevation',
+              values: points,
+            }];
+
+            var mousePerLine = mouseG.selectAll('.mouse-per-line')
+              .data(dataLines)
+              .enter()
+              .append("g")
+              .attr("class", "mouse-per-line");
+
+            mousePerLine.append("circle")
+              .attr("r", 7)
+              .style("stroke", "white")
+              .style("fill", "#2471d0")
+              .style("stroke-width", "2px")
+              .style("opacity", "0");
+
+            mousePerLine.append("text")
+              .attr("transform", "translate(10,3)");
+
+            mouseG.append('svg:rect') // append a rect to catch mouse movements on canvas
+              .attr('width', width) // can't catch mouse events on a g element
+              .attr('height', height)
+              .attr('fill', 'none')
+              .attr('pointer-events', 'all')
+              .on('mouseout', function() { // on mouse out hide line, circles and text
+                d3.select(".mouse-line")
+                  .style("opacity", "0");
+                d3.selectAll(".mouse-per-line circle")
+                  .style("opacity", "0");
+                d3.selectAll(".mouse-per-line text")
+                  .style("opacity", "0");
+              })
+              .on('mouseover', function() { // on mouse in show line, circles and text
+                d3.select(".mouse-line")
+                  .style("opacity", "1");
+                d3.selectAll(".mouse-per-line circle")
+                  .style("opacity", "1");
+                d3.selectAll(".mouse-per-line text")
+                  .style("opacity", "1");
+              })
+              .on('mousemove', function() { // mouse moving over canvas
+                var mouse = d3.mouse(this);
+                d3.select(".mouse-line")
+                  .attr("d", function() {
+                    var d = "M" + mouse[0] + "," + height;
+                    d += " " + mouse[0] + "," + 0;
+                    return d;
+                  });
+
+                d3.selectAll(".mouse-per-line")
+                  .attr("transform", function(d, i) {
+
+                    var beginning = 0,
+                        end = lines[i].getTotalLength(),
+                        target = null;
+
+                    while (true) {
+                      target = Math.floor((beginning + end) / 2);
+                      pos = lines[i].getPointAtLength(target);
+                      // console.log(pos);
+                      if ((target === end || target === beginning) && pos.x !== mouse[0]) {
+                          break;
+                      }
+                      if (pos.x > mouse[0])      end = target;
+                      else if (pos.x < mouse[0]) beginning = target;
+                      else break; // position found
+                    }
+                    
+                    var display = yScale.invert(pos.y).toFixed(0);
+                    d3.select(this).select('text')
+                      .text(display)
+                      .style("transform", "translate(12px, 5px)");
+                      
+                    return "translate(" + mouse[0] +  "," + pos.y +")";
+                  });
+              });
         }
 
         function plotGraph(dataPoints, charging, socInitial) {
           updateDimensions(window.innerWidth - 50, window.innerHeight - 50);
           drawChartSVG();
           drawAxis();
-          drawKWhContainer();
+          drawGraph();
         }
 
         plotGraph(points);
