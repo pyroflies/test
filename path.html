@@ -71,7 +71,7 @@
         <svg id="elevationChart"></svg>
     </div>
     <script type="text/javascript">
-        var xScale, yScale;
+        var xScale, yScale, distanceScale;
         var width, height, svg;
         var margin = {top: 0, right: 0, bottom: 0, left: 0};
         var padding = {top: 50, right: 50, bottom: 50, left: 70};
@@ -2194,7 +2194,7 @@
                 .attr("dy", "1em")
                 .attr("class", "y-axis-text")
                 .style("text-anchor", "middle")
-                .text("elevation (m)");
+                .text("Elevation (m)");
 
             var xAxis = d3.axisBottom(distanceScale);
 
@@ -2331,7 +2331,8 @@
 
                     var beginning = 0,
                         end = lines[i].getTotalLength(),
-                        target = null;
+                        target = null,
+                        pos = null;
 
                     while (true) {
                       target = Math.floor((beginning + end) / 2);
