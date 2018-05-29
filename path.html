@@ -60,6 +60,7 @@
         }
 
         .tooltip {
+          opacity: 0;
           position: absolute;
           text-align: center;
           width: 100px;
@@ -2316,7 +2317,7 @@
               .style("stroke-width", "2px")
               .style("opacity", "0");
 
-            var tooltip = d3.select("body").append("div") 
+            var tooltip = d3.select("#chartContainer").append("div") 
                 .attr("class", "tooltip");
 
             // mousePerLine.append("text")
@@ -2334,7 +2335,7 @@
                   .style("opacity", "0");
                 d3.selectAll(".mouse-per-line text")
                   .style("opacity", "0");
-                tooltip.style("opacity", 0);
+                tooltip.style("opacity", "0");
               })
               .on('mouseover', function() { // on mouse in show line, circles and text
                 d3.select(".mouse-line")
@@ -2343,7 +2344,7 @@
                   .style("opacity", "1");
                 d3.selectAll(".mouse-per-line text")
                   .style("opacity", "1");
-                tooltip.style("opacity", 1);
+                tooltip.style("opacity", "1");
               })
               .on('mousemove', function() { // mouse moving over canvas
                 var mouse = d3.mouse(this);
@@ -2374,13 +2375,13 @@
                       else break; // position found
                     }
                     
-                    var display = yScale.invert(pos.y).toFixed(0);
-                    var display2 = distanceScale.invert(pos.x).toFixed(0);
+                    var elevation = yScale.invert(pos.y).toFixed(0);
+                    var distance = distanceScale.invert(pos.x).toFixed(0);
                     // d3.select(this).select('text')
-                    //   .text(display);
-                    tooltip.html("<div class='tooltip-data'>Elevation: " + display + "</div><div class='tooltip-data'>Distance: "  + display2 + "</div>")
-                        .style("left", (mouse[0] + 23) + "px")
-                        .style("top", (pos.y) + "px"); 
+                    //   .text(elevation);
+                    tooltip.html("<div class='tooltip-data'>Elevation: " + elevation + "</div><div class='tooltip-data'>Distance: "  + distance + "</div>")
+                        .style("left", (mouse[0] + 15) + "px")
+                        .style("top", (pos.y - 8) + "px");
 
                       
                     return "translate(" + mouse[0] +  "," + pos.y +")";
