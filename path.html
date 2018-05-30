@@ -63,9 +63,8 @@
           opacity: 0;
           position: absolute;
           text-align: center;
-          width: 100px;
+          width: 140px;
           padding: 4px;
-          font: 12px sans-serif;
           background: #3f51b5;
           color: white;
           border-radius: 3px;
@@ -74,14 +73,13 @@
         .tooltip:before {
           box-sizing: border-box;
           display: inline;
-          font-size: 10px;
           width: 100%;
           line-height: 1;
           color: #3f51b5;
           content: "\25BC";
           position: absolute;
           left: 1px;
-          bottom: -9px;
+          bottom: -13px;
         }
         .tooltip-data {
           margin: 2px 0;
@@ -2380,8 +2378,8 @@
                     // d3.select(this).select('text')
                     //   .text(elevation);
                     tooltip.html("<div class='tooltip-data'>Elevation: " + elevation + "</div><div class='tooltip-data'>Distance: "  + distance + "</div>")
-                        .style("left", (mouse[0] + 15) + "px")
-                        .style("top", (pos.y - 8) + "px");
+                        .style("left", (mouse[0] - 5) + "px")
+                        .style("top", (pos.y - 25) + "px");
 
                       
                     return "translate(" + mouse[0] +  "," + pos.y +")";
