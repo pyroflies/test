@@ -551,9 +551,7 @@
     }
 
     function updateCost(cost) {
-        if (cost <= maxCost) {
-            tweenNumber('#cost .value', cost, 2);
-        }
+        tweenNumber('#cost .value', cost/100, 2);
     }
     function updateTimeToEighty(mins) {
         if (mins > chargeTimeMax) {
@@ -609,8 +607,7 @@
     var socContainer, socLine, socArea, socBaseArea, socGraphLine, socGraphArea, socGraphBaseArea;
     var kwhLine, kwhArea, kwhContainer, kwhGraphLine, kwhGraphArea;
     var width, socHeight, kwhHeight, svg, socObject, kwhObject;
-    var margin = { top: 10, right: 50, bottom: 0, left: 50 };
-    var padding = { top: 20, right: 0, bottom: 30, left: 50 };
+    var margin = { top: 10, right: 150, bottom: 0, left: 50 };
     var dtFmt = d3.timeFormat("%I:%M:%S");
     // var tooltip = d3.select("#tooltip").style("opacity", 0);
 
@@ -680,7 +677,6 @@
         }
     }
 
-
     function updateChart() {
         if (socPoints.length >= 2) {
             socGraphLine.datum(socPoints)
@@ -698,12 +694,7 @@
     }
 
     function updateDimensions(winWidth) {
-        margin.top = 10;
-        margin.right = 150;
-        margin.left = 50;
-        margin.bottom = 0;
-
-        width = winWidth - margin.left - margin.right - padding.left - padding.right;
+        width = winWidth - margin.left - margin.right;
         socHeight = 0.6 * width;
         kwhHeight = 0.15 * width;
     }
@@ -711,14 +702,14 @@
     function drawChartSVG() { // set up svg chart canvas
         socObject = d3.select("#socChart")
             .attr("width", width)
-            .attr("height", socHeight)
-            .style("padding", padding.top + " " + padding.right + " " + 10 + " " + padding.left)
-            // .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+            .attr("height", socHeight + 20)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         kwhObject = d3.select("#kwhChart")
             .attr("width", width)
-            .attr("height", kwhHeight)
-            .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
-            // .attr("transform", "translate(" + margin.left + "," + 0 + ")")
+            .attr("height", kwhHeight + 30)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," +  margin.top + ")")
 
         // glow is too much for station cpu to handle
         // glowChart();
