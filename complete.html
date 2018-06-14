@@ -194,8 +194,7 @@
     <script type="text/javascript">
         var xScale, kwhScale, socScale;
         var width, socHeight, kwhHeight, svg, soc, kwh;
-        var margin = {top: 10, right: 50, bottom: 0, left: 50};
-        var padding = {top: 40, right: 0, bottom: 30, left: 50};
+        var margin = { top: 30, right: 150, bottom: 0, left: 50 };
         var dtFmt = d3.timeFormat("%I:%M:%S");
         // var tooltip = d3.select("#tooltip").style("opacity", 0);
         var isLeftYAxis = true;
@@ -346,12 +345,7 @@
         points = processPoints(points);
 
         function updateDimensions(winWidth) {
-            margin.top = 10;
-            margin.right = 150;
-            margin.left = 50;
-            margin.bottom = 0;
-
-            width = winWidth - margin.left - margin.right - padding.left - padding.right;
+            width = winWidth - margin.left - margin.right;
             socHeight = 0.5 * width;
             kwhHeight = 0.25 * width;
         }
@@ -359,13 +353,15 @@
         function drawChartSVG() { // set up svg chart canvas
             soc = d3.select("#socChart")
                 .attr("width", width)
-                .attr("height", socHeight)
-                .style("padding", padding.top + " " + padding.right + " " + 10 + " " + padding.left)
+                .attr("height", socHeight + 40)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
             kwh = d3.select("#kwhChart")
                 .attr("width", width)
-                .attr("height", kwhHeight)
-                .style("padding", padding.top + " " + padding.right + " " + padding.bottom + " " + padding.left)
+                .attr("height", kwhHeight + 50)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         }
 
         function roundUp5(x) {
