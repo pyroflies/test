@@ -401,7 +401,7 @@
             var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
 
             xScale = d3.scaleTime()
-                .rangeRound([0, width])
+                .rangeRound([0, width - margin.left])
               .domain(getTimeRange());
 
             socScale = d3.scaleLinear()

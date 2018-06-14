@@ -770,7 +770,7 @@
         var y0Max = 80; // TODO: set sane defaults so scale doesn't have to re-adjust
 
         xScale = d3.scaleTime()
-            .rangeRound([0, width])
+            .rangeRound([0, width - margin.left])
             .domain(getTimeRange());
 
         socScale = d3.scaleLinear()
