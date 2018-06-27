@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <!-- d3 v4.13.0 -->
+    <script src="d3.js"></script>
+    <!-- JQuery v3.3.1 -->
+    <script src="jquery.js"></script>
+    <style>
+    /* roboto-100 - latin */
+    @font-face {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 100;
+      src: url('fonts/roboto-v18-latin-100.eot'); /* IE9 Compat Modes */
+      src: local('Roboto Thin'), local('Roboto-Thin'),
+           url('fonts/roboto-v18-latin-100.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/roboto-v18-latin-100.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/roboto-v18-latin-100.woff') format('woff'), /* Modern Browsers */
+           url('fonts/roboto-v18-latin-100.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/roboto-v18-latin-100.svg#Roboto') format('svg'); /* Legacy iOS */
+    }
+    /* roboto-300 - latin */
+    @font-face {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 300;
+      src: url('fonts/roboto-v18-latin-300.eot'); /* IE9 Compat Modes */
+      src: local('Roboto Light'), local('Roboto-Light'),
+           url('fonts/roboto-v18-latin-300.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/roboto-v18-latin-300.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/roboto-v18-latin-300.woff') format('woff'), /* Modern Browsers */
+           url('fonts/roboto-v18-latin-300.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/roboto-v18-latin-300.svg#Roboto') format('svg'); /* Legacy iOS */
+    }
+    /* roboto-regular - latin */
+    @font-face {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 400;
+      src: url('fonts/roboto-v18-latin-regular.eot'); /* IE9 Compat Modes */
+      src: local('Roboto'), local('Roboto-Regular'),
+           url('fonts/roboto-v18-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/roboto-v18-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/roboto-v18-latin-regular.woff') format('woff'), /* Modern Browsers */
+           url('fonts/roboto-v18-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/roboto-v18-latin-regular.svg#Roboto') format('svg'); /* Legacy iOS */
+    }
+    /* roboto-700 - latin */
+    @font-face {
+      font-family: 'Roboto';
+      font-style: normal;
+      font-weight: 700;
+      src: url('fonts/roboto-v18-latin-700.eot'); /* IE9 Compat Modes */
+      src: local('Roboto Bold'), local('Roboto-Bold'),
+           url('fonts/roboto-v18-latin-700.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/roboto-v18-latin-700.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/roboto-v18-latin-700.woff') format('woff'), /* Modern Browsers */
+           url('fonts/roboto-v18-latin-700.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/roboto-v18-latin-700.svg#Roboto') format('svg'); /* Legacy iOS */
+    }
+    /* quicksand-regular - latin */
+    @font-face {
+      font-family: 'Quicksand';
+      font-style: normal;
+      font-weight: 400;
+      src: url('fonts/quicksand-v7-latin-regular.eot'); /* IE9 Compat Modes */
+      src: local('Quicksand Regular'), local('Quicksand-Regular'),
+           url('fonts/quicksand-v7-latin-regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/quicksand-v7-latin-regular.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/quicksand-v7-latin-regular.woff') format('woff'), /* Modern Browsers */
+           url('fonts/quicksand-v7-latin-regular.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/quicksand-v7-latin-regular.svg#Quicksand') format('svg'); /* Legacy iOS */
+    }
+    /* quicksand-500 - latin */
+    @font-face {
+      font-family: 'Quicksand';
+      font-style: normal;
+      font-weight: 500;
+      src: url('fonts/quicksand-v7-latin-500.eot'); /* IE9 Compat Modes */
+      src: local('Quicksand Medium'), local('Quicksand-Medium'),
+           url('fonts/quicksand-v7-latin-500.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+           url('fonts/quicksand-v7-latin-500.woff2') format('woff2'), /* Super Modern Browsers */
+           url('fonts/quicksand-v7-latin-500.woff') format('woff'), /* Modern Browsers */
+           url('fonts/quicksand-v7-latin-500.ttf') format('truetype'), /* Safari, Android, iOS */
+           url('fonts/quicksand-v7-latin-500.svg#Quicksand') format('svg'); /* Legacy iOS */
+    }
+
+    body {
+        background-image: url("web-bg.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+        font-family: 'Roboto', sans-serif;
+        color: #62a0ec;
+        background-color: #070d2f;
+        width: 1000px;
+        height: 1400px;
+        margin: 0 auto;
+        -webkit-user-select: none;  /* Chrome all / Safari all */
+        -moz-user-select: none;     /* Firefox all */
+        -ms-user-select: none;      /* IE 10+ */
+        user-select: none;          /* Likely future */    
+    }
+
+    .clearfix:before,
+    .clearfix:after {
+        content: " ";
+        display: table;
+    }
+    .clearfix:after {
+        clear: both;
+    }
+    .clearfix {
+        *zoom: 1;
+    }
+
+    #circle,
+    #chart {
+        position: relative;
+        height: 900px;
+    }
+
+
+    #circleContainer {
+        position: relative;
+        overflow: hidden;
+        transform: translateY(10px);
+    }
+    #circle #display {
+        font-weight: 100;
+        font-family: "Roboto";
+        text-shadow: 0px 0px 15px #2471d0;
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        top: 165px;
+    }
+    #circle #display .label {
+        margin-top: 30px;
+    }
+
+    #circle #arc {
+        display: block;
+        margin: 0 auto;
+    }
+
+    #circle .data {
+        text-align: center;
+    }
+    #circle .value {
+        font-size: 5em;
+    }
+    #circle .current {
+        font-size: 6em;
+    }
+    #circle .units {
+        font-size: 2em;
+        font-weight: 300;
+        margin-left: 5px;
+    }
+
+    #circle .label {
+        font-size: 1.4em;
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
+
+    #circle #metrics {
+        font-weight: 100;
+        font-family: "Roboto";
+        text-shadow: 0px 0px 15px #2471d0;
+        text-align: center;
+        margin: 20px auto;
+        width: 900px;
+    }
+
+    #circle .container {
+        float: left;
+        width: 300px;
+    }
+
+    #circle .roc {
+        margin-top: 70px;
+    }
+
+    #circle #roc {
+        margin-top: 20px;
+        text-align: center;
+    }
+
+    #circle .block {
+        width: 7px;
+        height: 30px;
+        border-radius: 5px;
+        /*background-color: #0b1b61;*/
+        background-color: rgba(187, 197, 241, 0.15);
+        box-shadow: 0px 0px 15px #0b1b61;
+        display: inline-block;
+        margin: 0 3px;
+    }
+
+    #circle .glow {
+        background-color: #2946c1;
+        box-shadow: 0px 0px 15px #1935a7;
+    }
+
+
+
+    #chart {
+        display: none;
+    }
+
+    #chartContainer {
+        position: relative;
+        overflow: hidden;
+        transform: translateY(100px);
+    }
+
+    .area {
+        fill: #2471d0;
+    }
+
+    .line {
+        stroke: #2471d0;
+        stroke-width: 2;
+        stroke-opacity: 1;
+    }
+
+    .grid line,
+    .grid path {
+        stroke: #1e37c1;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+    }
+
+    .y-axis-text {
+        text-anchor: middle;
+        fill: #2471d0;
+    }
+
+    .y.axis path,
+    .y.axis line {
+        stroke: #2471d0;
+    }
+
+    .y.axis text {
+        fill: #2471d0;
+        font-weight: 700;
+    }
+    .axis-container > text {
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 500;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .x-axis-text {
+        text-anchor: middle;
+        fill: #2471d0;
+    }
+
+    .x.axis path,
+    .x.axis line {
+        stroke: #2471d0;
+    }
+
+    .x.axis text {
+        fill: #2471d0;
+        font-weight: 700;
+    }
+
+    .dot {
+        fill: #63a4f5;
+    }
+
+
+    #chart #metrics {
+        position: absolute;
+        top: 0;
+        right: 0;
+        color: #62a0ec;
+        width: 230px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    #chart .container {
+        margin: 57px 0;
+    }
+
+    #chart .display {
+        display: inline-block;
+        position: relative;
+    }
+
+    #chart .description {
+        font-family: 'Quicksand', sans-serif;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        font-weight: 500;
+    }
+
+    #chart .value {
+        font-size: 4em;
+        font-weight: 100;
+        text-align: center;
+        text-shadow: 0px 0px 15px #2471d0;
+    }
+
+    #chart .units {
+        font-family: 'Quicksand', sans-serif;
+        position: absolute;
+        bottom: 12px;
+        font-size: 1.2em;
+        font-weight: 500;
+        text-align: left;
+        padding-left: 5px;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+    .one {
+        right: -20px;
+    }
+    .two {
+        right: -32px;
+    }
+    .three {
+        right: -43px;
+    }
+
+
+    #extras {
+        text-shadow: 0px 0px 15px #2471d0;
+        text-align: center;
+        font-weight: 100;
+    }
+    #extras .container {
+        position: relative;
+        display: inline-block;
+        width: 300px;
+        border: 1px solid #2946c1;
+        border-top: 7px solid #2946c1;
+        box-sizing: border-box;
+        padding: 60px 0;
+        box-shadow: 0px 0px 15px rgba(36, 113, 208, 0.2);
+    }
+    #extras .container:first-of-type {
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
+        margin-right: -1px;
+    }
+    #extras .container:last-of-type {
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
+        margin-left: -1px;
+    }
+    #extras .fill {
+        position: absolute;
+        width: 298px;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(58, 137, 234, 0.1);
+        height: 0;
+    }
+
+    #extras .value {
+        font-size: 4em;
+        padding: 0 5px;
+    }
+    #extras .units {
+        font-size: 1.2em;
+        font-weight: 300;
+    }
+    #extras .units.dollar {
+        font-size: 2em;
+        bottom: 2px;
+        position: relative;
+    }
+    #extras .description {
+        font-size: 1.4em;
+        font-weight: 300;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        margin-top: 10px;
+    }
+
+
+    #buttons {
+        display: none;
+        position: absolute;
+        top: 10px;
+        left: 10px;
+    }
+    </style>
+    <title>Recargo</title>
+</head>
+
+<body>
+    <div id="buttons">
+        <button onclick="counter()">Update</button>
+        <button onclick="stopCharge()">Stop Charge</button>
+        <button onclick="showGraph()">View Graph</button>
+        <button onclick="showBasic()">View Basic</button>
+    </div>
+
+    <div id="circle">
+        <div id="circleContainer">
+            <svg width="500" height="500" id="arc"></svg>
+            <div id="display">
+                <div class="data">
+                    <span class="current value">0</span><span class="units">%</span>
+                </div>
+                <div id="battery" class="label">Battery Level</div>
+            </div>
+            <div id="metrics" class="clearfix">
+                <div class="container">
+                    <div class="data">
+                        <span class="base value">0</span><span class="units">%</span>
+                    </div>
+                    <div class="label">Starting Charge</div>
+                </div>
+                <div class="container roc">
+                    <div class="data">
+                        <span class="rate value">0</span><span class="units">kW</span>
+                    </div>
+                    <div class="label">Rate of Charge</div>
+                </div>
+                <div class="container">
+                    <div class="data">
+                        <span class="added value">0</span><span class="units">kWh</span>
+                    </div>
+                    <div class="label">Energy Added</div>
+                </div>
+            </div>
+            <div id="roc">
+            </div>
+        </div>
+    </div>
+    <div id="chart">
+        <div id="chartContainer">
+            <svg id="socChart"></svg>
+            <svg id="kwhChart"></svg>
+            <div id="metrics">
+                <div class="container">
+                    <div class="display">
+                        <div class="current value">0</div>
+                        <div class="units one"> %</div>
+                    </div>
+                    <div class="description">
+                        Battery Level
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="display">
+                        <div class="added value">0</div>
+                        <div class="units three"> kWh</div>
+                    </div>
+                    <div class="description">
+                        Energy Added
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="display">
+                        <div class="base value">0</div>
+                        <div class="units one"> %</div>
+                    </div>
+                    <div class="description">
+                        Starting Charge
+                    </div>
+                </div>
+                <div class="container">
+                    <div class="display">
+                        <div class="rate value">0</div>
+                        <div class="units two"> kW</div>
+                    </div>
+                    <div class="description">
+                        Rate of Charge
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="extras" class="clearfix">
+        <div id="eighty" class="container">
+            <div class="fill">
+            </div>
+            <div class="data">
+                <span class="value">-</span>
+                <span class="units">mins</span>
+            </div>
+            <div class="description">
+                Time to 80%
+            </div>
+        </div><div id="full" class="container">
+            <div class="fill">
+            </div>
+            <div class="data">
+                <span class="value">-</span>
+                <span class="units">mins</span>
+            </div>
+            <div class="description">
+                Time to 100%
+            </div>
+        </div><div id="cost" class="container">
+            <div class="fill">
+            </div>
+            <div class="data">
+                <span class="units dollar">$</span>
+                <span class="value">0</span>
+            </div>
+            <div class="description">
+                Current Cost
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+
+    // shared variables
+
+    var socStart = 0;
+    var socValue = 0;
+    var wattsValue = 0;
+    var energyAdded = 0;
+
+    var initialMaxRate = 60;
+    var maxRate = 60;
+
+    var chargeTimeMax = 90; // if number passed is larger than this number, it is likely we are getting inaccurate data
+
+    // pass in data from station
+    function updateSOC(soc) {
+        socValue = soc;
+    }
+
+    function updateWatts(watts) {
+        wattsValue = watts;
+    }
+
+    function updateEnergyAdded(kwh) {
+        energyAdded = kwh;
+    }
+
+    function updateCost(cost) {
+        tweenNumber('#cost .value', cost/100, 2);
+    }
+    function updateTimeToEighty(mins) {
+        if (mins > chargeTimeMax) {
+            $('#eighty .value').html('-');
+        } else {
+            if (mins > 0) {
+                tweenNumber('#eighty .value', mins);
+            } else {
+                tweenNumber('#eighty .value', 0);
+                setTimeout(function() {
+                    $("#eighty .description").html("80% Reached");
+                }, 750);
+            }
+        }
+    }
+    function updateTimeToFull(mins) {
+        var eighty = parseInt($('#eighty .value').html());
+        if (mins > chargeTimeMax || (eighty && mins < eighty)) {
+            $('#full .value').html('-');
+        } else {
+            if (mins > 0) {
+                tweenNumber('#full .value', mins);
+            } else {
+                tweenNumber('#full .value', 0);
+                setTimeout(function() {
+                    $("#full .description").html("100% Reached");
+                }, 750);
+            }
+        }
+    }
+
+    function stopCharge() {
+        console.log("stop charge");
+        app.stopCharging();
+    }
+    function showGraph() {
+        $("#circle").hide();
+        $("#chart").show();
+        $("#viewGraph").hide();
+        $("#viewBasic").css("display", "inline-block");
+    }
+    function showBasic() {
+        $("#circle").show();
+        $("#chart").hide();
+        $("#viewGraph").css("display", "inline-block");
+        $("#viewBasic").hide();
+    }
+
+
+    /* chart */
+
+    var xScale, socScale, kwhScale, socAxis, kwhAxis, xAxis, chartXAxis;
+    var socContainer, socLine, socArea, socBaseArea, socGraphLine, socGraphArea, socGraphBaseArea;
+    var kwhLine, kwhArea, kwhContainer, kwhGraphLine, kwhGraphArea;
+    var width, socHeight, kwhHeight, svg, socObject, kwhObject;
+    var margin = { top: 10, right: 150, bottom: 0, left: 50 };
+    var dtFmt = d3.timeFormat("%I:%M:%S");
+    // var tooltip = d3.select("#tooltip").style("opacity", 0);
+
+    var date = new Date(Date.now());
+
+    var defaultMinutes = 1; // default view to preset minutes range
+    var tickWidth = 25; // this depends on screen width and time frame move speed
+    var tickDuration = 2000;
+
+    var points = [{
+        "soc": socValue,
+        "timestamp": new Date(Date.now()),
+        "watts": wattsValue,
+    }];
+    points = processPoints(points);
+    var socPoints = [];
+
+    // setup chart
+    // updateDimensions(window.innerWidth);
+    updateDimensions(1000);
+    drawChartSVG();
+    drawAxis();
+    plotGrid();
+
+    setupKWh();
+    updateData();
+
+    // wait to start first tick
+    setTimeout(function() {
+        tick();
+    }, tickDuration);
+
+    function tick() {
+        var entry = {
+            "soc": socValue,
+            "timestamp": new Date(Date.now()),
+            "watts": wattsValue,
+        };
+        points.push(entry);
+
+        if (points.length > 50) { // set this to width of visualized data points
+            points.shift();
+        }
+
+        points = processPoints(points);
+        socPoints = processSOC(points);
+
+        console.log(points)
+
+        // set initial values
+        if (socStart == 0 && socValue > 0) {
+            socStart = socValue;
+            setupSOC(); // set up SOC once initial value is determined
+            initCircle();
+        }
+
+        updateChart();
+        animateData();
+        updateData();
+    }
+
+    function counter() {
+        if (socValue < 100) {
+            updateSOC(socValue + 5);
+            updateWatts(wattsValue + 5000);
+            updateEnergyAdded(energyAdded + 15);
+        }
+    }
+
+    function updateChart() {
+        if (socPoints.length >= 2) {
+            socGraphLine.datum(socPoints)
+                .attr("d", socLine);
+            socGraphArea.datum(socPoints)
+                .attr("d", socArea);
+            socGraphBaseArea.datum(socPoints)
+                .attr("d", socBaseArea);
+        }
+
+        kwhGraphLine.datum(points)
+            .attr("d", kwhLine);
+        kwhGraphArea.datum(points)
+            .attr("d", kwhArea);
+    }
+
+    function updateDimensions(winWidth) {
+        width = winWidth - margin.left - margin.right;
+        socHeight = 0.6 * width;
+        kwhHeight = 0.15 * width;
+    }
+
+    function drawChartSVG() { // set up svg chart canvas
+        socObject = d3.select("#socChart")
+            .attr("width", width)
+            .attr("height", socHeight + 20)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+        kwhObject = d3.select("#kwhChart")
+            .attr("width", width)
+            .attr("height", kwhHeight + 30)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," +  margin.top + ")")
+
+        // glow is too much for station cpu to handle
+        // glowChart();
+    }
+
+    /*function glowChart() {
+        //Container for the gradients
+        var defs = socObject.append("defs");
+
+        //Filter for the outside glow
+        var filter = defs.append("filter")
+            .attr("id", "glow");
+        filter.append("feGaussianBlur")
+            .attr("stdDeviation", "7.5")
+            .attr("result", "coloredBlur");
+        var feMerge = filter.append("feMerge");
+        feMerge.append("feMergeNode")
+            .attr("in", "coloredBlur");
+        feMerge.append("feMergeNode")
+            .attr("in", "SourceGraphic");
+
+        d3.select("#socChart")
+            .style("filter", "url(#glow)");
+        d3.select("#kwhChart")
+            .style("filter", "url(#glow)");
+    }*/
+
+    function roundUp5(x) {
+        return Math.ceil((x + 2) / 5) * 5;
+    }
+
+    function processPoints(dataPoints) {
+        dataPoints.forEach(function(d) {
+            d.time = d3.isoParse(d["timestamp"]);
+            d.kwh = d["watts"] / 1000;
+            d.soc = Math.floor(d["soc"]);
+        });
+        return dataPoints;
+    }
+
+    function processSOC(dataPoints) {
+        var active = [];
+        dataPoints.forEach(function(d) {
+            if (d.soc > 0) {
+                active.push(d);
+            }
+        });
+        return active;
+    }
+
+    function getTimeRange() {
+        var now = new Date(Date.now()).getTime();
+        return [now - (defaultMinutes * 60 * 1000), now];
+    }
+
+    function updateScale() {
+        // var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+        var y0Max = 80; // TODO: set sane defaults so scale doesn't have to re-adjust
+
+        xScale = d3.scaleTime()
+            .rangeRound([0, width - margin.left])
+            .domain(getTimeRange());
+
+        socScale = d3.scaleLinear()
+            .rangeRound([socHeight, 0])
+            .domain([0, 100]);
+
+        kwhScale = d3.scaleLinear()
+            .rangeRound([kwhHeight, 0])
+            .domain([0, y0Max]);
+    }
+
+    function plotGrid() { // gridlines
+        var yAxisGrid1 = d3.axisLeft(socScale).tickSize(-width).tickFormat("");
+        socObject.append("g")
+            .attr("class", "grid y-left")
+            .call(yAxisGrid1);
+
+        var yAxisGrid2 = d3.axisLeft(kwhScale).tickSize(-width).tickFormat("");
+        kwhObject.append("g")
+            .attr("class", "grid y-left")
+            .call(yAxisGrid2);
+    }
+
+    function animateData() {
+        updateScale();
+        xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+        chartXAxis.transition()
+            .duration(tickDuration)
+            .ease(d3.easeLinear, 2)
+            .call(xAxis);
+
+        if (socPoints.length >= 2) {
+            socGraphLine.attr('transform', null)
+                .transition()
+                .duration(tickDuration)
+                .ease(d3.easeLinear, 2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+            socGraphArea.attr('transform', 'translate(0, ' + (-socStart / 100 * socHeight) + ')')
+                .transition()
+                .duration(tickDuration)
+                .ease(d3.easeLinear, 2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ', ' + (-socStart / 100 * socHeight) + ')')
+            socGraphBaseArea.attr('transform', null)
+                .transition()
+                .duration(tickDuration)
+                .ease(d3.easeLinear, 2)
+                .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+        }
+        kwhGraphLine.attr('transform', null)
+            .transition()
+            .duration(tickDuration)
+            .ease(d3.easeLinear, 2)
+            .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+        kwhGraphArea.attr('transform', null)
+            .transition()
+            .duration(tickDuration)
+            .ease(d3.easeLinear, 2)
+            .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+            .on('end', tick)
+    }
+
+    function drawAxis() { // axis ticks and display text
+        updateScale();
+
+        socAxis = socObject.append("g").attr("class", "axis-container");
+
+        socAxis.append("g")
+            .attr("class", "y axis y-right")
+            .call(d3.axisLeft(socScale));
+
+        socAxis.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (socHeight / 2))
+            .attr("dy", "1em")
+            .attr("class", "y-axis-text")
+            .style("text-anchor", "middle")
+            .text("% Charge");
+
+
+        kwhAxis = kwhObject.append("g").attr("class", "axis-container");
+
+        kwhAxis.append("g")
+            .attr("class", "y axis y-left")
+            .call(d3.axisLeft(kwhScale));
+
+        kwhAxis.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (kwhHeight / 2))
+            .attr("dy", "1em")
+            .attr("class", "y-axis-text")
+            .style("text-anchor", "middle")
+            .text("kW");
+
+
+        // TODO: xAxis minimum length 30 minutes
+        xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+
+        chartXAxis = kwhAxis.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + kwhHeight + ")")
+            .call(xAxis);
+        // kwhAxis.append("text")
+        //     .attr("class", "x-axis-text")
+        //     .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
+        //     .style("text-anchor", "middle")
+        //     .text("Time ({{ tz }})");
+    }
+
+    function setupSOC() {
+        console.log('setup soc');
+        console.log(socStart);
+        socLine = d3.line()
+            .x(function(d) { return xScale(d.time) })
+            .y(function(d) { return socScale(d.soc) })
+            .curve(d3.curveMonotoneX);
+
+        socArea = d3.area()
+            .x(function(d) { return xScale(d.time) })
+            .y0(socHeight)
+            .y1(function(d) { return socScale(d.soc - socStart) })
+            .curve(d3.curveMonotoneX);
+
+        socBaseArea = d3.area()
+            .x(function(d) { return xScale(d.time) })
+            .y0(socHeight)
+            .y1(function(d) { return socScale(socStart) - 1 })
+            .curve(d3.curveMonotoneX);
+
+
+        socContainer = socObject.append("g")
+            .attr("class", "soc-plot");
+
+        socContainer.append("defs").append("clipPath")
+            .attr("id", "clip")
+            .append("rect")
+            .attr("width", width + tickWidth)
+            .attr("height", socHeight);
+
+        socGraphLine = socContainer.append("g")
+            .attr("clip-path", "url(#clip)")
+            .append("path")
+            .datum(socPoints)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("d", socLine);
+
+        socGraphArea = socContainer.append("g")
+            .attr("clip-path", "url(#clip)")
+            .append('path')
+            .datum(socPoints)
+            .attr("class", 'area')
+            .style('fill-opacity', 0.4)
+            .attr("transform", "translate(0 ," + (-socStart / 100 * socHeight) + ")")
+            .attr('d', socArea)
+            .attr("clip-path", "url(#clip)");
+        socGraphBaseArea = socContainer.append("g")
+            .attr("clip-path", "url(#clip)")
+            .append('path')
+            .datum(socPoints)
+            .attr("class", 'area')
+            .style('fill-opacity', 0.2)
+            .attr('d', socBaseArea)
+            .attr("clip-path", "url(#clip)");
+    }
+
+    function setupKWh() {
+
+        kwhLine = d3.line()
+            .x(function(d) { return xScale(d.time) })
+            .y(function(d) { return kwhScale(d.kwh) })
+            .curve(d3.curveStepBefore);
+
+        kwhArea = d3.area()
+            .x(function(d) { return xScale(d.time) })
+            .y0(kwhHeight)
+            .y1(function(d) { return kwhScale(d.kwh) })
+            .curve(d3.curveStepBefore);
+
+        kwhContainer = kwhObject.append("g")
+            .attr("class", "kwh-section");
+
+        kwhContainer.append("defs").append("clipPath")
+            .attr("id", "clip2")
+            .append("rect")
+            .attr("width", width + tickWidth)
+            .attr("height", kwhHeight);
+
+        kwhGraphLine = kwhContainer.append("g")
+            .attr("clip-path", "url(#clip2)")
+            .append('path')
+            .datum(points)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("d", kwhLine);
+
+        kwhGraphArea = kwhContainer.append("g")
+            .attr("clip-path", "url(#clip2)")
+            .append('path')
+            .datum(points)
+            .attr("class", 'area')
+            .style('fill-opacity', 0.2)
+            .attr('d', kwhArea);
+    }
+
+    function updateData() {
+        // $(".current").innerHTML = points[points.length - 1].soc;
+        if (active) {
+            active.transition()
+                .duration(750)
+                .attrTween("d", arcTween((socValue / 100) * circ));
+        }
+        if (energyAdded) {
+            // $(".added").innerHTML = energyAdded > 100 ? Math.round(energyAdded) : energyAdded.toFixed(1);
+            tweenNumber(".added", energyAdded, 1);
+        }
+        // if (socStart) {
+        //     $(".base").innerHTML = socStart;
+        // }
+        var roc = Math.round(points[points.length - 1].kwh);
+        updateRate(roc);
+        // $(".rate").innerHTML = roc;
+    }
+
+
+
+    var circ = 2 * Math.PI;
+    var arc = d3.arc()
+        .innerRadius(225)
+        .outerRadius(250)
+        .cornerRadius(100)
+        .startAngle(0);
+
+    var svg = d3.select("#arc"),
+        g = svg.append("g").attr("transform", "translate(250, 250)");
+
+    // background arc
+    var background = g.append("path")
+        .datum({ endAngle: circ })
+        .style("fill", "rgba(179, 212, 245, 0.2)")
+        .attr("d", arc);
+
+    // active arc
+    var active = g.append("path")
+        .datum({ endAngle: 0 })
+        .style("fill", "#15e03e")
+        .attr("d", arc);
+
+    // generate blocks
+    for (var x = 0; x < 60; x++) {
+        $("#roc").append('<div class="block index' + x + '"></div>');
+    }
+
+
+    function initCircle() {
+        tweenNumber(".base", socStart);
+
+        // starting arc
+        var starting = g.append("path")
+            .datum({ endAngle: 0 })
+            .style("fill", "#4e8bf5")
+            .attr("d", arc);
+
+        starting.transition()
+            .duration(750)
+            .attrTween("d", arcTween((socStart / 100) * circ))
+            .on("end", function() {
+                active.datum({ endAngle: (socValue / 100) * circ })
+            })
+
+        // d3.interval(function() {
+        //     if (socValue < 100) {
+        //         socValue++;
+        //         active.transition()
+        //             .duration(750)
+        //             .attrTween("d", arcTween((socValue / 100) * circ));
+        //     }
+        // }, 1500);
+
+        // d3.interval(function() {
+        //     tweenNumber(".added", socValue * 0.7, 1);
+        // }, 1500);
+
+        // updateRate();
+    }
+
+
+    function arcTween(newAngle) {
+        return function(d) {
+            var interpolate = d3.interpolate(d.endAngle, newAngle);
+            return function(t) {
+                d.endAngle = interpolate(t);
+                var percent = Math.round((d.endAngle / circ) * 100);
+                // console.log(percent);
+                $(".current").html(percent);
+                return arc(d);
+            };
+        };
+    }
+
+    function updateGlow(roc) {
+        $(".block").removeClass("glow");
+        for (var x = 0; x < roc; x++) {
+            var check = Math.floor(x * (initialMaxRate / maxRate)); // max glowing based on highest max rate reached
+            $(".index" + check).addClass("glow");
+        }
+    }
+
+    function updateRate(rate) {
+        // rate = rate ? rate : Math.random() * 60;
+        if (rate > maxRate) // if new max rate is reached, update glowing blocks to reflect new max
+            maxRate = rate;
+        d3.select(".rate")
+            .transition()
+            .duration(1500)
+            .on("start", function() {
+                d3.active(this)
+                    .tween("text", function() {
+                        var that = d3.select(this),
+                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), rate);
+                        return function(t) {
+                            var rate = Math.round(i(t));
+                            // console.log(rate);
+                            updateGlow(rate);
+                            $(".rate").html(rate);
+                        };
+                    })
+                    // .transition()
+                    // .delay(1500)
+                    // .on("start", updateRate);
+            });
+    }
+
+    function tweenNumber(id, value, decimals) {
+        if ($(id).text() == '-')
+            $(id).html(0);
+        d3.select(id)
+            .transition()
+            .duration(1500)
+            .on("start", function() {
+                d3.active(this)
+                    .tween("text", function() {
+                        var that = d3.select(this),
+                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), value);
+                        return function(t) {
+                            var output = decimals ? i(t).toFixed(decimals) : Math.round(i(t));
+                            output = output > 100 ? Math.round(output) : output;
+                            $(id).html(output);
+                        };
+                    })
+            });
+    }
+    </script>
+</body>
+
+</html>
