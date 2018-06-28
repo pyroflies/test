@@ -9,8 +9,11 @@
         body {
             font-family: 'Roboto', sans-serif;
             color: #3a89ea;
-            background: linear-gradient(#171d59, #151e59);
-            background-color: #151e57;
+            background: #131c57; /* Old browsers */
+            background: -moz-linear-gradient(-45deg, #131c57 0%, #162159 70%, #131a50 100%); /* FF3.6-15 */
+            background: -webkit-linear-gradient(-45deg, #131c57 0%,#162159 70%,#131a50 100%); /* Chrome10-25,Safari5.1-6 */
+            background: linear-gradient(135deg, #131c57 0%,#162159 70%,#131a50 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+            filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#131c57', endColorstr='#131a50',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
             width: 1000px;
             margin: 0 auto;
             -webkit-user-select: none;  /* Chrome all / Safari all */
@@ -81,7 +84,7 @@
             top: 5px;
             right: 0;
             color: #62a0ec;
-            width: 230px;
+            width: 200px;
             box-sizing: border-box;
             text-align: center;
         }
