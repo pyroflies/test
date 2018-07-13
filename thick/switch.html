@@ -87,7 +87,7 @@
     }
 
     body {
-        background-image: url("web-bg.jpg");
+        background-image: url("../images/web-bg.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: center;
@@ -150,6 +150,7 @@
     }
     #circle .value {
         font-size: 5em;
+        font-weight: 300;
     }
     #circle .current {
         font-size: 6em;
@@ -175,6 +176,17 @@
         text-align: center;
         margin: 20px auto;
         width: 900px;
+    }
+
+    #circle #base {
+        color: #a4bfea;
+        text-shadow: 0px 0px 15px #668bc7;
+    }
+    #circle #rate {
+    }
+    #circle #added {
+        color: #3af556;
+        text-shadow: 0px 0px 15px #28b93e;
     }
 
     #circle .container {
@@ -371,7 +383,7 @@
         padding: 0 5px;
     }
     #extras .units {
-        font-size: 1.2em;
+        font-size: 1.6em;
         font-weight: 300;
     }
     #extras .dollar {
@@ -416,19 +428,19 @@
                 <div id="battery" class="label">Battery Level</div>
             </div>
             <div id="metrics" class="clearfix">
-                <div class="container">
+                <div id="base" class="container">
                     <div class="data">
                         <span class="base value">0</span><span class="units">%</span>
                     </div>
                     <div class="label">Starting Charge</div>
                 </div>
-                <div class="container roc">
+                <div id="rate" class="container roc">
                     <div class="data">
                         <span class="rate value">0</span><span class="units">kW</span>
                     </div>
                     <div class="label">Rate of Charge</div>
                 </div>
-                <div class="container">
+                <div id="added" class="container">
                     <div class="data">
                         <span class="added value">0</span><span class="units">kWh</span>
                     </div>
@@ -530,11 +542,28 @@
     var initialMaxRate = 60;
     var maxRate = 60;
 
+    var reached80 = false;
+    var reached100 = false;
+
     var chargeTimeMax = 90; // if number passed is larger than this number, it is likely we are getting inaccurate data
 
     // pass in data from station
     function updateSOC(soc) {
         socValue = soc;
+        if (reached80 && soc >= 80) {
+            setTimeout(function() {
+                $("#eighty .value").html("80");
+                $("#eighty .units").html("%");
+                $("#eighty .description").html("Charged");
+            }, 1500);
+        }
+        if (reached100 && soc == 100) {
+            setTimeout(function() {
+                $("#full .value").html("100");
+                $("#full .units").html("%");
+                $("#full .description").html("Charged");
+            }, 1500);
+        }
     }
 
     function updateWatts(watts) {
@@ -549,31 +578,31 @@
         tweenNumber('#cost .value', cost/100, 2);
     }
     function updateTimeToEighty(mins) {
-        if (mins > chargeTimeMax) {
-            $('#eighty .value').html('-');
-        } else {
-            if (mins > 0) {
-                tweenNumber('#eighty .value', mins);
+        if (!reached80) {
+            if (mins > chargeTimeMax) {
+                $('#eighty .value').html('-');
             } else {
-                tweenNumber('#eighty .value', 0);
-                setTimeout(function() {
-                    $("#eighty .description").html("80% Reached");
-                }, 750);
+                if (mins > 0) {
+                    tweenNumber('#eighty .value', mins);
+                } else {
+                    $('#eighty .value').html(0);
+                    reached80 = true;
+                }
             }
         }
     }
     function updateTimeToFull(mins) {
-        var eighty = parseInt($('#eighty .value').html());
-        if (mins > chargeTimeMax || (eighty && mins < eighty)) {
-            $('#full .value').html('-');
-        } else {
-            if (mins > 0) {
-                tweenNumber('#full .value', mins);
+        if (!reached100) {
+            var eighty = parseInt($('#eighty .value').html());
+            if (mins > chargeTimeMax || (!reached80 && eighty && mins < eighty)) {
+                $('#full .value').html('-');
             } else {
-                tweenNumber('#full .value', 0);
-                setTimeout(function() {
-                    $("#full .description").html("100% Reached");
-                }, 750);
+                if (mins > 0) {
+                    tweenNumber('#full .value', mins);
+                } else {
+                    reached100 = true;
+                    $('#full .value').html(0);
+                }
             }
         }
     }
@@ -1016,7 +1045,7 @@
     // active arc
     var active = g.append("path")
         .datum({ endAngle: 0 })
-        .style("fill", "#15e03e")
+        .style("fill", "#3af557")
         .attr("d", arc);
 
     // generate blocks
@@ -1031,7 +1060,7 @@
         // starting arc
         var starting = g.append("path")
             .datum({ endAngle: 0 })
-            .style("fill", "#4e8bf5")
+            .style("fill", "#a7c6f9")
             .attr("d", arc);
 
         starting.transition()
@@ -1077,6 +1106,7 @@
             var check = Math.floor(x * (initialMaxRate / maxRate)); // max glowing based on highest max rate reached
             $(".index" + check).addClass("glow");
         }
+        $(".index0").addClass("glow"); // 0 always glows because on this page you're always charging even at < 1
     }
 
     function updateRate(rate) {
