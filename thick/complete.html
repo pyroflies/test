@@ -204,7 +204,7 @@
         var xScale, kwhScale, socScale;
         var width, socHeight, kwhHeight, svg, soc, kwh;
         var margin = { top: 30, right: 150, bottom: 0, left: 50 };
-        var dtFmt = d3.timeFormat("%I:%M:%S");
+        var dtFmt = d3.timeFormat("%I:%M %p");
         // var tooltip = d3.select("#tooltip").style("opacity", 0);
         var isLeftYAxis = true;
         var socStart = 0; //{{ soc_start|safe }};
@@ -220,105 +220,105 @@
           {
             "amps": null, 
             "soc": null, 
-            "timestamp": "2018-04-05T16:04:35.112828-07:00", 
+            "timestamp": "2018-04-05T16:14:35.112828-07:00", 
             "volts": null, 
             "watts": null
           }, 
           {
             "amps": null, 
             "soc": null, 
-            "timestamp": "2018-04-05T16:04:50.451531-07:00", 
+            "timestamp": "2018-04-05T16:24:50.451531-07:00", 
             "volts": 377, 
             "watts": 0
           }, 
           {
             "amps": null, 
             "soc": 35, 
-            "timestamp": "2018-04-05T16:05:21.085889-07:00", 
+            "timestamp": "2018-04-05T16:35:21.085889-07:00", 
             "volts": 391, 
             "watts": 0
           }, 
           {
             "amps": null, 
             "soc": 38, 
-            "timestamp": "2018-04-05T16:05:51.744536-07:00", 
+            "timestamp": "2018-04-05T16:45:51.744536-07:00", 
             "volts": 394, 
             "watts": 35972
           }, 
           {
             "amps": null, 
             "soc": 40, 
-            "timestamp": "2018-04-05T16:06:22.454744-07:00", 
+            "timestamp": "2018-04-05T16:56:22.454744-07:00", 
             "volts": 394, 
             "watts": 35972
           }, 
           {
             "amps": null, 
             "soc": 42, 
-            "timestamp": "2018-04-05T16:06:53.071918-07:00", 
+            "timestamp": "2018-04-05T17:06:53.071918-07:00", 
             "volts": 397, 
             "watts": 36735
           }, 
           {
             "amps": null, 
             "soc": 45, 
-            "timestamp": "2018-04-05T16:07:23.785812-07:00", 
+            "timestamp": "2018-04-05T17:17:23.785812-07:00", 
             "volts": 397, 
             "watts": 36735
           }, 
           {
             "amps": null, 
             "soc": 47, 
-            "timestamp": "2018-04-05T16:07:54.294834-07:00", 
+            "timestamp": "2018-04-05T17:27:54.294834-07:00", 
             "volts": 398, 
             "watts": 36921
           }, 
           {
             "amps": null, 
             "soc": 50, 
-            "timestamp": "2018-04-05T16:08:24.927551-07:00", 
+            "timestamp": "2018-04-05T17:38:24.927551-07:00", 
             "volts": 398, 
             "watts": 36921
           }, 
           {
             "amps": null, 
             "soc": 52, 
-            "timestamp": "2018-04-05T16:08:55.521776-07:00", 
+            "timestamp": "2018-04-05T17:48:55.521776-07:00", 
             "volts": 398, 
             "watts": 36218
           }, 
           {
             "amps": null, 
             "soc": 55, 
-            "timestamp": "2018-04-05T16:09:26.258409-07:00", 
+            "timestamp": "2018-04-05T17:59:26.258409-07:00", 
             "volts": 398, 
             "watts": 36218
           }, 
           {
             "amps": null, 
             "soc": 56, 
-            "timestamp": "2018-04-05T16:09:56.904760-07:00", 
+            "timestamp": "2018-04-05T18:09:56.904760-07:00", 
             "volts": 398, 
             "watts": 31840
           }, 
           {
             "amps": null, 
             "soc": 58, 
-            "timestamp": "2018-04-05T16:10:27.703898-07:00", 
+            "timestamp": "2018-04-05T18:20:27.703898-07:00", 
             "volts": 398, 
             "watts": 31840
           }, 
           {
             "amps": null, 
             "soc": 60, 
-            "timestamp": "2018-04-05T16:10:58.357652-07:00", 
+            "timestamp": "2018-04-05T18:30:58.357652-07:00", 
             "volts": 398, 
             "watts": 29054
           }, 
           {
             "amps": null, 
             "soc": 60, 
-            "timestamp": "2018-04-05T16:11:18.430488-07:00", 
+            "timestamp": "2018-04-05T18:41:18.430488-07:00", 
             "volts": 398, 
             "watts": 29054
           }
@@ -470,13 +470,12 @@
                 .text("kW");
 
 
-            // TODO: xAxis minimum length 30 minutes
             var xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
 
             kwhAxis.append("g")
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + kwhHeight + ")")
-                .call(xAxis);
+                .call(xAxis.ticks(5));
             // kwhAxis.append("text")
             //     .attr("class", "x-axis-text")
             //     .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
