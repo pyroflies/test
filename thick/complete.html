@@ -322,8 +322,10 @@
             "volts": 398, 
             "watts": 29054
           }
-        ]
+        ];
+        console.table(points);
         // https://network-api-staging.recargo.com/cp/charge_session/489/details/json
+        points = points.filter(e => e.timestamp !== null); // filter out all entries with no timestamp
 
         function getData(id) {
             var xhr = new XMLHttpRequest();
@@ -727,7 +729,7 @@
 
         function updateData() {
             var current = points[points.length - 1].soc;
-            $(".current").html(current);
+            $(".current").html( current);
             if (socStart) {
                 $(".added").html((current - socStart));
                 $(".base").html(socStart);

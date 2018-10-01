@@ -386,6 +386,9 @@
         font-size: 1.6em;
         font-weight: 300;
     }
+    #extras .reached {
+        display: none;
+    }
     #extras .dollar {
         font-size: 3em;
         bottom: 5px;
@@ -401,7 +404,7 @@
 
 
     #buttons {
-        display: none;
+        /*display: none;*/
         position: absolute;
         top: 10px;
         left: 10px;
@@ -504,6 +507,10 @@
                 <span class="value">-</span>
                 <span class="units">mins</span>
             </div>
+            <div class="reached">
+                <span class="value">80</span>
+                <span class="units">%</span>
+            </div>
             <div class="description">
                 Time to 80%
             </div>
@@ -513,6 +520,10 @@
             <div class="data">
                 <span class="value">-</span>
                 <span class="units">mins</span>
+            </div>
+            <div class="reached">
+                <span class="value">100</span>
+                <span class="units">%</span>
             </div>
             <div class="description">
                 Time to 100%
@@ -525,7 +536,7 @@
                 <span class="value">0</span>
             </div>
             <div class="description">
-                Current Cost
+                Estimated Cost
             </div>
         </div>
     </div>
@@ -545,23 +556,23 @@
     var reached80 = false;
     var reached100 = false;
 
-    var chargeTimeMax = 90; // if number passed is larger than this number, it is likely we are getting inaccurate data
+    const CHARGE_TIME_MAX = 90; // if number passed is larger than this number, it is likely we are getting inaccurate data
 
     // pass in data from station
     function updateSOC(soc) {
         socValue = soc;
         if (reached80 && soc >= 80) {
             setTimeout(function() {
-                $("#eighty .value").html("80");
-                $("#eighty .units").html("%");
-                $("#eighty .description").html("Charged");
+                $("#eighty .data").hide();
+                $("#eighty .reached").show();
+                $("#eighty .description").html("Charge Reached");
             }, 1500);
         }
         if (reached100 && soc == 100) {
             setTimeout(function() {
-                $("#full .value").html("100");
-                $("#full .units").html("%");
-                $("#full .description").html("Charged");
+                $("#full .data").hide();
+                $("#full .reached").show();
+                $("#full .description").html("Charge Reached");
             }, 1500);
         }
     }
@@ -579,29 +590,31 @@
     }
     function updateTimeToEighty(mins) {
         if (!reached80) {
-            if (mins > chargeTimeMax) {
-                $('#eighty .value').html('-');
+            if (mins > CHARGE_TIME_MAX) {
+                $('#eighty .data .value').html('N/A');
+                $('#eighty .data .units').html('');
             } else {
                 if (mins > 0) {
-                    tweenNumber('#eighty .value', mins);
+                    tweenNumber('#eighty .data .value', mins);
                 } else {
-                    $('#eighty .value').html(0);
                     reached80 = true;
+                    $('#eighty .data .value').html(0);
                 }
             }
         }
     }
     function updateTimeToFull(mins) {
         if (!reached100) {
-            var eighty = parseInt($('#eighty .value').html());
-            if (mins > chargeTimeMax || (!reached80 && eighty && mins < eighty)) {
-                $('#full .value').html('-');
+            var eighty = parseInt($('#eighty .data .value').html());
+            if (mins > CHARGE_TIME_MAX || (!reached80 && eighty && mins < eighty)) {
+                $('#full .data .value').html('N/A');
+                $('#full .data .units').html('');
             } else {
                 if (mins > 0) {
-                    tweenNumber('#full .value', mins);
+                    tweenNumber('#full .data .value', mins);
                 } else {
                     reached100 = true;
-                    $('#full .value').html(0);
+                    $('#full .data .value').html(0);
                 }
             }
         }
@@ -684,6 +697,9 @@
         // set initial values
         if (socStart == 0 && socValue > 0) {
             socStart = socValue;
+            if (socStart >= 80) {
+                $("#eighty").hide(); // if soc starts at 80 or higher, don't show the 80% charge reached box
+            }
             setupSOC(); // set up SOC once initial value is determined
             initCircle();
         }
@@ -697,7 +713,7 @@
         if (socValue < 100) {
             updateSOC(socValue + 5);
             updateWatts(wattsValue + 5000);
-            updateEnergyAdded(energyAdded + 15);
+            updateEnergyAdded(energyAdded + 1.37);
         }
     }
 
