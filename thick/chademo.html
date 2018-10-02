@@ -64,11 +64,11 @@
         background-image: url("../images/web-bg.jpg");
         background-repeat: no-repeat;
         background-size: cover;
-        background-position: 50% 62.5%;
+        background-position: 50% 77%;
         font-family: 'Roboto', sans-serif;
         color: #62a0ec;
         background-color: #070d2f;
-        height: 253px;
+        height: 480px;
         margin: 0 auto;
         -webkit-user-select: none;  /* Chrome all / Safari all */
         -moz-user-select: none;     /* Firefox all */
@@ -163,6 +163,19 @@
         margin-top: 10px;
     }
 
+    #timer {
+        font-family: "Roboto";
+        font-size: 2em;
+        font-weight: 300;
+        text-align: center;
+        text-shadow: 0px 0px 15px #2471d0;
+        margin-top: 100px;
+    }
+    #timer .counter {
+        font-size: 2em;
+        font-weight: 100;
+    }
+
 
     #test {
         position: absolute;
@@ -209,6 +222,16 @@
             </div>
         </div>
     </div>
+
+    <div id="timer">
+        <div class="label">
+            Time Elapsed
+        </div>
+        <div class="counter">
+            0:00
+        </div>
+    </div>
+
     <!-- <button onclick="start()" id="test">Update</button> -->
 
     <script type="text/javascript">
@@ -221,6 +244,19 @@
 
     var initialMaxRate = 50;
     var maxRate = 50;
+
+    var counter = 0;
+    var timer = setInterval(function() {
+        counter++;
+        let hours = Math.floor(counter/3600);
+        let mins = Math.floor((counter % 3600)/60); 
+        let seconds = counter % 60;
+        $(".counter").html((hours ? hours + ':' : '') + (hours ? ("0" + mins).slice(-2) : mins) + ':' + ("0" + seconds).slice(-2));
+    }, 1000);
+
+    function stopTimer() {
+        clearInterval(timer);
+    }
 
     // pass in data from station
     function updateWatts(watts) {
