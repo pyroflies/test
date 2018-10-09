@@ -379,6 +379,11 @@
         height: 0;
     }
 
+    #extras .na {
+        display: none;
+        font-size: 4em;
+        padding: 0 5px;
+    }
     #extras .value {
         font-size: 4em;
         padding: 0 5px;
@@ -518,6 +523,7 @@
             <div class="fill">
             </div>
             <div class="data">
+                <span class="na">N/A</span>
                 <span class="value">-</span>
                 <span class="units">mins</span>
             </div>
@@ -532,6 +538,7 @@
             <div class="fill">
             </div>
             <div class="data">
+                <span class="na">N/A</span>
                 <span class="value">-</span>
                 <span class="units">mins</span>
             </div>
@@ -626,32 +633,54 @@
     }
     function updateTimeToEighty(mins) {
         if (!reached80) {
-            if (mins > CHARGE_TIME_MAX) {
-                $('#eighty .data .value').html('N/A');
-                $('#eighty .data .units').html('');
-            } else {
+            if (mins <= CHARGE_TIME_MAX) {
                 if (mins > 0) {
+                    $('#eighty .data .na').hide();
+                    $('#eighty .data .value').show();
                     tweenNumber('#eighty .data .value', mins);
+                    $('#eighty .data .units').show();
                 } else {
                     reached80 = true;
+                    $('#eighty .data .na').hide();
+                    $('#eighty .data .value').show();
                     $('#eighty .data .value').html(0);
+                    $('#eighty .data .units').show();
                 }
+            } else {
+                $('#eighty .data .na').show();
+                $('#eighty .data .value').hide();
+                $('#eighty .data .units').hide();
             }
         }
     }
     function updateTimeToFull(mins) {
         if (!reached100) {
             var eighty = parseInt($('#eighty .data .value').html());
-            if (mins > CHARGE_TIME_MAX || (!reached80 && eighty && mins < eighty)) {
-                $('#full .data .value').html('N/A');
-                $('#full .data .units').html('');
-            } else {
+            if (mins <= CHARGE_TIME_MAX) {
                 if (mins > 0) {
-                    tweenNumber('#full .data .value', mins);
-                } else {
+                    if (!eighty || (eighty && mins > eighty)) {
+                        $('#full .data .na').hide();
+                        $('#full .data .value').show();
+                        tweenNumber('#full .data .value', mins);
+                        $('#full .data .units').show();
+                    } else {
+                        $('#full .data .na').show();
+                        $('#full .data .value').hide();
+                        $('#full .data .units').hide();
+                    }
+                } else if (mins <= 0 && socValue == 100) {
                     reached100 = true;
+                    $('#full .data .na').hide();
+                    $('#full .data .value').show();
                     $('#full .data .value').html(0);
+                    $('#full .data .units').show();
+                } else {
+                    console.log('fake ' + mins + ' ignored');
                 }
+            } else {
+                $('#full .data .na').show();
+                $('#full .data .value').hide();
+                $('#full .data .units').hide();
             }
         }
     }
@@ -728,7 +757,7 @@
         points = processPoints(points);
         socPoints = processSOC(points);
 
-        console.log(points)
+        // console.log(points);
 
         // set initial values
         if (socStart == 0 && socValue > 0) {
