@@ -127,6 +127,7 @@
         position: relative;
         overflow: hidden;
         transform: translateY(10px);
+        height: 850px;
     }
     #circle #display {
         font-weight: 100;
@@ -206,31 +207,55 @@
     }
 
     #circle #roc .min {
-        font-weight: 100;
+        font-weight: 300;
         font-family: "Roboto";
         position: absolute;
         left: 75px;
         top: 0px;
         width: 30px;
-        padding: 5px 0 4px 1px;
+        height: 30px;
+        padding: 6px 0 3px 1px;
         border-radius: 3px;
         text-align: center;
         background-color: #2946c1;
         box-shadow: 0px 0px 15px #1935a7;
+        box-sizing: border-box;
     }
 
     #circle #roc .max {
-        font-weight: 100;
+        font-weight: 300;
         font-family: "Roboto";
         position: absolute;
         left: 894px;
         top: 0px;
         width: 35px;
-        padding: 5px 0 4px 1px;
+        height: 30px;
+        padding: 6px 0 3px 1px;
         border-radius: 3px;
         text-align: center;
         background-color: #2946c1;
         box-shadow: 0px 0px 15px #1935a7;
+        box-sizing: border-box;
+    }
+
+    #circle #roc .min-label {
+        font-weight: 300;
+        font-family: "Roboto";
+        font-size: 0.8em;
+        position: absolute;
+        left: 79px;
+        top: 32px;
+        text-shadow: 0px 0px 15px #2471d0;
+    }
+
+    #circle #roc .max-label {
+        font-weight: 300;
+        font-family: "Roboto";
+        font-size: 0.8em;
+        position: absolute;
+        left: 899px;
+        top: 32px;
+        text-shadow: 0px 0px 15px #2471d0;
     }
 
     #circle .block {
@@ -500,7 +525,9 @@
             </div>
             <div id="roc">
                 <div class="min">0</div>
+                <div class="min-label">min</div>
                 <div class="max">60</div>
+                <div class="max-label">max</div>
             </div>
         </div>
     </div>
