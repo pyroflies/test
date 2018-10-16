@@ -164,6 +164,7 @@
     }
 
     #timer {
+      display: none;
         font-family: "Roboto";
         font-size: 2em;
         font-weight: 300;
@@ -246,13 +247,24 @@
     var maxRate = 50;
 
     var counter = 0;
-    var timer = setInterval(function() {
-        counter++;
-        let hours = Math.floor(counter/3600);
-        let mins = Math.floor((counter % 3600)/60); 
-        let seconds = counter % 60;
-        $(".counter").html((hours ? hours + ':' : '') + (hours ? ("0" + mins).slice(-2) : mins) + ':' + ("0" + seconds).slice(-2));
-    }, 1000);
+    var timer;
+    
+    function setTimer(seconds) {
+        counter = seconds;
+    }
+
+    function startTimer(seconds) {
+        if (seconds)
+            counter = seconds;
+        $("#timer").show();
+        timer = setInterval(function() {
+            counter++;
+            let hours = Math.floor(counter/3600);
+            let mins = Math.floor((counter % 3600)/60); 
+            let seconds = counter % 60;
+            $(".counter").html((hours ? hours + ':' : '') + (hours ? ("0" + mins).slice(-2) : mins) + ':' + ("0" + seconds).slice(-2));
+        }, 1000);
+    }
 
     function stopTimer() {
         clearInterval(timer);
