@@ -134,51 +134,21 @@
         font-family: "Roboto";
         text-shadow: 0px 0px 15px #2471d0;
         position: absolute;
-        /*left: 50%;
-        transform: translateX(-50%);*/
-        left: 260px;
+        left: 50%;
+        transform: translateX(-50%);
         top: 165px;
     }
     #circle #display .label {
         margin-top: 30px;
     }
 
-    #circle #charge {
-        position: absolute;
-        left: 660px;
-        top: 110px;
-        font-size: 0.8em;
-    }
-
-    #circle #charge .label {
-        text-align: center;
-    }
-
-    #circle #base {
-        color: #a4bfea;
-        text-shadow: 0px 0px 15px #668bc7;
-    }
-    #circle #added {
-        margin-top: 50px;
-        color: #3af556;
-        text-shadow: 0px 0px 15px #28b93e;
-    }
-
     #circle #arc {
         display: block;
-        /*margin: 0 auto;*/
-        margin-left: 120px;
+        margin: 0 auto;
     }
 
     #circle .data {
-        position: relative;
         text-align: center;
-    }
-    #circle .mark {
-        position: absolute;
-        top: 25px;
-        right: -5px;
-        font-size: 1.5em;
     }
     #circle .value {
         font-size: 5em;
@@ -206,23 +176,28 @@
         font-family: "Roboto";
         text-shadow: 0px 0px 15px #2471d0;
         text-align: center;
-        margin: 50px auto 20px;
-        width: 750px;
+        margin: 20px auto;
+        width: 900px;
     }
 
-    #circle #amps, #circle #volts {
-        font-size: 0.8em;
-        margin-top: 10px;
+    #circle #base {
+        color: #a4bfea;
+        text-shadow: 0px 0px 15px #668bc7;
+    }
+    #circle #rate {
+    }
+    #circle #added {
+        color: #3af556;
+        text-shadow: 0px 0px 15px #28b93e;
     }
 
     #circle .container {
         float: left;
-        width: 250px;
+        width: 300px;
     }
 
     #circle .roc {
-        padding-top: 20px;
-        clear: both;
+        margin-top: 70px;
     }
 
     #circle #roc {
@@ -284,14 +259,14 @@
     }
 
     #circle .block {
-        width: 4px;
+        width: 7px;
         height: 30px;
         border-radius: 5px;
         /*background-color: #0b1b61;*/
         background-color: rgba(187, 197, 241, 0.15);
         box-shadow: 0px 0px 15px #0b1b61;
         display: inline-block;
-        margin: 0 2px;
+        margin: 0 3px;
     }
 
     #circle .glow {
@@ -423,27 +398,6 @@
         right: -43px;
     }
 
-    #chart .mini {
-        display: inline-block;
-        margin: 0 2px 3px 2px;
-        background-color: #62a0ec;
-        color: #1c1e69;
-        padding: 1px 3px 0 3px;
-        border-radius: 2px;
-        opacity: 0.7;
-        box-shadow: 0px 0px 15px rgba(36, 113, 208, 0.5);
-    }
-
-    #chart .mini .value {
-        font-size: 1em;
-        font-weight: 300;
-        text-align: center;
-    }
-
-    #chart .mini .letter {
-        font-weight: 300;
-    }
-
 
     #extras {
         text-shadow: 0px 0px 15px #2471d0;
@@ -542,7 +496,6 @@
     </div>
 
     <div id="circle">
-        <!-- <div id="test1"></div> -->
         <div id="circleContainer">
             <svg width="500" height="500" id="arc"></svg>
             <div id="display">
@@ -551,49 +504,31 @@
                 </div>
                 <div id="battery" class="label">Battery Level</div>
             </div>
-            <div id="charge">
-                <div id="base">
+            <div id="metrics" class="clearfix">
+                <div id="base" class="container">
                     <div class="data">
                         <span class="base value">0</span><span class="units">%</span>
                     </div>
                     <div class="label">Starting Charge</div>
                 </div>
-                <div id="added">
+                <div id="rate" class="container roc">
+                    <div class="data">
+                        <span class="rate value">0</span><span class="units">kW</span>
+                    </div>
+                    <div class="label">Rate of Charge</div>
+                </div>
+                <div id="added" class="container">
                     <div class="data">
                         <span class="added value">0</span><span class="units">kWh</span>
                     </div>
                     <div class="label">Energy Added</div>
                 </div>
             </div>
-            <div id="metrics" class="clearfix">
-                <div id="amps" class="container">
-                    <div class="data">
-                        <span class="amps value">0</span><span class="units">A<span style="font-size: 0.8em;">mps</span></span>
-                        <div class="mark">
-                            &times;
-                        </div>
-                    </div>
-                </div>
-                <div id="volts" class="container">
-                    <div class="data">
-                        <span class="volts value">0</span><span class="units">V<span style="font-size: 0.8em;">olts</span></span>
-                        <div class="mark">
-                            =
-                        </div>
-                    </div>
-                </div>
-                <div id="power" class="container">
-                    <div class="data">
-                        <span class="power value">0</span><span class="units">kW</span>
-                    </div>
-                </div>
-                <div class="label roc">Rate of Charge</div>
-            </div>
             <div id="roc">
-                <!-- <div class="min">0</div>
+                <div class="min">0</div>
                 <div class="min-label">min</div>
                 <div class="max">60</div>
-                <div class="max-label">max</div> -->
+                <div class="max-label">max</div>
             </div>
         </div>
     </div>
@@ -631,17 +566,8 @@
                 </div>
                 <div class="container">
                     <div class="display">
-                        <div class="power value">0</div>
+                        <div class="rate value">0</div>
                         <div class="units two"> kW</div>
-                    </div>
-                    <br>
-                    <div class="mini">
-                        <span class="amps value">0</span>
-                        <span class="letter"> A</span>
-                    </div>
-                    <div class="mini">
-                        <span class="volts value">0</span>
-                        <span class="letter"> V</span>
                     </div>
                     <div class="description">
                         Rate of Charge
@@ -710,12 +636,11 @@
 
     var socStart = 0;
     var socValue = 0;
-    var ampsValue = 0;
-    var voltsValue = 0;
     var wattsValue = 0;
     var energyAdded = 0;
 
-    var maxRate = 15; // low max rate for the lower end vehicles, it will dynamically scale up
+    var initialMaxRate = 60;
+    var maxRate = 60;
 
     var reached80 = false;
     var reached100 = false;
@@ -739,11 +664,6 @@
             let mins = Math.floor((counter % 3600)/60); 
             let seconds = counter % 60;
             $(".counter").html((hours ? hours + ':' : '') + (hours ? ("0" + mins).slice(-2) : mins) + ':' + ("0" + seconds).slice(-2));
-            app.getChargeSessionCost(counter);
-            // let cost = app.getChargeSessionCost(counter);
-            // $("#test1").append('<span style="padding-right: 5px;">' + cost + '</span>');
-            // console.log(cost);
-            // updateCost(cost);
         }, 1000);
     }
 
@@ -770,12 +690,6 @@
         }
     }
 
-    function updateChargeRate(amps, volts) {
-        ampsValue = amps;
-        voltsValue = volts;
-        wattsValue = amps * volts;
-    }
-
     function updateWatts(watts) {
         wattsValue = watts;
     }
@@ -785,9 +699,7 @@
     }
 
     function updateCost(cost) {
-        // $("#test1").append('<span style="padding-right: 5px;">' + cost + '</span>');
-        if (typeof cost === 'number' && !isNaN(cost))
-            tweenNumber('#cost .value', cost/100, 2);
+        tweenNumber('#cost .value', cost/100, 2);
     }
     function updateTimeToEighty(mins) {
         if (!reached80) {
@@ -916,7 +828,7 @@
         points = processPoints(points);
         socPoints = processSOC(points);
 
-        // console.log(points);
+        console.log(points);
 
         // set initial values
         if (socStart == 0 && socValue > 0) {
@@ -936,16 +848,11 @@
 
     function fakeUpdate() {
         if (socValue < 100) {
-            if (ampsValue == 0)
-                ampsValue = 80;
-            if (voltsValue == 0)
-                voltsValue = 350;
             updateSOC(socValue + 5);
-            updateChargeRate(ampsValue + 3, voltsValue + 5);
+            updateWatts(wattsValue + 5000);
             updateEnergyAdded(energyAdded + 1.37);
         }
     }
-    fakeUpdate();
 
     function updateChart() {
         if (socPoints.length >= 2) {
@@ -1021,13 +928,13 @@
     }
 
     function processSOC(dataPoints) {
-        var activePoints = [];
+        var active = [];
         dataPoints.forEach(function(d) {
             if (d.soc > 0) {
-                activePoints.push(d);
+                active.push(d);
             }
         });
-        return activePoints;
+        return active;
     }
 
     function getTimeRange() {
@@ -1265,7 +1172,7 @@
         // }
         var roc = Math.round(points[points.length - 1].kwh);
         updateRate(roc);
-        // $(".power").innerHTML = roc;
+        // $(".rate").innerHTML = roc;
     }
 
 
@@ -1293,7 +1200,7 @@
         .attr("d", arc);
 
     // generate blocks
-    for (var x = 0; x < 100; x++) {
+    for (var x = 0; x < 60; x++) {
         $("#roc").append('<div class="block index' + x + '"></div>');
     }
 
@@ -1346,10 +1253,9 @@
 
     function updateGlow(roc) {
         $(".block").removeClass("glow");
-        var max = Math.floor((roc / maxRate) * 100); // max glowing based on highest max rate reached
-        // console.log(max);
-        for (var x = 0; x < max; x++) {
-            $(".index" + x).addClass("glow");
+        for (var x = 0; x < roc; x++) {
+            var check = Math.floor(x * (initialMaxRate / maxRate)); // max glowing based on highest max rate reached
+            $(".index" + check).addClass("glow");
         }
         $(".index0").addClass("glow"); // 0 always glows because on this page you're always charging even at < 1
     }
@@ -1358,35 +1264,7 @@
         // rate = rate ? rate : Math.random() * 60;
         if (rate > maxRate) // if new max rate is reached, update glowing blocks to reflect new max
             maxRate = rate;
-        d3.select(".amps")
-            .transition()
-            .duration(1500)
-            .on("start", function() {
-                d3.active(this)
-                    .tween("text", function() {
-                        var that = d3.select(this),
-                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), ampsValue);
-                        return function(t) {
-                            var amps = Math.round(i(t));
-                            $(".amps").html(amps);
-                        };
-                    })
-            });
-        d3.select(".volts")
-            .transition()
-            .duration(1500)
-            .on("start", function() {
-                d3.active(this)
-                    .tween("text", function() {
-                        var that = d3.select(this),
-                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), voltsValue);
-                        return function(t) {
-                            var volts = Math.round(i(t));
-                            $(".volts").html(volts);
-                        };
-                    })
-            });
-        d3.select(".power")
+        d3.select(".rate")
             .transition()
             .duration(1500)
             .on("start", function() {
@@ -1395,13 +1273,12 @@
                         var that = d3.select(this),
                             i = d3.interpolateNumber(that.text().replace(/,/g, ""), rate);
                         return function(t) {
-                            // console.log(i(t));
-                            updateGlow(i(t));
                             var rate = Math.round(i(t));
                             // console.log(rate);
-                            $(".power").html(rate);
-                            // if (rate > $(".max").html())
-                            //     $(".max").html(rate);
+                            updateGlow(rate);
+                            $(".rate").html(rate);
+                            if (rate > $(".max").html())
+                                $(".max").html(rate);
                         };
                     })
                     // .transition()

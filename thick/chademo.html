@@ -68,7 +68,7 @@
         font-family: 'Roboto', sans-serif;
         color: #62a0ec;
         background-color: #070d2f;
-        height: 480px;
+        height: 820px;
         margin: 0 auto;
         -webkit-user-select: none;  /* Chrome all / Safari all */
         -moz-user-select: none;     /* Firefox all */
@@ -88,26 +88,72 @@
         *zoom: 1;
     }
 
-    #roc {
-        text-align: center;
-        position: absolute;
-        bottom: 25px;
-        left: 29px;
+
+    #chart {
     }
 
-    .block {
-        width: 2px;
-        height: 20px;
-        border-radius: 5px;
-        background-color: #0b1b61;
-        box-shadow: 0px 0px 15px #0b1b61;
-        display: inline-block;
-        margin: 0 2px;
+    #chartContainer {
+        position: relative;
+        overflow: hidden;
+        margin: 40px auto;
+        width: 800px;
     }
 
-    .glow {
-        background-color: #2946c1;
-        box-shadow: 0px 0px 15px #1935a7;
+    .area {
+        fill: #2471d0;
+    }
+
+    .line {
+        stroke: #2471d0;
+        stroke-width: 2;
+        stroke-opacity: 1;
+    }
+
+    .grid line,
+    .grid path {
+        stroke: #1e37c1;
+        stroke-opacity: 0.7;
+        shape-rendering: crispEdges;
+    }
+
+    .y-axis-text {
+        text-anchor: middle;
+        fill: #2471d0;
+    }
+
+    .y.axis path,
+    .y.axis line {
+        stroke: #2471d0;
+    }
+
+    .y.axis text {
+        fill: #2471d0;
+        font-weight: 700;
+    }
+    .axis-container > text {
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 500;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    .x-axis-text {
+        text-anchor: middle;
+        fill: #2471d0;
+    }
+
+    .x.axis path,
+    .x.axis line {
+        stroke: #2471d0;
+    }
+
+    .x.axis text {
+        fill: #2471d0;
+        font-weight: 700;
+    }
+
+    .dot {
+        fill: #63a4f5;
     }
 
 
@@ -163,6 +209,31 @@
         margin-top: 10px;
     }
 
+    #extras #formula {
+      position: absolute;
+      font-size: 0.4em;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 25px;
+      width: 100%;
+    }
+    #extras #formula .part {
+      position: relative;
+      display: inline-block;
+      width: 100px;
+    }
+    #extras #formula .units {
+      font-weight: 300;
+      margin-left: 4px;
+      font-size: 2em;
+    }
+    #extras #formula .mark {
+      position: absolute;
+      top: 7px;
+      right: -5px;
+      font-size: 2em;
+    }
+
     #timer {
       display: none;
         font-family: "Roboto";
@@ -188,18 +259,36 @@
 </head>
 
 <body>
+    <div id="chart">
+        <div id="chartContainer">
+            <svg id="kwhChart"></svg>
+        </div>
+    </div>
     <div id="extras" class="clearfix">
         <div id="rate" class="container">
             <div class="fill">
             </div>
             <div class="data">
-                <span class="rate value">0</span>
+                <span class="power value">0</span>
                 <span class="units">kW</span>
             </div>
             <div class="description">
                 Rate of Charge
             </div>
-            <div id="roc">
+            <div id="formula">
+              <div id="amps" class="part">
+                  <div class="data">
+                      <span class="amps value">0</span><span class="units">Amps</span>
+                      <div class="mark">
+                          &times;
+                      </div>
+                  </div>
+              </div>
+              <div id="volts" class="part">
+                  <div class="data">
+                      <span class="volts value">0</span><span class="units">Volts</span>
+                  </div>
+              </div>
             </div>
         </div><div id="added" class="container">
             <div class="fill">
@@ -239,11 +328,13 @@
 
     // // shared variables
 
+    var ampsValue = 0;
+    var voltsValue = 0;
     var wattsValue = 0;
     var energyAdded = 0;
+
     var cost = 5;
 
-    var initialMaxRate = 50;
     var maxRate = 50;
 
     var counter = 0;
@@ -271,8 +362,14 @@
     }
 
     // pass in data from station
+    function updateChargeRate(amps, volts) {
+        ampsValue = amps;
+        voltsValue = volts;
+        wattsValue = amps * volts;
+    }
+
     function updateWatts(watts) {
-        updateRate(watts / 1000);
+        wattsValue = watts;
     }
 
     function updateEnergyAdded(kwh) {
@@ -305,44 +402,266 @@
     function start() {
         clearInterval(auto);
         auto = setInterval(function() {
-            wattsValue = Math.random() * 50000;
+            ampsValue = Math.random() * 50 + 30;
+            voltsValue = Math.random() * 150 + 80;
+            wattsValue = ampsValue * voltsValue;
             energyAdded++;
             cost += 0.17;
-            updateData();
         }, 1500);
     }
 
+
+    /* chart */
+
+    var xScale, kwhScale, kwhAxis, xAxis, chartXAxis;
+    var kwhLine, kwhArea, kwhContainer, kwhGraphLine, kwhGraphArea;
+    var width, kwhHeight, svg, kwhObject;
+    var margin = { top: 10, right: 150, bottom: 0, left: 50 };
+    var dtFmt = d3.timeFormat("%-I:%M %p"); // :%S
+    // var tooltip = d3.select("#tooltip").style("opacity", 0);
+
+    var date = new Date(Date.now());
+
+    // 1 min values: 1/25/2000, 5 min: 5/5/2000
+    var defaultMinutes = 12.5; // default view to preset minutes range
+    var tickWidth = 2; // this depends on screen width and time frame move speed
+    var tickDuration = 2000;
+
+    var points = [{
+        "timestamp": new Date(Date.now()),
+        "watts": wattsValue,
+    }];
+    points = processPoints(points);
+
+    // setup chart
+    // updateDimensions(window.innerWidth);
+    updateDimensions(1000);
+    drawChartSVG();
+    drawAxis();
+    plotGrid();
+
+    setupKWh();
+    updateData();
+
+    // wait to start first tick
+    setTimeout(function() {
+        tick();
+    }, tickDuration);
+
+    function tick() {
+        var entry = {
+            "timestamp": new Date(Date.now()),
+            "watts": wattsValue,
+        };
+        points.push(entry);
+
+        if (points.length > 390) { // set this to width of visualized data points (50 for 1, 110 for 5)
+            points.shift();
+        }
+
+        points = processPoints(points);
+
+        // console.log(points);
+
+        updateChart();
+        animateData();
+        updateData();
+    }
+
+    function updateChart() {
+        kwhGraphLine.datum(points)
+            .attr("d", kwhLine);
+        kwhGraphArea.datum(points)
+            .attr("d", kwhArea);
+    }
+
+    function updateDimensions(winWidth) {
+        width = winWidth - margin.left - margin.right;
+        kwhHeight = 0.3 * width;
+    }
+
+    function drawChartSVG() { // set up svg chart canvas
+        kwhObject = d3.select("#kwhChart")
+            .attr("width", width)
+            .attr("height", kwhHeight + 30)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," +  margin.top + ")")
+    }
+
+    function roundUp5(x) {
+        return Math.ceil((x + 2) / 5) * 5;
+    }
+
+    function processPoints(dataPoints) {
+        dataPoints.forEach(function(d) {
+            d.time = d3.isoParse(d["timestamp"]);
+            d.kwh = d["watts"] / 1000;
+        });
+        return dataPoints;
+    }
+
+    function getTimeRange() {
+        var now = new Date(Date.now()).getTime();
+        return [now - (defaultMinutes * 60 * 1000), now];
+    }
+
+    function updateScale() {
+        // var y0Max = roundUp5(d3.max(points, function (d) { return d.kwh }));
+        var y0Max = 80; // TODO: set sane defaults so scale doesn't have to re-adjust
+
+        xScale = d3.scaleTime()
+            .rangeRound([0, width - margin.left])
+            .domain(getTimeRange());
+
+        kwhScale = d3.scaleLinear()
+            .rangeRound([kwhHeight, 0])
+            .domain([0, y0Max]);
+    }
+
+    function plotGrid() { // gridlines
+        var yAxisGrid2 = d3.axisLeft(kwhScale).tickSize(-width).tickFormat("");
+        kwhObject.append("g")
+            .attr("class", "grid y-left")
+            .call(yAxisGrid2);
+    }
+
+    function animateData() {
+        updateScale();
+        xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+        chartXAxis.transition()
+            .duration(tickDuration)
+            .ease(d3.easeLinear)
+            .call(xAxis);
+
+        kwhGraphLine.attr('transform', null)
+            .transition()
+            .duration(tickDuration)
+            .ease(d3.easeLinear)
+            .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+        kwhGraphArea.attr('transform', null)
+            .transition()
+            .duration(tickDuration)
+            .ease(d3.easeLinear)
+            .attr('transform', 'translate(' + (-1 * tickWidth) + ')')
+            .on('end', tick)
+    }
+
+    function drawAxis() { // axis ticks and display text
+        updateScale();
+
+        kwhAxis = kwhObject.append("g").attr("class", "axis-container");
+
+        kwhAxis.append("g")
+            .attr("class", "y axis y-left")
+            .call(d3.axisLeft(kwhScale));
+
+        kwhAxis.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left)
+            .attr("x", 0 - (kwhHeight / 2))
+            .attr("dy", "1em")
+            .attr("class", "y-axis-text")
+            .style("text-anchor", "middle")
+            .text("kW");
+
+
+        // TODO: xAxis minimum length 30 minutes
+        xAxis = d3.axisBottom(xScale).tickFormat(dtFmt);
+
+        chartXAxis = kwhAxis.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + kwhHeight + ")")
+            .call(xAxis);
+        // kwhAxis.append("text")
+        //     .attr("class", "x-axis-text")
+        //     .attr("transform", "translate(" + (width / 2) + " ," + (kwhHeight + margin.top + 30) + ")")
+        //     .style("text-anchor", "middle")
+        //     .text("Time ({{ tz }})");
+    }
+
+    function setupKWh() {
+
+        kwhLine = d3.line()
+            .x(function(d) { return xScale(d.time) })
+            .y(function(d) { return kwhScale(d.kwh) })
+            .curve(d3.curveStepBefore);
+
+        kwhArea = d3.area()
+            .x(function(d) { return xScale(d.time) })
+            .y0(kwhHeight)
+            .y1(function(d) { return kwhScale(d.kwh) })
+            .curve(d3.curveStepBefore);
+
+        kwhContainer = kwhObject.append("g")
+            .attr("class", "kwh-section");
+
+        kwhContainer.append("defs").append("clipPath")
+            .attr("id", "clip2")
+            .append("rect")
+            .attr("width", width + tickWidth)
+            .attr("height", kwhHeight);
+
+        kwhGraphLine = kwhContainer.append("g")
+            .attr("clip-path", "url(#clip2)")
+            .append('path')
+            .datum(points)
+            .attr("class", "line")
+            .attr("fill", "none")
+            .attr("stroke-linejoin", "round")
+            .attr("stroke-linecap", "round")
+            .attr("d", kwhLine);
+
+        kwhGraphArea = kwhContainer.append("g")
+            .attr("clip-path", "url(#clip2)")
+            .append('path')
+            .datum(points)
+            .attr("class", 'area')
+            .style('fill-opacity', 0.2)
+            .attr('d', kwhArea);
+    }
+
     function updateData() {
-        if (wattsValue) {
-            updateWatts(wattsValue);
-        }
         if (energyAdded) {
-            updateEnergyAdded(energyAdded);
+            // $(".added").innerHTML = energyAdded > 100 ? Math.round(energyAdded) : energyAdded.toFixed(1);
+            tweenNumber(".added", energyAdded, 1);
         }
-        if (cost) {
-            updateCost(cost);
-        }
-    }
-
-
-    // generate blocks
-    for (var x = 0; x < 40; x++) {
-        $("#roc").append('<div class="block index' + x + '"></div>');
-    }
-
-    function updateGlow(roc) {
-        $(".block").removeClass("glow");
-        for (var x = 0; x < roc; x++) {
-            var check = Math.floor(x * (initialMaxRate / maxRate)); // max glowing based on highest max rate reached
-            $(".index" + check).addClass("glow");
-        }
-        $(".index0").addClass("glow"); // 0 always glows because on this page you're always charging even at < 1
+        var roc = Math.round(points[points.length - 1].kwh);
+        updateRate(roc);
+        // $(".power").innerHTML = roc;
     }
 
     function updateRate(rate) {
         if (rate > maxRate) // if new max rate is reached, update glowing blocks to reflect new max
             maxRate = rate;
-        d3.select(".rate")
+        d3.select(".amps")
+            .transition()
+            .duration(1500)
+            .on("start", function() {
+                d3.active(this)
+                    .tween("text", function() {
+                        var that = d3.select(this),
+                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), ampsValue);
+                        return function(t) {
+                            var amps = Math.round(i(t));
+                            $(".amps").html(amps);
+                        };
+                    })
+            });
+        d3.select(".volts")
+            .transition()
+            .duration(1500)
+            .on("start", function() {
+                d3.active(this)
+                    .tween("text", function() {
+                        var that = d3.select(this),
+                            i = d3.interpolateNumber(that.text().replace(/,/g, ""), voltsValue);
+                        return function(t) {
+                            var volts = Math.round(i(t));
+                            $(".volts").html(volts);
+                        };
+                    })
+            });
+        d3.select(".power")
             .transition()
             .duration(1500)
             .on("start", function() {
@@ -353,8 +672,7 @@
                         return function(t) {
                             var rate = i(t);
                             // console.log(rate);
-                            updateGlow(Math.round((i(t))/50 * 40));
-                            $(".rate.value").html(Math.round(rate));
+                            $(".power").html(Math.round(rate));
                         };
                     })
                     // .transition()
