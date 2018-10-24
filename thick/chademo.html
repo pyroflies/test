@@ -61,7 +61,7 @@
     }
 
     body {
-        background-image: url("../images/web-bg.jpg");
+        background-image: url("../images/chademo-bg.jpg");
         background-repeat: no-repeat;
         background-size: cover;
         background-position: 50% 77%;
@@ -354,6 +354,9 @@
             let mins = Math.floor((counter % 3600)/60); 
             let seconds = counter % 60;
             $(".counter").html((hours ? hours + ':' : '') + (hours ? ("0" + mins).slice(-2) : mins) + ':' + ("0" + seconds).slice(-2));
+            if (paymentModel == 'duration') {
+                updateCost(Math.round(paymentSessionFee + (paymentRate * (counter / 60))));
+            }
         }, 1000);
     }
 
@@ -373,11 +376,28 @@
     }
 
     function updateEnergyAdded(kwh) {
-        tweenNumber(".added.value", kwh, 1);
+        energyAdded = kwh;
+    }
+
+    var paymentModel = null;
+    var paymentRate = 0;
+    var paymentSessionFee = 0;
+
+    function setChargeDurationFee(chargeDurationFee, sessionFee) {
+        paymentModel = 'duration';
+        paymentRate = chargeDurationFee;
+        paymentSessionFee = sessionFee;
+    }
+
+    function setKwhFee(kwhFee, sessionFee) {
+        paymentModel = 'kwh';
+        paymentRate = kwhFee;
+        paymentSessionFee = sessionFee;
     }
 
     function updateCost(cost) {
-        tweenNumber('.cost.value', cost/100, 2);
+        if (typeof cost === 'number' && !isNaN(cost))
+            tweenNumber('.cost.value', cost/100, 2);
     }
 
     function stopCharge() {
@@ -624,6 +644,9 @@
         if (energyAdded) {
             // $(".added").innerHTML = energyAdded > 100 ? Math.round(energyAdded) : energyAdded.toFixed(1);
             tweenNumber(".added", energyAdded, 1);
+            if (paymentModel == 'kwh') {
+                updateCost(Math.round(paymentSessionFee + (paymentRate * energyAdded)));
+            }
         }
         var roc = Math.round(points[points.length - 1].kwh);
         updateRate(roc);
