@@ -11,7 +11,7 @@
 	<body style="margin:0px;">
 		<script type="text/javascript">
 			var google_api_key = 'AIzaSyCpiZAlt1I7JxDo28bFI18nwxaQC28p_eY'; // Your project's Google Maps API key goes here (https://code.google.com/apis/console)
-			document.writeln('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3&amp;libraries=geometry&amp;gestureHandling=greedy&amp;language='+(self.language_code?self.language_code:'')+'&amp;key='+(self.google_api_key?self.google_api_key:'')+'"><'+'/script>');
+			document.writeln('<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?v=3&amp;libraries=geometry&amp;language='+(self.language_code?self.language_code:'')+'&amp;key='+(self.google_api_key?self.google_api_key:'')+'"><'+'/script>');
 		</script>
 
 		<!--
@@ -64,6 +64,7 @@
 			gv_options.tilt = false; // true|false: allow Google to show 45-degree tilted aerial imagery?
 			gv_options.street_view = true; // true|false: allow Google Street View on the map
 			gv_options.animated_zoom = false; // true|false: may or may not work properly
+			gv_options.gesture_handling = 'greedy';
 
 			// widgets on the map:
 			gv_options.zoom_control = 'small'; // 'large'|'small'|'none'
