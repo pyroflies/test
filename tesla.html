@@ -1,0 +1,26 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head>
+    <title>My First HTML Page</title>
+</head>
+
+<body>
+    <div id="test1">user agent</div>
+    <div id="test2">qt test</div>
+    <div id="test3">tesla test</div>
+</body>
+
+<script>
+  alert(navigator.userAgent);
+  document.getElementById("test1").innerHTML = navigator.userAgent;
+  if (navigator.userAgent.match(/QtCarBrowser/i)) {
+    document.getElementById("test2").innerHTML = "qt test success";
+  }
+  if (navigator.userAgent.indexOf('Tesla') > -1) {
+    document.getElementById("test3").innerHTML = "tesla test success";
+  }
+</script>
+</html>

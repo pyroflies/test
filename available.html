@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+  text {
+    font-family: sans-serif;
+  }
+
+  svg {
+    margin-top: -1px;
+  }
+  .bar {
+    fill: cornflowerblue;
+  }
+  .bar.active {
+    fill: #2a64d4;
+  }
+  .bar:hover {
+    fill: #9bbdff;
+  }
+
+  .axis--x path {
+    display: none;
+  }
+</style>
+
+<div class="chart">
+  <svg width="100%" height="500px"></svg>
+</div>
+<!-- <button onClick="random()">Update</button> -->
+<button onClick="yesterday()">Previous Day</button>
+<button onClick="tomorrow()">Next Day</button>
+<div id="day" style="padding: 10px 5px; font-weight: bold;"></div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+  // var availability = [
+  //   {hour: 10, weighted_average: 3600.0},
+  //   {hour: 11, weighted_average: 2538.072264},
+  //   {hour: 12, weighted_average: 365.204049},
+  //   {hour: 13, weighted_average: 2520.4091},
+  //   {hour: 14, weighted_average: 177.833561},
+  //   {hour: 15, weighted_average: 723.274004},
+  //   {hour: 16, weighted_average: 0},
+  //   {hour: 17, weighted_average: 0},
+  //   {hour: 18, weighted_average: 0},
+  //   {hour: 19, weighted_average: 365.041172},
+  //   {hour: 20, weighted_average: 1419.7044389999999},
+  //   {hour: 21, weighted_average: 3064.364492},
+  //   {hour: 22, weighted_average: 2689.6915550000003},
+  //   {hour: 23, weighted_average: 2695.113509},
+  //   {hour: 0, weighted_average: 2705.533687},
+  //   {hour: 1, weighted_average: 3437.247588},
+  //   {hour: 2, weighted_average: 176.095123},
+  //   {hour: 3, weighted_average: 174.561243},
+  //   {hour: 4, weighted_average: 2504.7235739999996},
+  //   {hour: 5, weighted_average: 196.822807},
+  //   {hour: 6, weighted_average: 177.935904},
+  //   {hour: 7, weighted_average: 178.601668},
+  //   {hour: 8, weighted_average: 186.864131},
+  //   {hour: 9, weighted_average: 336.764442},
+  // ];
+
+  var days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+  var availability = {
+    'Friday': [
+    {'hour': 0, 'average': 1079.659954, 'weighted_average': 1079.659954},
+    {'hour': 1, 'average': 541.36211, 'weighted_average': 406.30484775},
+    {'hour': 2, 'average': 1257.658096, 'weighted_average': 1257.658096},
+    {'hour': 3, 'average': 184.502162, 'weighted_average': 184.502162},
+    {'hour': 4, 'average': 352.958843, 'weighted_average': 352.958843},
+    {'hour': 5, 'average': 182.363295, 'weighted_average': 182.363295},
+    {'hour': 7, 'average': 3035.625631, 'weighted_average': 3035.625631},
+    {'hour': 8, 'average': 900.8792965, 'weighted_average': 759.9856595},
+    {'hour': 9, 'average': 1440.7675399999998, 'weighted_average': 985.6250252499999},
+    {'hour': 10, 'average': 3600.0, 'weighted_average': 3600.0},
+    {'hour': 11, 'average': 918.124282, 'weighted_average': 918.124282},
+    {'hour': 12, 'average': 336.145356, 'weighted_average': 336.145356},
+    {'hour': 13, 'average': 1103.39682, 'weighted_average': 1103.39682},
+    {'hour': 14, 'average': 2520.170205, 'weighted_average': 2520.170205},
+    {'hour': 15, 'average': 2683.519967, 'weighted_average': 2683.519967},
+    {'hour': 16, 'average': 1637.314942, 'weighted_average': 1637.314942},
+    {'hour': 17, 'average': 182.758549, 'weighted_average': 182.758549},
+    {'hour': 18, 'average': 1623.807846, 'weighted_average': 1623.807846},
+    {'hour': 19, 'average': 1781.328803, 'weighted_average': 1781.328803},
+    {'hour': 20, 'average': 1171.4776445, 'weighted_average': 1076.51138675},
+    {'hour': 21, 'average': 640.083933, 'weighted_average': 591.00232225},
+    {'hour': 22, 'average': 3403.878012, 'weighted_average': 3403.878012},
+    {'hour': 23, 'average': 719.0881706666665, 'weighted_average': 477.1503456666667}
+    ],
+   'Monday': [
+    {'hour': 0, 'average': 535.783775, 'weighted_average': 311.73694075},
+    {'hour': 1, 'average': 1484.5761083333334, 'weighted_average': 669.9366531111111},
+    {'hour': 2, 'average': 2530.73127, 'weighted_average': 1630.73127},
+    {'hour': 3, 'average': 538.49484325, 'weighted_average': 321.38216112500004},
+    {'hour': 4, 'average': 142.630787, 'weighted_average': 94.2063508125},
+    {'hour': 5, 'average': 1879.230352, 'weighted_average': 984.2372359999999},
+    {'hour': 6, 'average': 899.0936985000001, 'weighted_average': 850.1181365},
+    {'hour': 7, 'average': 843.7138616666667, 'weighted_average': 657.6199471111112},
+    {'hour': 8, 'average': 1812.2674415000001, 'weighted_average': 1765.3470265},
+    {'hour': 9, 'average': 792.3249975, 'weighted_average': 437.08052125},
+    {'hour': 10, 'average': 3600.0, 'weighted_average': 2700.0},
+    {'hour': 11, 'average': 1328.2049066666666,'weighted_average': 1263.6636567777778},
+    {'hour': 12, 'average': 1317.0169656666667,'weighted_average': 1258.8186331111112},
+    {'hour': 13, 'average': 2867.2938335, 'weighted_average': 2333.64691675},
+    {'hour': 14, 'average': 1384.0325243333334, 'weighted_average': 617.8308681111112},
+    {'hour': 15, 'average': 243.58934833333333,'weighted_average': 161.19333722222223},
+    {'hour': 16, 'average': 393.52371, 'weighted_average': 330.34146725},
+    {'hour': 17, 'average': 1800.2803663333334,'weighted_average': 1458.2948134444443},
+    {'hour': 18, 'average': 1635.6713353333332, 'weighted_average': 988.414052222222},
+    {'hour': 19, 'average': 775.7012473333333, 'weighted_average': 536.482302888889},
+    {'hour': 20, 'average': 828.6013083333333, 'weighted_average': 611.7422828888889},
+    {'hour': 21, 'average': 1818.743136, 'weighted_average': 1499.467574},
+    {'hour': 22, 'average': 1067.400728, 'weighted_average': 712.7519520000001},
+    {'hour': 23, 'average': 323.7450624, 'weighted_average': 234.13630515999998}
+    ],
+   'Saturday': [
+    {'hour': 0, 'average': 599.2523333333332,'weighted_average': 377.83663588888885},
+    {'hour': 1, 'average': 404.86855725, 'weighted_average': 322.860254375},
+    {'hour': 2, 'average': 1432.5374366666665, 'weighted_average': 835.2032346666665},
+    {'hour': 3, 'average': 726.4641473333335, 'weighted_average': 524.1335263333333},
+    {'hour': 4, 'average': 1348.8154095, 'weighted_average': 939.6499395000001},
+    {'hour': 5, 'average': 1261.7339445, 'weighted_average': 996.42053775},
+    {'hour': 6, 'average': 1974.9489093333334,'weighted_average': 1612.5039124444445},
+    {'hour': 7, 'average': 742.227278, 'weighted_average': 736.8696725},
+    {'hour': 8, 'average': 180.766199, 'weighted_average': 121.1359172222222},
+    {'hour': 10, 'average': 2150.840104, 'weighted_average': 1700.817328},
+    {'hour': 11, 'average': 1321.6610836666666,'weighted_average': 1261.1366575555555},
+    {'hour': 12, 'average': 1434.5897340000001, 'weighted_average': 1336.357735},
+    {'hour': 13, 'average': 3518.9330010000003,'weighted_average': 2618.9330010000003},
+    {'hour': 14, 'average': 997.5669425, 'weighted_average': 948.4247694999999},
+    {'hour': 15, 'average': 172.456116, 'weighted_average': 129.45020725},
+    {'hour': 16, 'average': 451.302369, 'weighted_average': 356.20916124999997},
+    {'hour': 17, 'average': 2180.403004, 'weighted_average': 2180.403004},
+    {'hour': 18, 'average': 1247.5549676666667, 'weighted_average': 1150.064991111111},
+    {'hour': 19, 'average': 1893.670112, 'weighted_average': 1846.835056},
+    {'hour': 20, 'average': 1260.5274689999999, 'weighted_average': 882.5520431111112},
+    {'hour': 21, 'average': 321.2004364, 'weighted_average': 167.68287844000002},
+    {'hour': 22, 'average': 788.0580233333334, 'weighted_average': 485.95434244444436},
+    {'hour': 23, 'average': 1691.089684, 'weighted_average': 1200.3779005000001}
+    ],
+   'Sunday': [
+    {'hour': 0, 'average': 1032.4122953333333,'weighted_average': 928.3704648888888},
+    {'hour': 1, 'average': 362.73706350000003, 'weighted_average': 316.84002525},
+    {'hour': 2, 'average': 1618.122263, 'weighted_average': 1618.122263},
+    {'hour': 3, 'average': 955.9736803333334, 'weighted_average': 535.0076343333334},
+    {'hour': 4, 'average': 2427.429971, 'weighted_average': 1892.7710550000002},
+    {'hour': 5, 'average': 1089.052493, 'weighted_average': 814.4980905},
+    {'hour': 6, 'average': 1349.5295214999999,'weighted_average': 1125.0406269999999},
+    {'hour': 7, 'average': 1077.726764, 'weighted_average': 898.6402762499999},
+    {'hour': 8, 'average': 1012.257491, 'weighted_average': 754.859665},
+    {'hour': 9, 'average': 448.539532, 'weighted_average': 399.70516775000004},
+    {'hour': 10, 'average': 1979.0759845, 'weighted_average': 1884.6136024999998},
+    {'hour': 11, 'average': 1733.629404666667, 'weighted_average': 1515.8608408888888},
+    {'hour': 12, 'average': 2979.0358535, 'weighted_average': 2389.51792675},
+    {'hour': 13, 'average': 2791.411482, 'weighted_average': 1985.89911075},
+    {'hour': 14, 'average': 2158.870784, 'weighted_average': 1258.870784},
+    {'hour': 15, 'average': 1375.663593, 'weighted_average': 1233.075914888889},
+    {'hour': 16, 'average': 2357.013095, 'weighted_average': 1857.7545355},
+    {'hour': 17, 'average': 183.5082585, 'weighted_average': 137.733105},
+    {'hour': 18, 'average': 179.4662985, 'weighted_average': 133.83644725},
+    {'hour': 19, 'average': 889.6012825, 'weighted_average': 754.737805},
+    {'hour': 20, 'average': 1441.5389995, 'weighted_average': 1301.5611815},
+    {'hour': 21, 'average': 466.1739156, 'weighted_average': 372.78667368000004},
+    {'hour': 22, 'average': 1995.865359, 'weighted_average': 1995.865359},
+    {'hour': 23, 'average': 270.1552665, 'weighted_average': 225.988842}
+    ],
+   'Thursday': [
+    {'hour': 0, 'average': 1912.8599956666667,'weighted_average': 1655.6700025555556},
+    {'hour': 1, 'average': 1273.1529316666667, 'weighted_average': 1149.042503},
+    {'hour': 2, 'average': 1071.2796713333335, 'weighted_average': 851.9161330000001},
+    {'hour': 3, 'average': 3436.582731, 'weighted_average': 3436.582731},
+    {'hour': 4, 'average': 298.678462, 'weighted_average': 240.36106866666668},
+    {'hour': 5, 'average': 172.7974265, 'weighted_average': 131.82934825},
+    {'hour': 6, 'average': 1709.1995435, 'weighted_average': 1480.0154389999998},
+    {'hour': 7, 'average': 547.4036195, 'weighted_average': 498.19303175},
+    {'hour': 9, 'average': 903.548506, 'weighted_average': 903.548506},
+    {'hour': 11, 'average': 2501.301487, 'weighted_average': 2501.301487},
+    {'hour': 12, 'average': 3600.0, 'weighted_average': 3600.0},
+    {'hour': 13, 'average': 3600.0, 'weighted_average': 3600.0},
+    {'hour': 14, 'average': 638.2757325, 'weighted_average': 453.198098},
+    {'hour': 15, 'average': 182.962525, 'weighted_average': 182.962525},
+    {'hour': 19, 'average': 1787.377255, 'weighted_average': 1787.377255},
+    {'hour': 20, 'average': 443.82428699999997, 'weighted_average': 262.6909745},
+    {'hour': 21, 'average': 98.9554645, 'weighted_average': 93.577695},
+    {'hour': 23, 'average': 1436.120873, 'weighted_average': 1436.120873}
+    ],
+   'Tuesday': [
+    {'hour': 0, 'average': 2440.3818275, 'weighted_average': 1855.0251435},
+    {'hour': 1, 'average': 223.84793224999999,'weighted_average': 122.46147893749999},
+    {'hour': 2, 'average': 363.921267, 'weighted_average': 363.921267},
+    {'hour': 3, 'average': 894.621002, 'weighted_average': 454.6748851111111},
+    {'hour': 4, 'average': 917.468388, 'weighted_average': 917.468388},
+    {'hour': 5, 'average': 177.385138, 'weighted_average': 177.385138},
+    {'hour': 6, 'average': 1069.6874675, 'weighted_average': 714.61371575},
+    {'hour': 7, 'average': 1098.18838, 'weighted_average': 1098.18838},
+    {'hour': 8, 'average': 1132.4774943333334, 'weighted_average': 633.0583822222221},
+    {'hour': 9, 'average': 2510.595886, 'weighted_average': 2155.297943},
+    {'hour': 10, 'average': 1088.1886803333334, 'weighted_average': 781.608941},
+    {'hour': 11, 'average': 1888.6714975, 'weighted_average': 993.49152925},
+    {'hour': 12, 'average': 3265.118949, 'weighted_average': 3265.118949},
+    {'hour': 13, 'average': 1876.147841, 'weighted_average': 1563.3083100000001},
+    {'hour': 14, 'average': 1901.6738100000002, 'weighted_average': 1585.615571},
+    {'hour': 15, 'average': 774.129928, 'weighted_average': 576.4501863333334},
+    {'hour': 16, 'average': 1899.7651799999999, 'weighted_average': 1400.31158225},
+    {'hour': 17, 'average': 714.818717, 'weighted_average': 374.63712499999997},
+    {'hour': 18, 'average': 911.4173195000001, 'weighted_average': 502.17420525},
+    {'hour': 19, 'average': 537.7289832499999, 'weighted_average': 256.8742913125},
+    {'hour': 20, 'average': 1962.787829, 'weighted_average': 1962.787829},
+    {'hour': 21, 'average': 2181.770989, 'weighted_average': 2181.770989},
+    {'hour': 22, 'average': 468.820947, 'weighted_average': 370.60420577777785},
+    {'hour': 23, 'average': 1266.7769106666665,'weighted_average': 840.6377354444444}
+    ],
+   'Wednesday': [
+    {'hour': 0, 'average': 1622.6867406666668,'weighted_average': 1139.758342888889},
+    {'hour': 1, 'average': 1264.9953320000002,'weighted_average': 1205.2882077777779},
+    {'hour': 2, 'average': 1616.2311710000001, 'weighted_average': 852.1393662500001},
+    {'hour': 3, 'average': 174.561243, 'weighted_average': 174.561243},
+    {'hour': 4, 'average': 1252.3617869999998,'weighted_average': 1206.8915809999999},
+    {'hour': 5, 'average': 727.2692873333334, 'weighted_average': 326.4067387777778},
+    {'hour': 6, 'average': 177.935904, 'weighted_average': 177.935904},
+    {'hour': 7, 'average': 446.404691, 'weighted_average': 267.8527625},
+    {'hour': 8, 'average': 186.864131, 'weighted_average': 186.864131},
+    {'hour': 9, 'average': 878.561516, 'weighted_average': 523.4718685},
+    {'hour': 10, 'average': 3600.0, 'weighted_average': 2700.0},
+    {'hour': 11, 'average': 2001.2881975, 'weighted_average': 1635.1621647499999},
+    {'hour': 12, 'average': 782.1535873333332, 'weighted_average': 422.3051204444444},
+    {'hour': 13, 'average': 2779.8522485, 'weighted_average': 2020.02839925},
+    {'hour': 14, 'average': 665.1239303333333, 'weighted_average': 461.02587422222217},
+    {'hour': 15, 'average': 993.5597065, 'weighted_average': 677.59835425},
+    {'hour': 16, 'average': 709.2666885, 'weighted_average': 663.8755729999999},
+    {'hour': 17, 'average': 900.595166, 'weighted_average': 491.22218699999996},
+    {'hour': 18, 'average': 1077.619989, 'weighted_average': 1072.45905175},
+    {'hour': 19, 'average': 140.48685925, 'weighted_average': 103.19024762500001},
+    {'hour': 20, 'average': 531.862722, 'weighted_average': 472.82566233333336},
+    {'hour': 21, 'average': 1021.4548306666667, 'weighted_average': 656.9063618888889},
+    {'hour': 22, 'average': 754.039571, 'weighted_average': 536.048732},
+    {'hour': 23, 'average': 1319.1194750000002,'weighted_average': 896.8244467777777}
+    ]
+  };
+  console.log(availability);
+
+  // process the data
+  for (var day in days) {
+    console.log(day);
+    let data = availability[days[day]];
+    for (var key in data) {
+      if (data.hasOwnProperty(key) && key == 'weighted_average') {
+        data[key] = Math.floor((data[key]/3600) * 100);
+      }
+    }
+
+    // sort in order by hour
+    data.sort(function(a, b) {
+      return a.hour - b.hour;
+    });
+
+    // move late/early hours to the back
+    // TODO: problem is this is shown by day starting at 6am, so the bars after midnight (12am) displayed are actually the early morning hours of the same day instead of the relevant ones the next day
+    let toBack = data.splice(0, 6);
+    data.push(...toBack);
+
+    console.log(data);
+  }
+
+
+  var svg = d3.select(".chart svg"),
+    margin = { top: 0, right: 0, bottom: 20, left: 0 },
+    x = d3.scaleBand().padding(0.1),
+    y = d3.scaleLinear(),
+    activeData = undefined;
+
+  var g = svg.append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+  g.append("g")
+    .attr("class", "axis axis--x");
+
+  g.append("g")
+    .attr("class", "axis axis--y");
+
+  // g.append("text")
+  //   .attr("transform", "rotate(-90)")
+  //   .attr("y", 6)
+  //   .attr("dy", "0.71em")
+  //   .attr("text-anchor", "end")
+  //   .text("Example Label");
+
+  var bounds, width, height;
+  var d = new Date();
+  var activeDay = d.getDay() - 1;
+  var activeHour = d.getHours();
+
+  console.log(bounds);
+  console.log(width, height);
+
+  // initialize chart and axis
+  function initialize(resize) {
+    if (!activeData)
+      setData();
+
+    bounds = svg.node().getBoundingClientRect();
+    width = bounds.width - margin.left - margin.right;
+    height = bounds.height - margin.top - margin.bottom;
+
+    x.domain(activeData.map(function (d) { return d.hour; }));
+    y.domain([0, 3600]); // d3.max(activeData, function (d) { return d.weighted_average })
+
+    x.rangeRound([0, width]);
+    y.rangeRound([height, 0]);
+
+    g.select(".axis--x")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x)
+        .tickSizeOuter(0)
+        .tickFormat(x => displayTime(x)));
+
+    update(resize);
+  }
+
+  // draw and redraw/update
+  function update(resize) {
+    const t = d3.transition()
+        .duration(750);
+
+    const bars = g.selectAll(".bar")
+      .data(activeData);
+
+    // exit
+    bars.exit()
+      .remove();
+
+    // enter
+    bars
+      .enter().append("rect")
+      .attr("class", function (d) { return "bar " + (activeHour == d.hour ? "active" : ""); })
+      .attr("width", x.bandwidth())
+      .attr("x", function (d) { return x(d.hour); })
+      .attr("y", height)
+      .attr("height", 0)
+      .attr("rx", 3)
+      .transition(t)
+      .delay(function (d, i) { return i*20; })
+      .attr("x", function (d) { return x(d.hour); })
+      .attr("y", function (d) { return y(d.weighted_average); })
+      .attr("height", function (d) { return height - y(d.weighted_average); });
+
+    // update
+    if (resize) {
+      bars
+        .attr("x", function (d) { return x(d.hour); })
+        .attr("y", function (d) { return y(d.weighted_average); })
+        .attr("width", x.bandwidth())
+        .attr("height", function (d) { return height - y(d.weighted_average); });
+    } else {
+      bars
+        .transition(t)
+        .delay(function (d, i) { return i*20; })
+        .attr("y", function (d) { return y(d.weighted_average); })
+        .attr("height", function (d) { return height - y(d.weighted_average); });
+    }
+  }
+
+
+  function displayTime(hour) {
+    if (hour % 4 == 0) {
+      if (hour == 0) {
+        return '12a';
+      } else if (hour == 12) {
+        return '12p';
+      } else if (hour < 12) {
+        return hour + 'a';
+      } else {
+        return (hour - 12) + 'p';
+      }
+    } else {
+      return '';
+    }
+  }
+
+  setTimeout(function() {
+    initialize();
+  }, 0);
+
+  function yesterday() {
+    activeDay--;
+    if (activeDay < 0)
+      activeDay = 6;
+    setData(true);
+  }
+  function tomorrow() {
+    activeDay++;
+    if (activeDay >= 7)
+      activeDay = 0;
+    setData(true);
+  }
+  function setData(redraw) {
+    document.getElementById("day").innerHTML = days[activeDay];
+    activeData = availability[days[activeDay]];
+    console.log(activeData);
+    if (redraw)
+      update();
+  }
+
+  window.addEventListener("resize", initialize, true);
+
+
+  // function preprocess(data) {
+  //   data = d3.shuffle([...data]);
+  //   return data.map((d) => ({ hour: d.hour, weighted_average: d.weighted_average }));
+  // }
+
+  // d3.interval(() => {
+  //   random();
+  // }, 5000);
+
+  // function random() {
+  //   activeData = preprocess(activeData);
+  //   console.log(activeData);
+  //   update();
+  // }
+
+
+  /*// var history = Object.keys(station.history).map(function(key) {
+      //   return Math.floor((station.history[key]/3600) * 100); // max 3600 seconds per hour
+      // })
+
+      var history = station.history.map(x => Math.floor((x/3600) * 100)); // max 3600 seconds per hour
+      console.log(history);
+
+      const HEIGHT = 100;
+      const INNER_HEIGHT = HEIGHT;// - 20;
+      const BAR_WIDTH = 12;
+      const BAR_GAP = 2;
+
+      function preprocess(data) {
+        // data = d3.shuffle([...data]);
+        return data.map((d, i) => ({ id: i, value: d }));
+      }
+
+      const scale = d3.scaleLinear()
+        .domain([0, 100]) // d3.max(history)
+        .range([0, INNER_HEIGHT]);
+
+      function y(d) {
+        return HEIGHT - scale(d.value);
+      }
+
+      function height(d) {
+        return scale(d.value);
+      }
+
+      const svg = d3.select(".chart").append("svg")
+          .attr("width", '100%')
+          .attr("height", HEIGHT)
+        .append("g");
+
+      // var x = d3.scaleTime()
+      //   .domain([
+      //     new Date(Date.parse('2014-01-01')),
+      //     new Date(Date.parse('2014-04-01'))
+      //   ])
+
+      // var xAxis = d3.axisBottom(x)
+      //   .ticks(4); // specify the number of ticks
+
+      // svg.append('g')            // create a <g> element
+      //   .attr('class', 'x axis') // specify classes
+      //   .call(xAxis);            // let the axis do its thing
+
+      // svg.select(".axis--y")
+      //   .call(d3.axisLeft(y).ticks(10, "%"));
+      // // add the x Axis
+      // svg.append("g")
+      //     .attr("transform", "translate(0," + height + ")")
+      //     .call(d3.axisBottom(scale));
+
+
+      function update(data) {
+        const t = d3.transition()
+            .duration(750);
+        
+        const bar = svg.selectAll("g")
+          .data(data, d => d.id);
+        
+        // EXIT section
+        bar
+          .exit()
+            .remove();
+        
+        // UPDATE section
+        bar
+          .transition(t)
+            .attr("transform", (d, i) => `translate(${i * (BAR_WIDTH + BAR_GAP)},${y(d)})`);
+        
+        bar.select("rect")
+          .transition(t)
+            .attr("height", height);
+        
+        bar.select("text")
+          .transition(t)
+            .tween("text", function(d) {
+              const v0 = this.textContent || "0";
+              const v1 = d.value;
+              const i = d3.interpolateRound(v0, v1);
+              return t => this.textContent = i(t);
+            });
+        
+        // ENTER section
+        const barEnter = bar
+          .enter().append("g")
+            .attr("class", "bar")
+            .attr("transform", (d, i) => `translate(${i * (BAR_WIDTH + BAR_GAP)},${INNER_HEIGHT})`);
+
+        barEnter
+          .transition(t)
+            .attr("transform", (d, i) => `translate(${i * (BAR_WIDTH + BAR_GAP)},${y(d)})`);
+        
+        const rect = barEnter.append("rect")
+            .attr("x", 0)
+            .attr("y", 0)
+            .attr("width", BAR_WIDTH)
+            .attr("height", 0);
+        
+        rect
+          .transition(t)
+            .attr("height", height);
+        
+        // const text = barEnter.append("text")
+        //     .text(d => d.value)
+        //     .attr("text-anchor", "middle")
+        //     .attr("dx", BAR_WIDTH / 2)
+        //     .attr("dy", -2);
+      }
+
+      // d3.interval(() => {
+        update(preprocess(history));
+      // }, 2000);*/
+
+</script>
+
