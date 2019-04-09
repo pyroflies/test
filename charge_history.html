@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+
+<html>
+
+<head>
+    <title>My First HTML Page</title>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:100,300,400" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.13.0/d3.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.js"></script>
+</head>
+
+<style>
+body {
+  /*background-color: black;*/
+  /*color: #fff;*/
+  font-family: 'Roboto', sans-serif;
+  color: #3a89ea;
+  background-color: #070d2f;
+  width: 1000px;
+  margin: 0 auto;
+}
+table {
+  width: 400px;
+  margin: 10% auto;
+  text-align: center;
+  font-size: 1.1em;
+}
+tr:nth-of-type(even) td {
+  background-color: #101854;
+}
+tr:nth-of-type(odd) td {
+  background-color: #141e67;
+}
+th {
+  font-size: 0.8em;
+  font-weight: bold;
+}
+td {
+  font-weight: 300;
+}
+th, td {
+  padding: 13px 0 14px;
+  text-shadow: 1px 1px 15px #5189b5;
+  border-bottom: 1px solid #3e4aa2;
+  margin: 0;
+}
+.units {
+  font-size: 0.7em;
+  padding-left: 2px;
+}
+</style>
+
+<body>
+
+  <table cellspacing="0">
+    <tr>
+      <th>Date</th>
+      <th>Charge Time</th> 
+      <th>Energy Added</th>
+      <th>Miles Added</th>
+    </tr>
+    <tr>
+      <td>3/03</td>
+      <td>2:15</td>
+      <td>32<span class="units">kW</span></td>
+      <td>54<span class="units">mi</span></td>
+    </tr>
+    <tr>
+      <td>3/02</td> 
+      <td>0:43</td>
+      <td>11<span class="units">kW</span></td>
+      <td>18<span class="units">mi</span></td>
+    </tr>
+    <tr>
+      <td>2/30</td>
+      <td>3:07</td>
+      <td>47<span class="units">kW</span></td>
+      <td>86<span class="units">mi</span></td>
+    </tr>
+    <tr>
+      <td>2/29</td>
+      <td>1:49</td>
+      <td>26<span class="units">kW</span></td>
+      <td>38<span class="units">mi</span></td>
+    </tr>
+    <tr>
+      <td>2/28</td>
+      <td>2:35</td>
+      <td>37<span class="units">kW</span></td>
+      <td>61<span class="units">mi</span></td>
+    </tr>
+  </table>
+
+</body>
+<script>
+</script>
+</html>
